@@ -1,25 +1,35 @@
 package main
 
 import (
-	"fmt"
+	"csgo/parser"
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
-	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 )
 
 const port string = ":8080"
 
-type message struct {
-	opcode  ws.OpCode
-	payload []byte
+func main() {
+	out := make(chan wsutil.Message)
+	in := make(chan wsutil.Message)
+	go handleMessages(in, out)
+
+	server(out, in)
 }
 
-func main() {
+func handleMessages(in chan wsutil.Message, out chan wsutil.Message) {
+	for msg := range in {
+		log.Printf("received '%v'", string(msg.Payload))
+		switch string(msg.Payload) {
+		case "parse":
+			go parse(out)
+		}
+	}
+}
+
+func server(out chan wsutil.Message, in chan wsutil.Message) {
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		temp, err := template.ParseFiles("templates/index.html")
 		if err != nil {
@@ -31,8 +41,6 @@ func main() {
 		}
 	})
 
-	out := make(chan message)
-	in := make(chan message)
 	http.HandleFunc("/ws", func(writer http.ResponseWriter, request *http.Request) {
 		conn, _, _, err := ws.UpgradeHTTP(request, writer)
 		if err != nil {
@@ -45,7 +53,7 @@ func main() {
 
 			for msg := range out {
 				log.Printf("Sending: '%v'\n", msg)
-				err = wsutil.WriteServerMessage(conn, msg.opcode, msg.payload)
+				err = wsutil.WriteServerMessage(conn, msg.OpCode, msg.Payload)
 				if err != nil {
 					log.Println(err)
 				}
@@ -61,10 +69,10 @@ func main() {
 				if err != nil {
 					log.Println(err)
 				}
-				log.Printf("received '%v'", msg)
-				in <- message{
-					opcode:  op,
-					payload: msg,
+				log.Println(msg)
+				in <- wsutil.Message{
+					OpCode:  op,
+					Payload: msg,
 				}
 			}
 		}()
@@ -73,33 +81,10 @@ func main() {
 	log.Fatal(http.ListenAndServe(port, nil))
 }
 
-func parse(out chan []byte) {
-	f, err := os.Open("d:\\cs\\demos\\1-2358b701-c4b8-4294-86e4-48dfb66eefa2-1-1.dem")
+func parse(out chan wsutil.Message) {
+	match, err := parser.Parse("/Users/mvala/Downloads/1-2bf4bbda-1138-42c6-80f1-d5152290a1f1-1-1.dem")
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
-	defer f.Close()
-
-	p := dem.NewParser(f)
-	defer p.Close()
-
-	// Register handler on kill events
-	p.RegisterEventHandler(func(e events.Kill) {
-		var hs string
-		if e.IsHeadshot {
-			hs = " (HS)"
-		}
-		var wallBang string
-		if e.PenetratedObjects > 0 {
-			wallBang = " (WB)"
-		}
-		fmt.Printf("%s <%v%s%s> %s\n", e.Killer, e.Weapon, hs, wallBang, e.Victim)
-		out <- []byte(fmt.Sprintf("%s <%v%s%s> %s\n", e.Killer, e.Weapon, hs, wallBang, e.Victim))
-	})
-
-	// Parse to end
-	err = p.ParseToEnd()
-	if err != nil {
-		panic(err)
-	}
+	log.Println(match)
 }
