@@ -2,8 +2,7 @@ package main
 
 import (
 	"csgo/parser"
-	"github.com/gobwas/ws"
-	"github.com/gobwas/ws/wsutil"
+	"github.com/gorilla/websocket"
 	"html/template"
 	"log"
 	"net/http"
@@ -12,25 +11,28 @@ import (
 const port string = ":8080"
 
 func main() {
-	out := make(chan wsutil.Message)
-	in := make(chan wsutil.Message)
+	out := make(chan []byte)
+	in := make(chan []byte)
 	go handleMessages(in, out)
 
 	server(out, in)
 }
 
-func handleMessages(in chan wsutil.Message, out chan wsutil.Message) {
+func handleMessages(in chan []byte, out chan []byte) {
 	for msg := range in {
-		log.Printf("received '%v'", string(msg.Payload))
-		switch string(msg.Payload) {
+		messageString := string(msg)
+		log.Printf("received '%v'", messageString)
+		switch string(messageString) {
 		case "parse":
 			go parse(out)
 		}
 	}
 }
 
-func server(out chan wsutil.Message, in chan wsutil.Message) {
-	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+func server(out chan []byte, in chan []byte) {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		temp, err := template.ParseFiles("templates/index.html")
 		if err != nil {
 			http.Error(writer, err.Error(), 500)
@@ -41,10 +43,16 @@ func server(out chan wsutil.Message, in chan wsutil.Message) {
 		}
 	})
 
-	http.HandleFunc("/ws", func(writer http.ResponseWriter, request *http.Request) {
-		conn, _, _, err := ws.UpgradeHTTP(request, writer)
+	fileserver := http.FileServer(http.Dir("./assets"))
+	mux.Handle("/assets/", http.StripPrefix("/assets", fileserver))
+
+	mux.HandleFunc("/ws", func(writer http.ResponseWriter, request *http.Request) {
+		// Upgrade our raw HTTP connection to a websocket based one
+		var upgrader = websocket.Upgrader{}
+		conn, err := upgrader.Upgrade(writer, request, nil)
 		if err != nil {
-			http.Error(writer, err.Error(), 500)
+			log.Print("Error during connection upgradation:", err)
+			return
 		}
 
 		// out routine
@@ -52,10 +60,10 @@ func server(out chan wsutil.Message, in chan wsutil.Message) {
 			defer conn.Close()
 
 			for msg := range out {
-				log.Printf("Sending: '%v'\n", msg)
-				err = wsutil.WriteServerMessage(conn, msg.OpCode, msg.Payload)
+				err = conn.WriteMessage(websocket.TextMessage, msg)
 				if err != nil {
-					log.Println(err)
+					log.Println("Error during message writing:", err)
+					break
 				}
 			}
 		}()
@@ -65,23 +73,20 @@ func server(out chan wsutil.Message, in chan wsutil.Message) {
 			defer conn.Close()
 
 			for {
-				msg, op, err := wsutil.ReadClientData(conn)
+				_, message, err := conn.ReadMessage()
 				if err != nil {
-					log.Println(err)
+					log.Println("Error during message reading:", err)
+					break
 				}
-				log.Println(msg)
-				in <- wsutil.Message{
-					OpCode:  op,
-					Payload: msg,
-				}
+				in <- message
 			}
 		}()
 	})
 	log.Println("Listening on ", port, " ...")
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Fatal(http.ListenAndServe(port, mux))
 }
 
-func parse(out chan wsutil.Message) {
+func parse(out chan []byte) {
 	match, err := parser.Parse("/Users/mvala/Downloads/1-2bf4bbda-1138-42c6-80f1-d5152290a1f1-1-1.dem")
 	if err != nil {
 		log.Fatalln(err)
