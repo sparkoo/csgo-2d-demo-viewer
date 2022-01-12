@@ -2,7 +2,10 @@ package main
 
 import (
 	"csgo/parser"
+	"fmt"
 	"github.com/gorilla/websocket"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 	"html/template"
 	"log"
 	"net/http"
@@ -87,9 +90,17 @@ func server(out chan []byte, in chan []byte) {
 }
 
 func parse(out chan []byte) {
-	match, err := parser.Parse("/Users/mvala/Downloads/1-2bf4bbda-1138-42c6-80f1-d5152290a1f1-1-1.dem")
+	err := parser.Parse("d:\\cs\\demos\\1-2358b701-c4b8-4294-86e4-48dfb66eefa2-1-1.dem", func(tick demoinfocs.GameState) {
+		if p, ok := tick.Participants().ByUserID()[11]; ok {
+			//log.Printf("player '%v', position '%v'", p, p.Position())
+			x, y := metadata.MapDeMirage.TranslateScale(p.Position().X, p.Position().Y)
+			x = x / 1024 * 100
+			y = y / 1024 * 100
+			out <- []byte(fmt.Sprintf("{\"x\": \"%v\", \"y\": \"%v\"}", x, y))
+
+		}
+	})
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Println(match)
 }

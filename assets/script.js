@@ -7,6 +7,11 @@ socket.onopen = function(e) {
 
 socket.onmessage = function(event) {
   console.log(`[message] Data received from server: ${event.data}`);
+  let position = JSON.parse(event.data)
+  console.log(`${position.x}`)
+  let player = document.getElementById('player11');
+  player.style.left=position.x + "%";
+  player.style.top=position.y + "%";
 };
 
 socket.onclose = function(event) {

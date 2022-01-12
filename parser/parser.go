@@ -3,35 +3,50 @@ package parser
 import (
 	"csgo/match"
 	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	"log"
 	"os"
 )
 
-func Parse(demoFile string) (*match.Match, error) {
-	parser := createParser(demoFile)
+func Parse(demoFile string, handler func(state dem.GameState)) error {
+	f, err := os.Open(demoFile)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	parser := dem.NewParser(f)
 	defer parser.Close()
 
-	parsedMatch, headerErr := parseHeader(parser)
-	if headerErr != nil {
-		return nil, headerErr
-	}
-
-	parsedMatch, matchErr := parseMatch(parser, parsedMatch)
+	matchErr := parseMatch(parser, handler)
 	if matchErr != nil {
-		return nil, matchErr
+		return matchErr
 	}
 
-	return parsedMatch, nil
+	return nil
 }
 
-func parseMatch(parser dem.Parser, parsedMatch *match.Match) (*match.Match, error) {
+func parseMatch(parser dem.Parser, handler func(state dem.GameState)) error {
+	gameStarted := false
+	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
+		log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
+		gameStarted = true
+	})
 	for {
 		more, err := parser.ParseNextFrame()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		if !more {
-			return parsedMatch, nil
+			log.Printf("ende")
+			return nil
 		}
+		if !gameStarted {
+			continue
+		}
+		tick := parser.GameState()
+		handler(tick)
+		return nil
 	}
 }
 
@@ -40,7 +55,6 @@ func createParser(demoFile string) dem.Parser {
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
 
 	return dem.NewParser(f)
 }
