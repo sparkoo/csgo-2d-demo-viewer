@@ -9,6 +9,7 @@ import (
 )
 
 func Parse(demoFile string, handler func(state dem.GameState)) error {
+	log.Printf("Parsing demo '%v'", demoFile)
 	f, err := os.Open(demoFile)
 	if err != nil {
 		panic(err)

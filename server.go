@@ -9,11 +9,17 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 )
 
 const port string = ":8080"
 
+var demoFile = "d:\\cs\\demos\\1-2358b701-c4b8-4294-86e4-48dfb66eefa2-1-1.dem"
+
 func main() {
+	if len(os.Args) > 1 {
+		demoFile = os.Args[1]
+	}
 	out := make(chan []byte)
 	in := make(chan []byte)
 	go handleMessages(in, out)
@@ -90,7 +96,7 @@ func server(out chan []byte, in chan []byte) {
 }
 
 func parse(out chan []byte) {
-	err := parser.Parse("d:\\cs\\demos\\1-2358b701-c4b8-4294-86e4-48dfb66eefa2-1-1.dem", func(tick demoinfocs.GameState) {
+	err := parser.Parse(demoFile, func(tick demoinfocs.GameState) {
 		if p, ok := tick.Participants().ByUserID()[11]; ok {
 			//log.Printf("player '%v', position '%v'", p, p.Position())
 			x, y := metadata.MapDeMirage.TranslateScale(p.Position().X, p.Position().Y)
