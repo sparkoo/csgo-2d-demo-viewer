@@ -2,7 +2,7 @@ let socket = new WebSocket("ws://localhost:8080/ws")
 
 socket.onopen = function(e) {
   console.log("[open] Connection established");
-  socket.send("My name is John");
+  socket.send("parse");
 };
 
 socket.onmessage = function(event) {
