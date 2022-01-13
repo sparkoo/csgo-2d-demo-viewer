@@ -10,11 +10,12 @@ import (
 type messageType int
 
 const (
-	InitType         messageType = 4
 	TeamUpdateType   messageType = 0
 	PlayerUpdateType messageType = 1
 	AddPlayerType    messageType = 2
 	RemovePlayerType messageType = 3
+	InitType         messageType = 4
+	DemoEndType      messageType = 5
 )
 
 type Message struct {
@@ -59,10 +60,10 @@ type Player struct {
 	Z        float64
 }
 
-func CreateTeamUpdateMessage(tick demoinfocs.GameState) *Message {
+func CreateTeamUpdateMessage(tick demoinfocs.GameState, parser demoinfocs.Parser) *Message {
 	return &Message{
 		MsgType: TeamUpdateType,
-		Tick:    tick.IngameTick(),
+		Tick:    parser.CurrentFrame(),
 		TeamUpdate: &TeamUpdate{
 			TName:   tick.TeamTerrorists().ClanName(),
 			TScore:  tick.TeamTerrorists().Score(),
@@ -72,14 +73,14 @@ func CreateTeamUpdateMessage(tick demoinfocs.GameState) *Message {
 	}
 }
 
-func CreateAddPlayerMessage(player *common.Player, tick demoinfocs.GameState, mapCS metadata.Map) *Message {
+func CreateAddPlayerMessage(player *common.Player, parser demoinfocs.Parser, mapCS metadata.Map) *Message {
 	position := player.Position()
 	x, y := mapCS.TranslateScale(position.X, position.Y)
 	x = x / 1024 * 100
 	y = y / 1024 * 100
 	return &Message{
 		MsgType: AddPlayerType,
-		Tick:    tick.IngameTick(),
+		Tick:    parser.CurrentFrame(),
 		AddPlayer: &AddPlayer{
 			&Player{
 				PlayerId: player.UserID,

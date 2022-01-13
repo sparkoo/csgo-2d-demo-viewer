@@ -50,12 +50,12 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	})
 	parser.RegisterEventHandler(func(e events.ScoreUpdated) {
 		tick := parser.GameState()
-		handler(message.CreateTeamUpdateMessage(tick), tick)
+		handler(message.CreateTeamUpdateMessage(tick, parser), tick)
 	})
 	parser.RegisterEventHandler(func(e events.PlayerConnect) {
 		if isActiveTeam(e.Player.Team) {
 			tick := parser.GameState()
-			handler(message.CreateAddPlayerMessage(e.Player, tick, mapCS), tick)
+			handler(message.CreateAddPlayerMessage(e.Player, parser, mapCS), tick)
 		}
 	})
 	parser.RegisterEventHandler(func(e events.PlayerDisconnected) {
@@ -69,7 +69,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	parser.RegisterEventHandler(func(e events.PlayerTeamChange) {
 		if isActiveTeam(e.Player.Team) {
 			tick := parser.GameState()
-			handler(message.CreateAddPlayerMessage(e.Player, tick, mapCS), tick)
+			handler(message.CreateAddPlayerMessage(e.Player, parser, mapCS), tick)
 		}
 	})
 	for {
@@ -79,6 +79,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		}
 		if !more {
 			log.Printf("ende")
+			handler(&message.Message{MsgType: message.DemoEndType, Tick: parser.CurrentFrame()}, parser.GameState())
 			return nil
 		}
 		if !gameStarted {
@@ -90,7 +91,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		}
 
 		tick := parser.GameState()
-		handler(createMessagePlayerUpdate(tick, &mapCS), tick)
+		handler(createMessagePlayerUpdate(tick, &mapCS, parser), tick)
 		//handler(tick)
 		//return nil
 	}
@@ -121,7 +122,7 @@ func parseHeader(parser dem.Parser) (*match.Match, error) {
 	}
 }
 
-func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map) *message.Message {
+func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map, parser dem.Parser) *message.Message {
 	msgPlayers := make([]message.Player, 0)
 	for _, p := range tick.TeamTerrorists().Members() {
 		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
@@ -132,7 +133,7 @@ func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map) *message
 
 	return &message.Message{
 		MsgType: message.PlayerUpdateType,
-		Tick:    tick.IngameTick(),
+		Tick:    parser.CurrentFrame(),
 		PlayerUpdate: &message.PlayerUpdate{
 			Players: msgPlayers,
 		},

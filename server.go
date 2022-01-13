@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 const port string = ":8080"
@@ -103,7 +102,6 @@ func parse(out chan []byte) {
 			log.Fatalln(err)
 		}
 		out <- payload
-		time.Sleep(100 * time.Millisecond)
 	})
 	if err != nil {
 		log.Fatalln(err)

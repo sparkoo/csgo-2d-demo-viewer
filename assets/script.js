@@ -1,38 +1,95 @@
 let socket = new WebSocket("ws://localhost:8080/ws")
 
-socket.onopen = function(e) {
+socket.onopen = function (e) {
   console.log("[open] Connection established");
   socket.send("parse");
 };
 
-socket.onmessage = function(event) {
+let messages = []
+
+socket.onmessage = function (event) {
   // console.log(`[message] Data received from server: ${event.data}`);
   let msg = JSON.parse(event.data)
 
-  switch (msg.msgType) {
-    case 0: handleTeamUpdate(msg.teamUpdate); break
-    case 1: playerUpdate(msg.playerUpdate); break
-    case 2: handleAddPlayer(msg.addPlayer); break
-    case 3: removePlayer(msg.removePlayer.PlayerId); break;
-    case 4: handleInitMessage(msg.init); break
-    default: console.log(`I don't know this message type ${msg.msgType}`); console.log(msg);
+  if (msg.msgType === 5) {
+    console.log("done, playing demo");
+    play();
+  } else {
+    if (!messages[msg.tick]) {
+      messages[msg.tick] = [];
+    }
+    messages[msg.tick].push(msg);
   }
-  // console.log(msg.MsgType)
-  // console.log(msg.TeamUpdate.TScore)
-  // let player = document.getElementById('player11');
-  // player.style.left=position.x + "%";
-  // player.style.top=position.y + "%";
+  // msg.foreach(function (msg) {
+  // });
+
+  // switch (msg.msgType) {
+  //   case 0: handleTeamUpdate(msg.teamUpdate); break
+  //   case 1: playerUpdate(msg.playerUpdate); break
+  //   case 2: handleAddPlayer(msg.addPlayer); break
+  //   case 3: removePlayer(msg.removePlayer.PlayerId); break;
+  //   case 4: handleInitMessage(msg.init); break
+  //   default: console.log(`I don't know this message type ${msg.msgType}`); console.log(msg);
+  // }
 };
 
-socket.onclose = function(event) {
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function play() {
+  const interval = 50;
+  let promise = Promise.resolve();
+
+  promise.then(function () {
+    console.log('Loop finished.');
+  });
+
+  messages.forEach(function (tickMessages) {
+    promise = promise.then(function () {
+      playTick(tickMessages);
+      return new Promise(function (resolve) {
+        setTimeout(resolve, interval);
+      });
+    });
+  })
+}
+
+function playTick(tickMessages) {
+  tickMessages.forEach(function (msg) {
+    switch (msg.msgType) {
+      case 0:
+        handleTeamUpdate(msg.teamUpdate);
+        break
+      case 1:
+        playerUpdate(msg.playerUpdate);
+        break
+      case 2:
+        handleAddPlayer(msg.addPlayer);
+        break
+      case 3:
+        removePlayer(msg.removePlayer.PlayerId);
+        break;
+      case 4:
+        handleInitMessage(msg.init);
+        break
+      default:
+        console.log(`I don't know this message type ${msg.msgType}`);
+        console.log(msg);
+    }
+  })
+}
+
+socket.onclose = function (event) {
   if (event.wasClean) {
-    console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+    console.log(
+        `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
   } else {
     console.log('[close] Connection died');
   }
 };
 
-socket.onerror = function(error) {
+socket.onerror = function (error) {
   console.log(`[error] ${error.message}`);
 };
 
@@ -54,19 +111,19 @@ function handleAddPlayer(msg) {
 
   document.getElementById(msg.Team + "List").appendChild(listItem);
 
-
   // add player to the map
   let mapItem = document.createElement("div");
-  mapItem.className=`player ${msg.Team}`;
+  mapItem.className = `player ${msg.Team}`;
   mapItem.id = `playerMap${msg.PlayerId}`;
-  mapItem.style.left=msg.X + "%";
-  mapItem.style.top=msg.Y + "%";
+  mapItem.style.left = msg.X + "%";
+  mapItem.style.top = msg.Y + "%";
   document.getElementById("map").appendChild(mapItem);
 }
 
 function handleInitMessage(msg) {
   console.log("init", msg);
-  document.getElementById("map").style.backgroundImage = `url(\"https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/${msg.mapName}.jpg\")`
+  document.getElementById(
+      "map").style.backgroundImage = `url(\"https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/${msg.mapName}.jpg\")`
 }
 
 function removePlayer(playerId) {
@@ -81,13 +138,14 @@ function removePlayer(playerId) {
   }
 }
 
-
 function playerUpdate(playerUpdate) {
   playerUpdate.Players.forEach(updatePlayer);
 
   function updatePlayer(player) {
     let mapItem = document.getElementById(`playerMap${player.PlayerId}`);
-    mapItem.style.left=player.X + "%";
-    mapItem.style.top=player.Y + "%";
+    if (mapItem) {
+      mapItem.style.left = player.X + "%";
+      mapItem.style.top = player.Y + "%";
+    }
   }
 }
