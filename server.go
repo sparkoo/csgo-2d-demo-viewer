@@ -96,8 +96,7 @@ func server(out chan []byte, in chan []byte) {
 }
 
 func parse(out chan []byte) {
-	err := parser.Parse(demoFile, func(tick demoinfocs.GameState) {
-		msg := message.CreateTeamUpdateMessage(tick)
+	err := parser.Parse(demoFile, func(msg *message.Message, tick demoinfocs.GameState) {
 		payload, err := json.Marshal(msg)
 		if err != nil {
 			log.Fatalln(err)

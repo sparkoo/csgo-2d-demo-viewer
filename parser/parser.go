@@ -2,13 +2,14 @@ package parser
 
 import (
 	"csgo/match"
+	"csgo/message"
 	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	"log"
 	"os"
 )
 
-func Parse(demoFile string, handler func(state dem.GameState)) error {
+func Parse(demoFile string, handler func(msg *message.Message, state dem.GameState)) error {
 	log.Printf("Parsing demo '%v'", demoFile)
 	f, err := os.Open(demoFile)
 	if err != nil {
@@ -27,13 +28,14 @@ func Parse(demoFile string, handler func(state dem.GameState)) error {
 	return nil
 }
 
-func parseMatch(parser dem.Parser, handler func(state dem.GameState)) error {
+func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.GameState)) error {
 	gameStarted := false
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		gameStarted = true
 		parser.RegisterEventHandler(func(e events.ScoreUpdated) {
-			handler(parser.GameState())
+			tick := parser.GameState()
+			handler(message.CreateTeamUpdateMessage(tick), tick)
 		})
 	})
 	for {

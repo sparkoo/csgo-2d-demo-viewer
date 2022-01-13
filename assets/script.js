@@ -8,9 +8,9 @@ socket.onopen = function(e) {
 socket.onmessage = function(event) {
   console.log(`[message] Data received from server: ${event.data}`);
   let msg = JSON.parse(event.data)
-  switch (msg.MsgType) {
-    case 0: handleTeamUpdate(msg.TeamUpdate); break
-    default: console.log(`I don't know this message type ${msg.MsgType}`);
+  switch (msg.msgType) {
+    case 0: handleTeamUpdate(msg.teamUpdate); break
+    default: console.log(`I don't know this message type ${msg.msgType}`);
   }
   // console.log(msg.MsgType)
   // console.log(msg.TeamUpdate.TScore)
