@@ -40,7 +40,7 @@ function handleTeamUpdate(msg) {
 }
 
 function handleAddPlayer(msg) {
-  console.log("Adding player", msg)
+  // add player to the list
   let playerListItemId = `playerListItem${msg.PlayerId}`;
   if (document.contains(document.getElementById(playerListItemId))) {
     document.getElementById(playerListItemId).remove();
@@ -51,4 +51,18 @@ function handleAddPlayer(msg) {
   listItem.innerHTML = `${msg.Name} (${msg.PlayerId})`;
 
   document.getElementById(msg.Team + "List").appendChild(listItem);
+
+
+  // add player to the map
+  let playerMapId = `playerMap${msg.PlayerId}`;
+  if (document.contains(document.getElementById(playerMapId))) {
+    document.getElementById(playerMapId).remove();
+  }
+
+  let mapItem = document.createElement("div");
+  mapItem.className=`player ${msg.Team}`;
+  mapItem.id = playerMapId;
+  mapItem.style.left=msg.X + "%";
+  mapItem.style.top=msg.Y + "%";
+  document.getElementById("map").appendChild(mapItem);
 }

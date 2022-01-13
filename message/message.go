@@ -3,6 +3,7 @@ package message
 import (
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 	"log"
 )
 
@@ -36,16 +37,16 @@ type PlayerUpdate struct {
 }
 
 type AddPlayer struct {
-	PlayerId int
-	Name     string
-	Team     string
+	*Player
 }
 
 type Player struct {
-	Name string
-	X    float64
-	Y    float64
-	Z    float64
+	PlayerId int
+	Name     string
+	Team     string
+	X        float64
+	Y        float64
+	Z        float64
 }
 
 func CreateTeamUpdateMessage(tick demoinfocs.GameState) *Message {
@@ -62,13 +63,22 @@ func CreateTeamUpdateMessage(tick demoinfocs.GameState) *Message {
 }
 
 func CreateAddPlayerMessage(player *common.Player, tick demoinfocs.GameState) *Message {
+	position := player.Position()
+	x, y := metadata.MapDeMirage.TranslateScale(position.X, position.Y)
+	x = x / 1024 * 100
+	y = y / 1024 * 100
 	return &Message{
 		MsgType: AddPlayerType,
 		Tick:    tick.IngameTick(),
 		AddPlayer: &AddPlayer{
-			PlayerId: player.UserID,
-			Name:     player.Name,
-			Team:     team(player.Team),
+			&Player{
+				PlayerId: player.UserID,
+				Name:     player.Name,
+				Team:     team(player.Team),
+				X:        x,
+				Y:        y,
+				Z:        position.Z,
+			},
 		},
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 const port string = ":8080"
@@ -102,14 +103,7 @@ func parse(out chan []byte) {
 			log.Fatalln(err)
 		}
 		out <- payload
-		//if p, ok := tick.Participants().ByUserID()[11]; ok {
-		//	//log.Printf("player '%v', position '%v'", p, p.Position())
-		//	x, y := metadata.MapDeMirage.TranslateScale(p.Position().X, p.Position().Y)
-		//	x = x / 1024 * 100
-		//	y = y / 1024 * 100
-		//	out <- []byte(fmt.Sprintf("{\"x\": \"%v\", \"y\": \"%v\"}", x, y))
-		//
-		//}
+		time.Sleep(100 * time.Millisecond)
 	})
 	if err != nil {
 		log.Fatalln(err)
