@@ -11,6 +11,7 @@ socket.onmessage = function(event) {
   switch (msg.msgType) {
     case 0: handleTeamUpdate(msg.teamUpdate); break
     case 2: handleAddPlayer(msg.addPlayer); break
+    case 4: handleInitMessage(msg.init); break
     default: console.log(`I don't know this message type ${msg.msgType}`); console.log(msg);
   }
   // console.log(msg.MsgType)
@@ -65,4 +66,9 @@ function handleAddPlayer(msg) {
   mapItem.style.left=msg.X + "%";
   mapItem.style.top=msg.Y + "%";
   document.getElementById("map").appendChild(mapItem);
+}
+
+function handleInitMessage(msg) {
+  console.log("init", msg);
+  document.getElementById("map").style.backgroundImage = `url(\"https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/${msg.mapName}.jpg\")`
 }

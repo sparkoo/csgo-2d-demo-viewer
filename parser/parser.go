@@ -6,6 +6,7 @@ import (
 	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 	"log"
 	"os"
 )
@@ -31,6 +32,18 @@ func Parse(demoFile string, handler func(msg *message.Message, state dem.GameSta
 
 func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.GameState)) error {
 	gameStarted := false
+	var mapCS metadata.Map
+
+	parser.ParseNextFrame()
+	mapCS = metadata.MapNameToMap[parser.Header().MapName]
+	handler(&message.Message{
+		MsgType: message.InitType,
+		Tick:    parser.CurrentFrame(),
+		Init: &message.Init{
+			MapName: mapCS.Name,
+		},
+	}, parser.GameState())
+
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		gameStarted = true
@@ -42,13 +55,13 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	parser.RegisterEventHandler(func(e events.PlayerConnect) {
 		if isActiveTeam(e.Player.Team) {
 			tick := parser.GameState()
-			handler(message.CreateAddPlayerMessage(e.Player, tick), tick)
+			handler(message.CreateAddPlayerMessage(e.Player, tick, mapCS), tick)
 		}
 	})
 	parser.RegisterEventHandler(func(e events.PlayerTeamChange) {
 		if isActiveTeam(e.Player.Team) {
 			tick := parser.GameState()
-			handler(message.CreateAddPlayerMessage(e.Player, tick), tick)
+			handler(message.CreateAddPlayerMessage(e.Player, tick, mapCS), tick)
 		}
 	})
 	for {

@@ -10,6 +10,7 @@ import (
 type messageType int
 
 const (
+	InitType         messageType = 4
 	TeamUpdateType   messageType = 0
 	PlayerUpdateType messageType = 1
 	AddPlayerType    messageType = 2
@@ -22,6 +23,11 @@ type Message struct {
 	*TeamUpdate   `json:"teamUpdate,omitempty"`
 	*PlayerUpdate `json:"playerUpdate,omitempty"`
 	*AddPlayer    `json:"addPlayer,omitempty"`
+	*Init         `json:"init,omitempty"`
+}
+
+type Init struct {
+	MapName string `json:"mapName"`
 }
 
 type TeamUpdate struct {
@@ -62,9 +68,9 @@ func CreateTeamUpdateMessage(tick demoinfocs.GameState) *Message {
 	}
 }
 
-func CreateAddPlayerMessage(player *common.Player, tick demoinfocs.GameState) *Message {
+func CreateAddPlayerMessage(player *common.Player, tick demoinfocs.GameState, mapCS metadata.Map) *Message {
 	position := player.Position()
-	x, y := metadata.MapDeMirage.TranslateScale(position.X, position.Y)
+	x, y := mapCS.TranslateScale(position.X, position.Y)
 	x = x / 1024 * 100
 	y = y / 1024 * 100
 	return &Message{
