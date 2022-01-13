@@ -7,11 +7,16 @@ socket.onopen = function(e) {
 
 socket.onmessage = function(event) {
   console.log(`[message] Data received from server: ${event.data}`);
-  let position = JSON.parse(event.data)
-  console.log(`${position.x}`)
-  let player = document.getElementById('player11');
-  player.style.left=position.x + "%";
-  player.style.top=position.y + "%";
+  let msg = JSON.parse(event.data)
+  switch (msg.MsgType) {
+    case 0: handleTeamUpdate(msg.TeamUpdate); break
+    default: console.log(`I don't know this message type ${msg.MsgType}`);
+  }
+  // console.log(msg.MsgType)
+  // console.log(msg.TeamUpdate.TScore)
+  // let player = document.getElementById('player11');
+  // player.style.left=position.x + "%";
+  // player.style.top=position.y + "%";
 };
 
 socket.onclose = function(event) {
@@ -25,3 +30,10 @@ socket.onclose = function(event) {
 socket.onerror = function(error) {
   console.log(`[error] ${error.message}`);
 };
+
+function handleTeamUpdate(msg) {
+  document.getElementById("TName").innerHTML = msg.TName
+  document.getElementById("CTName").innerHTML = msg.CTName
+  document.getElementById("TScore").innerHTML = msg.TScore
+  document.getElementById("CTScore").innerHTML = msg.CTScore
+}

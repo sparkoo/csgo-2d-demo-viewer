@@ -32,6 +32,9 @@ func parseMatch(parser dem.Parser, handler func(state dem.GameState)) error {
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		gameStarted = true
+		parser.RegisterEventHandler(func(e events.ScoreUpdated) {
+			handler(parser.GameState())
+		})
 	})
 	for {
 		more, err := parser.ParseNextFrame()
@@ -45,9 +48,9 @@ func parseMatch(parser dem.Parser, handler func(state dem.GameState)) error {
 		if !gameStarted {
 			continue
 		}
-		tick := parser.GameState()
-		handler(tick)
-		return nil
+		//tick := parser.GameState()
+		//handler(tick)
+		//return nil
 	}
 }
 

@@ -1,11 +1,11 @@
 package main
 
 import (
+	"csgo/message"
 	"csgo/parser"
-	"fmt"
+	"encoding/json"
 	"github.com/gorilla/websocket"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 	"html/template"
 	"log"
 	"net/http"
@@ -97,14 +97,20 @@ func server(out chan []byte, in chan []byte) {
 
 func parse(out chan []byte) {
 	err := parser.Parse(demoFile, func(tick demoinfocs.GameState) {
-		if p, ok := tick.Participants().ByUserID()[11]; ok {
-			//log.Printf("player '%v', position '%v'", p, p.Position())
-			x, y := metadata.MapDeMirage.TranslateScale(p.Position().X, p.Position().Y)
-			x = x / 1024 * 100
-			y = y / 1024 * 100
-			out <- []byte(fmt.Sprintf("{\"x\": \"%v\", \"y\": \"%v\"}", x, y))
-
+		msg := message.CreateTeamUpdateMessage(tick)
+		payload, err := json.Marshal(msg)
+		if err != nil {
+			log.Fatalln(err)
 		}
+		out <- payload
+		//if p, ok := tick.Participants().ByUserID()[11]; ok {
+		//	//log.Printf("player '%v', position '%v'", p, p.Position())
+		//	x, y := metadata.MapDeMirage.TranslateScale(p.Position().X, p.Position().Y)
+		//	x = x / 1024 * 100
+		//	y = y / 1024 * 100
+		//	out <- []byte(fmt.Sprintf("{\"x\": \"%v\", \"y\": \"%v\"}", x, y))
+		//
+		//}
 	})
 	if err != nil {
 		log.Fatalln(err)
