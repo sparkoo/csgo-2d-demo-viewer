@@ -1,3 +1,7 @@
+:root {
+  --TColor: #de9b35;
+  --CTColor: #5d79ae;
+}
 
 html, body {
   height: 100%;
@@ -46,13 +50,20 @@ html, body {
   position: absolute;
   top: 50%;
   left: 50%;
-  background-color: red;
+}
+
+.player.T {
+  background-color: var(--TColor);;
+}
+
+.player.CT {
+  background-color: var(--CTColor);
 }
 
 .T {
-  color: #de9b35;
+  color: var(--TColor);
 }
 
 .CT {
-  color: #5d79ae;
+  color: var(--CTColor);
 }

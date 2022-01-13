@@ -5,25 +5,27 @@ import "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 type messageType int
 
 const (
-	TeamUpdate   messageType = 0
-	PlayerUpdate messageType = 1
+	TeamUpdateType   messageType = 0
+	PlayerUpdateType messageType = 1
+	AddPlayerType    messageType = 2
+	RemovePlayerType messageType = 3
 )
 
 type Message struct {
-	MsgType      messageType          `json:"msgType"`
-	Tick         int                  `json:"tick"`
-	TeamUpdate   *MessageTeamUpdate   `json:"teamUpdate,omitempty"`
-	PlayerUpdate *MessagePlayerUpdate `json:"playerUpdate,omitempty"`
+	MsgType       messageType `json:"msgType"`
+	Tick          int         `json:"tick"`
+	*TeamUpdate   `json:"teamUpdate,omitempty"`
+	*PlayerUpdate `json:"playerUpdate,omitempty"`
 }
 
-type MessageTeamUpdate struct {
+type TeamUpdate struct {
 	TName   string
 	TScore  int
 	CTName  string
 	CTScore int
 }
 
-type MessagePlayerUpdate struct {
+type PlayerUpdate struct {
 	TPlayers  []Player
 	CTPlayers []Player
 }
@@ -37,9 +39,9 @@ type Player struct {
 
 func CreateTeamUpdateMessage(tick demoinfocs.GameState) *Message {
 	return &Message{
-		MsgType: TeamUpdate,
+		MsgType: TeamUpdateType,
 		Tick:    tick.IngameTick(),
-		TeamUpdate: &MessageTeamUpdate{
+		TeamUpdate: &TeamUpdate{
 			TName:   tick.TeamTerrorists().ClanName(),
 			TScore:  tick.TeamTerrorists().Score(),
 			CTName:  tick.TeamCounterTerrorists().ClanName(),
