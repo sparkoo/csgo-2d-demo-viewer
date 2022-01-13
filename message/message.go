@@ -1,6 +1,10 @@
 package message
 
-import "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+import (
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	"log"
+)
 
 type messageType int
 
@@ -16,6 +20,7 @@ type Message struct {
 	Tick          int         `json:"tick"`
 	*TeamUpdate   `json:"teamUpdate,omitempty"`
 	*PlayerUpdate `json:"playerUpdate,omitempty"`
+	*AddPlayer    `json:"addPlayer,omitempty"`
 }
 
 type TeamUpdate struct {
@@ -28,6 +33,12 @@ type TeamUpdate struct {
 type PlayerUpdate struct {
 	TPlayers  []Player
 	CTPlayers []Player
+}
+
+type AddPlayer struct {
+	PlayerId int
+	Name     string
+	Team     string
 }
 
 type Player struct {
@@ -48,4 +59,28 @@ func CreateTeamUpdateMessage(tick demoinfocs.GameState) *Message {
 			CTScore: tick.TeamCounterTerrorists().Score(),
 		},
 	}
+}
+
+func CreateAddPlayerMessage(player *common.Player, tick demoinfocs.GameState) *Message {
+	return &Message{
+		MsgType: AddPlayerType,
+		Tick:    tick.IngameTick(),
+		AddPlayer: &AddPlayer{
+			PlayerId: player.UserID,
+			Name:     player.Name,
+			Team:     team(player.Team),
+		},
+	}
+}
+
+func team(team common.Team) string {
+	switch team {
+	case common.TeamCounterTerrorists:
+		return "CT"
+	case common.TeamTerrorists:
+		return "T"
+	default:
+		log.Fatalf("I don't know the team '%v'. Should not get here.", team)
+	}
+	return ""
 }

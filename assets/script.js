@@ -6,11 +6,12 @@ socket.onopen = function(e) {
 };
 
 socket.onmessage = function(event) {
-  console.log(`[message] Data received from server: ${event.data}`);
+  // console.log(`[message] Data received from server: ${event.data}`);
   let msg = JSON.parse(event.data)
   switch (msg.msgType) {
     case 0: handleTeamUpdate(msg.teamUpdate); break
-    default: console.log(`I don't know this message type ${msg.msgType}`);
+    case 2: handleAddPlayer(msg.addPlayer); break
+    default: console.log(`I don't know this message type ${msg.msgType}`); console.log(msg);
   }
   // console.log(msg.MsgType)
   // console.log(msg.TeamUpdate.TScore)
@@ -36,4 +37,18 @@ function handleTeamUpdate(msg) {
   document.getElementById("CTName").innerHTML = msg.CTName
   document.getElementById("TScore").innerHTML = msg.TScore
   document.getElementById("CTScore").innerHTML = msg.CTScore
+}
+
+function handleAddPlayer(msg) {
+  console.log("Adding player", msg)
+  let playerListItemId = `playerListItem${msg.PlayerId}`;
+  if (document.contains(document.getElementById(playerListItemId))) {
+    document.getElementById(playerListItemId).remove();
+  }
+
+  let listItem = document.createElement("li");
+  listItem.id = playerListItemId;
+  listItem.innerHTML = `${msg.Name} (${msg.PlayerId})`;
+
+  document.getElementById(msg.Team + "List").appendChild(listItem);
 }

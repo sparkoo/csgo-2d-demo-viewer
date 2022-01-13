@@ -4,6 +4,7 @@ import (
 	"csgo/match"
 	"csgo/message"
 	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	"log"
 	"os"
@@ -33,10 +34,22 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		gameStarted = true
-		parser.RegisterEventHandler(func(e events.ScoreUpdated) {
+	})
+	parser.RegisterEventHandler(func(e events.ScoreUpdated) {
+		tick := parser.GameState()
+		handler(message.CreateTeamUpdateMessage(tick), tick)
+	})
+	parser.RegisterEventHandler(func(e events.PlayerConnect) {
+		if isActiveTeam(e.Player.Team) {
 			tick := parser.GameState()
-			handler(message.CreateTeamUpdateMessage(tick), tick)
-		})
+			handler(message.CreateAddPlayerMessage(e.Player, tick), tick)
+		}
+	})
+	parser.RegisterEventHandler(func(e events.PlayerTeamChange) {
+		if isActiveTeam(e.Player.Team) {
+			tick := parser.GameState()
+			handler(message.CreateAddPlayerMessage(e.Player, tick), tick)
+		}
 	})
 	for {
 		more, err := parser.ParseNextFrame()
@@ -54,6 +67,10 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		//handler(tick)
 		//return nil
 	}
+}
+
+func isActiveTeam(team common.Team) bool {
+	return team == 2 || team == 3
 }
 
 func createParser(demoFile string) dem.Parser {
