@@ -11,6 +11,7 @@ socket.onmessage = function(event) {
   switch (msg.msgType) {
     case 0: handleTeamUpdate(msg.teamUpdate); break
     case 2: handleAddPlayer(msg.addPlayer); break
+    case 3: removePlayer(msg.removePlayer.PlayerId); break;
     case 4: handleInitMessage(msg.init); break
     default: console.log(`I don't know this message type ${msg.msgType}`); console.log(msg);
   }
@@ -41,28 +42,21 @@ function handleTeamUpdate(msg) {
 }
 
 function handleAddPlayer(msg) {
-  // add player to the list
-  let playerListItemId = `playerListItem${msg.PlayerId}`;
-  if (document.contains(document.getElementById(playerListItemId))) {
-    document.getElementById(playerListItemId).remove();
-  }
+  // first remove the player to avoid duplicates
+  removePlayer(msg.PlayerId)
 
+  // add player to the list
   let listItem = document.createElement("li");
-  listItem.id = playerListItemId;
+  listItem.id = `playerListItem${msg.PlayerId}`;
   listItem.innerHTML = `${msg.Name} (${msg.PlayerId})`;
 
   document.getElementById(msg.Team + "List").appendChild(listItem);
 
 
   // add player to the map
-  let playerMapId = `playerMap${msg.PlayerId}`;
-  if (document.contains(document.getElementById(playerMapId))) {
-    document.getElementById(playerMapId).remove();
-  }
-
   let mapItem = document.createElement("div");
   mapItem.className=`player ${msg.Team}`;
-  mapItem.id = playerMapId;
+  mapItem.id = `playerMap${msg.PlayerId}`;
   mapItem.style.left=msg.X + "%";
   mapItem.style.top=msg.Y + "%";
   document.getElementById("map").appendChild(mapItem);
@@ -71,4 +65,16 @@ function handleAddPlayer(msg) {
 function handleInitMessage(msg) {
   console.log("init", msg);
   document.getElementById("map").style.backgroundImage = `url(\"https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/${msg.mapName}.jpg\")`
+}
+
+function removePlayer(playerId) {
+  let playerListItem = document.getElementById(`playerListItem${playerId}`)
+  if (document.contains(playerListItem)) {
+    playerListItem.remove();
+  }
+
+  let playerMap = document.getElementById(`playerMap${playerId}`)
+  if (document.contains(playerMap)) {
+    playerMap.remove();
+  }
 }

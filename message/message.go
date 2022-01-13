@@ -23,6 +23,7 @@ type Message struct {
 	*TeamUpdate   `json:"teamUpdate,omitempty"`
 	*PlayerUpdate `json:"playerUpdate,omitempty"`
 	*AddPlayer    `json:"addPlayer,omitempty"`
+	*RemovePlayer `json:"removePlayer,omitempty"`
 	*Init         `json:"init,omitempty"`
 }
 
@@ -44,6 +45,10 @@ type PlayerUpdate struct {
 
 type AddPlayer struct {
 	*Player
+}
+
+type RemovePlayer struct {
+	PlayerId int
 }
 
 type Player struct {

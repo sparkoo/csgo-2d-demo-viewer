@@ -58,6 +58,14 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			handler(message.CreateAddPlayerMessage(e.Player, tick, mapCS), tick)
 		}
 	})
+	parser.RegisterEventHandler(func(e events.PlayerDisconnected) {
+		tick := parser.GameState()
+		handler(&message.Message{
+			MsgType:      message.RemovePlayerType,
+			Tick:         parser.CurrentFrame(),
+			RemovePlayer: &message.RemovePlayer{PlayerId: e.Player.UserID},
+		}, tick)
+	})
 	parser.RegisterEventHandler(func(e events.PlayerTeamChange) {
 		if isActiveTeam(e.Player.Team) {
 			tick := parser.GameState()
