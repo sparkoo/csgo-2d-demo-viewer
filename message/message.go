@@ -39,8 +39,7 @@ type TeamUpdate struct {
 }
 
 type PlayerUpdate struct {
-	TPlayers  []Player
-	CTPlayers []Player
+	Players []Player
 }
 
 type AddPlayer struct {

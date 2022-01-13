@@ -8,8 +8,10 @@ socket.onopen = function(e) {
 socket.onmessage = function(event) {
   // console.log(`[message] Data received from server: ${event.data}`);
   let msg = JSON.parse(event.data)
+
   switch (msg.msgType) {
     case 0: handleTeamUpdate(msg.teamUpdate); break
+    case 1: playerUpdate(msg.playerUpdate); break
     case 2: handleAddPlayer(msg.addPlayer); break
     case 3: removePlayer(msg.removePlayer.PlayerId); break;
     case 4: handleInitMessage(msg.init); break
@@ -76,5 +78,16 @@ function removePlayer(playerId) {
   let playerMap = document.getElementById(`playerMap${playerId}`)
   if (document.contains(playerMap)) {
     playerMap.remove();
+  }
+}
+
+
+function playerUpdate(playerUpdate) {
+  playerUpdate.Players.forEach(updatePlayer);
+
+  function updatePlayer(player) {
+    let mapItem = document.getElementById(`playerMap${player.PlayerId}`);
+    mapItem.style.left=player.X + "%";
+    mapItem.style.top=player.Y + "%";
   }
 }

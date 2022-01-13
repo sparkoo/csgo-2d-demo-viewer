@@ -84,7 +84,13 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		if !gameStarted {
 			continue
 		}
-		//tick := parser.GameState()
+
+		if parser.CurrentFrame()%16 != 0 {
+			continue
+		}
+
+		tick := parser.GameState()
+		handler(createMessagePlayerUpdate(tick, &mapCS), tick)
 		//handler(tick)
 		//return nil
 	}
@@ -112,5 +118,37 @@ func parseHeader(parser dem.Parser) (*match.Match, error) {
 			Map:              header.MapName,
 			Ticks:            header.PlaybackTicks,
 		}, nil
+	}
+}
+
+func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map) *message.Message {
+	msgPlayers := make([]message.Player, 0)
+	for _, p := range tick.TeamTerrorists().Members() {
+		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
+	}
+	for _, p := range tick.TeamCounterTerrorists().Members() {
+		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
+	}
+
+	return &message.Message{
+		MsgType: message.PlayerUpdateType,
+		Tick:    tick.IngameTick(),
+		PlayerUpdate: &message.PlayerUpdate{
+			Players: msgPlayers,
+		},
+	}
+}
+
+func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
+	position := p.Position()
+	x, y := mapCS.TranslateScale(position.X, position.Y)
+	x = x / 1024 * 100
+	y = y / 1024 * 100
+	return message.Player{
+		PlayerId: p.UserID,
+		Name:     p.Name,
+		X:        x,
+		Y:        y,
+		Z:        p.Position().Z,
 	}
 }
