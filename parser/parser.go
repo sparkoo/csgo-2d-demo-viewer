@@ -48,6 +48,20 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		lastRoundStart: parser.CurrentTime(),
 	}
 
+	parser.RegisterEventHandler(func(e events.WeaponFire) {
+		x, y := translatePosition(e.Shooter, &mapCS)
+		roundMessage.Add(&message.Message{
+			MsgType: message.ShotType,
+			Tick:    parser.CurrentFrame(),
+			Shot: &message.Shot{
+				PlayerId: e.Shooter.UserID,
+				X:        x,
+				Y:        y,
+				Rotation: -(e.Shooter.ViewDirectionX() - 90.0),
+			},
+		})
+	})
+
 	parser.RegisterEventHandler(func(e events.RoundEnd) {
 		log.Printf("round end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 	})
@@ -216,10 +230,7 @@ func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map, parser d
 }
 
 func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
-	position := p.Position()
-	x, y := mapCS.TranslateScale(position.X, position.Y)
-	x = x / 1024 * 100
-	y = y / 1024 * 100
+	x, y := translatePosition(p, mapCS)
 
 	return message.Player{
 		PlayerId: p.UserID,
@@ -229,4 +240,12 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		Z:        p.Position().Z,
 		Rotation: -(p.ViewDirectionX() - 90.0),
 	}
+}
+
+func translatePosition(p *common.Player, mapCS *metadata.Map) (float64, float64) {
+	position := p.Position()
+	x, y := mapCS.TranslateScale(position.X, position.Y)
+	x = x / 1024 * 100
+	y = y / 1024 * 100
+	return x, y
 }

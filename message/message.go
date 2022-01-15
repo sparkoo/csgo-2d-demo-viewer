@@ -19,6 +19,7 @@ const (
 	RoundType        messageType = 6
 	LoadProgressType messageType = 7
 	TimeUpdateType   messageType = 8
+	ShotType         messageType = 9
 )
 
 type Message struct {
@@ -32,6 +33,7 @@ type Message struct {
 	*Round        `json:"round,omitempty"`
 	*Progress     `json:"progress,omitempty"`
 	*RoundTime    `json:"roundTime,omitempty"`
+	*Shot         `json:"shot,omitempty"`
 }
 
 type RoundTime struct {
@@ -72,6 +74,13 @@ type TeamUpdate struct {
 
 type PlayerUpdate struct {
 	Players []Player
+}
+
+type Shot struct {
+	PlayerId int
+	X        float64
+	Y        float64
+	Rotation float32
 }
 
 type AddPlayer struct {

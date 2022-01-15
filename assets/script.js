@@ -93,6 +93,9 @@ function playTick(tickMessages) {
       case 8:
         updateTime(msg.roundTime);
         break;
+      case 9:
+        handleShot(msg.shot);
+        break;
       default:
         console.log(`I don't know this message type ${msg.msgType}`);
         console.log(msg);
@@ -143,6 +146,7 @@ function handleAddPlayer(msg) {
   mapItemPlayer.style.top = msg.Y + "%";
 
   let playerArrowContainer = document.createElement("div");
+  playerArrowContainer.id = `playerContainer${msg.PlayerId}`;
   playerArrowContainer.className = `playerArrowContainer ${msg.Team}`;
 
   let playerArrow = document.createElement("div");
@@ -188,5 +192,24 @@ function playerUpdate(playerUpdate) {
     if (playerArrow) {
       playerArrow.style.transform = `rotate(${player.Rotation}deg) translateY(-35%)`;
     }
+
+    let playerShot = document.getElementById(`playerShot${player.PlayerId}`);
+    if (playerShot) {
+      playerShot.style.transform = `rotate(${player.Rotation}deg) translateY(-100%)`;
+    }
   }
+}
+
+function handleShot(shotMsg) {
+  console.log(shotMsg);
+  let shot = document.createElement("div");
+  shot.className = "playerShot";
+  shot.style.top = shotMsg.Y + "%";
+  shot.style.left = shotMsg.X + "%";
+  shot.style.transform = `rotate(${shotMsg.Rotation}deg) translateY(-100%)`
+
+  document.getElementById("map").appendChild(shot);
+  setTimeout(function () {
+    shot.style.transform = `rotate(${shotMsg.Rotation}deg) translateY(-1000%)`
+  }, 10)
 }

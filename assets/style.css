@@ -66,12 +66,20 @@ html, body {
   height: 100%;
   clip-path: polygon(50% 0%, 25% 50%, 75% 50%);
   margin: auto;
-  transform: rotate(-20deg) translateY(-35%);
+  position: absolute;
 }
 
 .playerArrowContainer {
   width: 100%;
   height: 100%;
+}
+
+.playerShot {
+  transition: 100ms linear;
+  width: 1px;
+  height: 10%;
+  background-color: white;
+  position: absolute;
 }
 
 .player.T, .playerArrow.T {
