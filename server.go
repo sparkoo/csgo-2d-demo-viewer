@@ -31,7 +31,7 @@ func handleMessages(in chan []byte, out chan []byte) {
 	for msg := range in {
 		messageString := string(msg)
 		log.Printf("received '%v'", messageString)
-		switch string(messageString) {
+		switch messageString {
 		case "parse":
 			go parse(out)
 		}

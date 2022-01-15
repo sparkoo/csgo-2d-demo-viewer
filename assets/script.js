@@ -6,13 +6,18 @@ socket.onopen = function (e) {
 };
 
 let messages = []
+let currentTickI = 0
+let playing = true
+let ticks = new Set()
 
 socket.onmessage = function (event) {
   // console.log(`[message] Data received from server: ${event.data}`);
   let msg = JSON.parse(event.data)
 
   switch (msg.msgType) {
-    case 5: console.log("done, playing demo");
+    case 5:
+      console.log("done loading, playing demo now");
+      document.getElementById("loadingProgress").remove()
       handleInitMessage(msg.init);
       play();
       break;
@@ -28,7 +33,8 @@ socket.onmessage = function (event) {
 };
 
 function updateLoadProgress(msg) {
-  document.getElementById("loadingProgress").setAttribute("value", msg.progress.Progress);
+  document.getElementById("loadingProgress").setAttribute("value",
+      msg.progress.Progress);
 }
 
 function addTick(msg) {
@@ -36,6 +42,11 @@ function addTick(msg) {
     messages[msg.tick] = [];
   }
   messages[msg.tick].push(msg);
+  ticks.add(msg.tick)
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function play() {
@@ -46,16 +57,19 @@ async function play() {
     console.log('Loop finished.');
   });
 
-  document.getElementById("loadingProgress").remove()
+  let tickArray = Array.from(ticks)
+  for (; currentTickI < tickArray.length && playing; currentTickI++) {
+    let tickMessages = messages[tickArray[currentTickI]]
+    playTick(tickMessages);
+    await sleep(interval);
+  }
+}
 
-  messages.forEach(function (tickMessages) {
-    promise = promise.then(function () {
-      playTick(tickMessages);
-      return new Promise(function (resolve) {
-        setTimeout(resolve, interval);
-      });
-    });
-  })
+function togglePlay() {
+  playing = !playing
+  if (playing) {
+    play()
+  }
 }
 
 function playTick(tickMessages) {
