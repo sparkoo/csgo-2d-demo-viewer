@@ -45,11 +45,16 @@ html, body {
 }
 
 .player {
-  width: 10px;
-  height: 10px;
+  /* scale size */
+  width: 2%;
+  height: 2%;
+  /* and center it */
+  margin-left: -1%;
+  margin-top: -1%;
+  /*make it round*/
+  border-radius: 50%;
+
   position: absolute;
-  top: 50%;
-  left: 50%;
 }
 
 .player.T {

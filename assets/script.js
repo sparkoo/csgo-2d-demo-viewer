@@ -15,6 +15,9 @@ socket.onmessage = function (event) {
   let msg = JSON.parse(event.data)
 
   switch (msg.msgType) {
+    case 4:
+      handleInitMessage(msg.init);
+      break
     case 5:
       console.log("done loading, playing demo now");
       document.getElementById("loadingProgress").remove()
@@ -76,7 +79,7 @@ function playTick(tickMessages) {
   tickMessages.forEach(function (msg) {
     switch (msg.msgType) {
       case 0:
-        handleTeamUpdate(msg.teamUpdate);
+        handleScoreUpdate(msg.teamUpdate);
         break
       case 1:
         playerUpdate(msg.playerUpdate);
@@ -87,9 +90,6 @@ function playTick(tickMessages) {
       case 3:
         removePlayer(msg.removePlayer.PlayerId);
         break;
-      case 4:
-        handleInitMessage(msg.init);
-        break
       case 8:
         updateTime(msg.roundTime);
         break;
@@ -113,7 +113,7 @@ socket.onerror = function (error) {
   console.log(`[error] ${error.message}`);
 };
 
-function handleTeamUpdate(msg) {
+function handleScoreUpdate(msg) {
   document.getElementById("TName").innerHTML = msg.TName
   document.getElementById("CTName").innerHTML = msg.CTName
   document.getElementById("TScore").innerHTML = msg.TScore
@@ -146,6 +146,8 @@ function handleAddPlayer(msg) {
 
 function handleInitMessage(msg) {
   console.log("init", msg);
+  document.getElementById("TName").innerHTML = msg.TName
+  document.getElementById("CTName").innerHTML = msg.CTName
   document.getElementById(
       "map").style.backgroundImage = `url(\"https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/${msg.mapName}.jpg\")`
 }

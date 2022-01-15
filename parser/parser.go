@@ -42,14 +42,6 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	var mapCS metadata.Map
 
 	parser.ParseNextFrame()
-	mapCS = metadata.MapNameToMap[parser.Header().MapName]
-	handler(&message.Message{
-		MsgType: message.InitType,
-		Tick:    parser.CurrentFrame(),
-		Init: &message.Init{
-			MapName: mapCS.Name,
-		},
-	}, parser.GameState())
 
 	roundMessage := message.NewRound()
 	currentRoundTimer := RoundTimer{
@@ -73,10 +65,25 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		log.Printf("round start '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		roundMessage = message.NewRound()
 		currentRoundTimer.lastRoundStart = parser.CurrentTime()
+		roundMessage.Add(message.CreateTeamUpdateMessage(parser.GameState(), parser))
 	})
 
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
+
+		if !gameStarted {
+			mapCS = metadata.MapNameToMap[parser.Header().MapName]
+			handler(&message.Message{
+				MsgType: message.InitType,
+				Tick:    parser.CurrentFrame(),
+				Init: &message.Init{
+					MapName: mapCS.Name,
+					CTName:  parser.GameState().TeamCounterTerrorists().ClanName(),
+					TName:   parser.GameState().TeamTerrorists().ClanName(),
+				},
+			}, parser.GameState())
+		}
+
 		gameStarted = true
 	})
 	parser.RegisterEventHandler(func(e events.ScoreUpdated) {
@@ -120,6 +127,8 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 				Tick:    parser.CurrentFrame(),
 				Init: &message.Init{
 					MapName: mapCS.Name,
+					CTName:  parser.GameState().TeamCounterTerrorists().ClanName(),
+					TName:   parser.GameState().TeamTerrorists().ClanName(),
 				}}, parser.GameState())
 			return nil
 		}

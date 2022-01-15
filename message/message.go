@@ -59,6 +59,8 @@ type Progress struct {
 
 type Init struct {
 	MapName string `json:"mapName"`
+	TName   string
+	CTName  string
 }
 
 type TeamUpdate struct {
@@ -115,9 +117,9 @@ func CreateAddPlayerMessage(player *common.Player, parser demoinfocs.Parser, map
 				PlayerId: player.UserID,
 				Name:     player.Name,
 				Team:     team(player.Team),
-				X:        x,
-				Y:        y,
-				Z:        position.Z,
+				X:        0,
+				Y:        0,
+				Z:        0,
 			},
 		},
 	}
