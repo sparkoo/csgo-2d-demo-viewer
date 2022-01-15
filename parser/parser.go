@@ -3,6 +3,7 @@ package parser
 import (
 	"csgo/match"
 	"csgo/message"
+	"fmt"
 	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
@@ -10,7 +11,12 @@ import (
 	"log"
 	"math"
 	"os"
+	"time"
 )
+
+type RoundTimer struct {
+	lastRoundStart time.Duration
+}
 
 func Parse(demoFile string, handler func(msg *message.Message, state dem.GameState)) error {
 	log.Printf("Parsing demo '%v'", demoFile)
@@ -46,6 +52,9 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	}, parser.GameState())
 
 	roundMessage := message.NewRound()
+	currentRoundTimer := RoundTimer{
+		lastRoundStart: parser.CurrentTime(),
+	}
 
 	parser.RegisterEventHandler(func(e events.RoundEnd) {
 		log.Printf("round end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
@@ -63,6 +72,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	parser.RegisterEventHandler(func(e events.RoundStart) {
 		log.Printf("round start '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		roundMessage = message.NewRound()
+		currentRoundTimer.lastRoundStart = parser.CurrentTime()
 	})
 
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
@@ -126,6 +136,19 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 					Progress: progressWholePercent,
 				},
 			}, parser.GameState())
+		}
+
+		if parser.CurrentFrame()%16 == 0 {
+			freezeTime, _ := parser.GameState().Rules().FreezeTime()
+			roundTime := parser.CurrentTime() - currentRoundTimer.lastRoundStart - freezeTime
+			minutes := int(roundTime.Minutes())
+			roundMessage.Add(&message.Message{
+				MsgType: message.TimeUpdateType,
+				Tick:    parser.CurrentFrame(),
+				RoundTime: &message.RoundTime{
+					RoundTime: fmt.Sprintf("%d:%02d", minutes, int(roundTime.Seconds())-(60*minutes)),
+				},
+			})
 		}
 
 		if parser.CurrentFrame()%16 != 0 {

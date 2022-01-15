@@ -67,3 +67,7 @@ html, body {
 .CT {
   color: var(--CTColor);
 }
+
+#timer {
+  color: #ccba7c;
+}

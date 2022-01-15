@@ -18,6 +18,7 @@ const (
 	DemoEndType      messageType = 5
 	RoundType        messageType = 6
 	LoadProgressType messageType = 7
+	TimeUpdateType   messageType = 8
 )
 
 type Message struct {
@@ -30,6 +31,12 @@ type Message struct {
 	*Init         `json:"init,omitempty"`
 	*Round        `json:"round,omitempty"`
 	*Progress     `json:"progress,omitempty"`
+	*RoundTime    `json:"roundTime,omitempty"`
+}
+
+type RoundTime struct {
+	RoundTime  string
+	FreezeTime int
 }
 
 type Round struct {

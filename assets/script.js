@@ -39,7 +39,7 @@ function addTick(msg) {
 }
 
 async function play() {
-  const interval = 50;
+  const interval = 10;
   let promise = Promise.resolve();
 
   promise.then(function () {
@@ -56,10 +56,6 @@ async function play() {
       });
     });
   })
-}
-
-function handleRound(msg) {
-
 }
 
 function playTick(tickMessages) {
@@ -80,6 +76,9 @@ function playTick(tickMessages) {
       case 4:
         handleInitMessage(msg.init);
         break
+      case 8:
+        updateTime(msg.roundTime);
+        break;
       default:
         console.log(`I don't know this message type ${msg.msgType}`);
         console.log(msg);
@@ -105,6 +104,10 @@ function handleTeamUpdate(msg) {
   document.getElementById("CTName").innerHTML = msg.CTName
   document.getElementById("TScore").innerHTML = msg.TScore
   document.getElementById("CTScore").innerHTML = msg.CTScore
+}
+
+function updateTime(roundTime) {
+  document.getElementById("timer").innerHTML = roundTime.RoundTime;
 }
 
 function handleAddPlayer(msg) {
