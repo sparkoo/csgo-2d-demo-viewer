@@ -53,7 +53,7 @@ function sleep(ms) {
 }
 
 async function play() {
-  const interval = 10;
+  const interval = 15;
   let promise = Promise.resolve();
 
   promise.then(function () {
@@ -136,12 +136,22 @@ function handleAddPlayer(msg) {
   document.getElementById(msg.Team + "List").appendChild(listItem);
 
   // add player to the map
-  let mapItem = document.createElement("div");
-  mapItem.className = `player ${msg.Team}`;
-  mapItem.id = `playerMap${msg.PlayerId}`;
-  mapItem.style.left = msg.X + "%";
-  mapItem.style.top = msg.Y + "%";
-  document.getElementById("map").appendChild(mapItem);
+  let mapItemPlayer = document.createElement("div");
+  mapItemPlayer.className = `player ${msg.Team}`;
+  mapItemPlayer.id = `playerMap${msg.PlayerId}`;
+  mapItemPlayer.style.left = msg.X + "%";
+  mapItemPlayer.style.top = msg.Y + "%";
+
+  let playerArrowContainer = document.createElement("div");
+  playerArrowContainer.className = `playerArrowContainer ${msg.Team}`;
+
+  let playerArrow = document.createElement("div");
+  playerArrow.id = `playerArrow${msg.PlayerId}`;
+  playerArrow.className = `playerArrow ${msg.Team}`;
+
+  playerArrowContainer.appendChild(playerArrow);
+  mapItemPlayer.appendChild(playerArrowContainer);
+  document.getElementById("map").appendChild(mapItemPlayer);
 }
 
 function handleInitMessage(msg) {
@@ -172,6 +182,11 @@ function playerUpdate(playerUpdate) {
     if (mapItem) {
       mapItem.style.left = player.X + "%";
       mapItem.style.top = player.Y + "%";
+    }
+
+    let playerArrow = document.getElementById(`playerArrow${player.PlayerId}`);
+    if (playerArrow) {
+      playerArrow.style.transform = `rotate(${player.Rotation}deg) translateY(-35%)`;
     }
   }
 }

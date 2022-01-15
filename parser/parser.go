@@ -160,7 +160,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			})
 		}
 
-		if parser.CurrentFrame()%16 != 0 {
+		if parser.CurrentFrame()%4 != 0 {
 			continue
 		}
 
@@ -220,11 +220,13 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 	x, y := mapCS.TranslateScale(position.X, position.Y)
 	x = x / 1024 * 100
 	y = y / 1024 * 100
+
 	return message.Player{
 		PlayerId: p.UserID,
 		Name:     p.Name,
 		X:        x,
 		Y:        y,
 		Z:        p.Position().Z,
+		Rotation: -(p.ViewDirectionX() - 90.0),
 	}
 }

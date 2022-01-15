@@ -89,6 +89,7 @@ type Player struct {
 	X        float64
 	Y        float64
 	Z        float64
+	Rotation float32
 }
 
 func CreateTeamUpdateMessage(tick demoinfocs.GameState, parser demoinfocs.Parser) *Message {
