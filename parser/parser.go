@@ -8,6 +8,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 	"log"
+	"math"
 	"os"
 )
 
@@ -104,16 +105,28 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		}
 		if !more {
 			log.Printf("ende")
-			handler(&message.Message{MsgType: message.DemoEndType, Tick: parser.CurrentFrame()}, parser.GameState())
+			handler(&message.Message{
+				MsgType: message.DemoEndType,
+				Tick:    parser.CurrentFrame(),
+				Init: &message.Init{
+					MapName: mapCS.Name,
+				}}, parser.GameState())
 			return nil
 		}
 		if !gameStarted {
 			continue
 		}
 
-		//if parser.CurrentFrame() % 1024 == 0 {
-		//	parser.Progress()
-		//}
+		if parser.CurrentFrame()%1024 == 0 {
+			progressWholePercent := int(math.Round(float64(parser.Progress()) * 100))
+			handler(&message.Message{
+				MsgType: message.LoadProgressType,
+				Tick:    parser.CurrentFrame(),
+				Progress: &message.Progress{
+					Progress: progressWholePercent,
+				},
+			}, parser.GameState())
+		}
 
 		if parser.CurrentFrame()%16 != 0 {
 			continue

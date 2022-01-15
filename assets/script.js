@@ -11,37 +11,31 @@ socket.onmessage = function (event) {
   // console.log(`[message] Data received from server: ${event.data}`);
   let msg = JSON.parse(event.data)
 
-  if (msg.msgType === 5) {
-    console.log("done, playing demo");
-    play();
-  } else if (msg.msgType === 6) {
-    msg.round.Ticks.forEach(function (msgTick) {
-      if (!messages[msgTick.tick]) {
-        messages[msgTick.tick] = [];
-      }
-      messages[msgTick.tick].push(msgTick);
-    })
-  } else {
-    if (!messages[msg.tick]) {
-      messages[msg.tick] = [];
-    }
-    messages[msg.tick].push(msg);
+  switch (msg.msgType) {
+    case 5: console.log("done, playing demo");
+      handleInitMessage(msg.init);
+      play();
+      break;
+    case 6:
+      msg.round.Ticks.forEach(addTick);
+      break;
+    case 7:
+      updateLoadProgress(msg);
+      break;
+    default:
+      addTick(msg)
   }
-  // msg.foreach(function (msg) {
-  // });
-
-  // switch (msg.msgType) {
-  //   case 0: handleTeamUpdate(msg.teamUpdate); break
-  //   case 1: playerUpdate(msg.playerUpdate); break
-  //   case 2: handleAddPlayer(msg.addPlayer); break
-  //   case 3: removePlayer(msg.removePlayer.PlayerId); break;
-  //   case 4: handleInitMessage(msg.init); break
-  //   default: console.log(`I don't know this message type ${msg.msgType}`); console.log(msg);
-  // }
 };
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+function updateLoadProgress(msg) {
+  document.getElementById("loadingProgress").setAttribute("value", msg.progress.Progress);
+}
+
+function addTick(msg) {
+  if (!messages[msg.tick]) {
+    messages[msg.tick] = [];
+  }
+  messages[msg.tick].push(msg);
 }
 
 async function play() {
@@ -51,6 +45,8 @@ async function play() {
   promise.then(function () {
     console.log('Loop finished.');
   });
+
+  document.getElementById("loadingProgress").remove()
 
   messages.forEach(function (tickMessages) {
     promise = promise.then(function () {

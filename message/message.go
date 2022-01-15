@@ -17,6 +17,7 @@ const (
 	InitType         messageType = 4
 	DemoEndType      messageType = 5
 	RoundType        messageType = 6
+	LoadProgressType messageType = 7
 )
 
 type Message struct {
@@ -28,6 +29,7 @@ type Message struct {
 	*RemovePlayer `json:"removePlayer,omitempty"`
 	*Init         `json:"init,omitempty"`
 	*Round        `json:"round,omitempty"`
+	*Progress     `json:"progress,omitempty"`
 }
 
 type Round struct {
@@ -42,6 +44,10 @@ func NewRound() *Round {
 
 func (r *Round) Add(message *Message) {
 	r.Ticks = append(r.Ticks, *message)
+}
+
+type Progress struct {
+	Progress int
 }
 
 type Init struct {

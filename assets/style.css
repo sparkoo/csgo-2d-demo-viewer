@@ -37,7 +37,7 @@ html, body {
   /*width: 100%;*/
   height: 100%;
   aspect-ratio: 1/1;
-  background-image: url("https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/de_mirage.jpg");
+  /*background-image: url("https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/de_mirage.jpg");*/
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
