@@ -16,6 +16,7 @@ const (
 	RemovePlayerType messageType = 3
 	InitType         messageType = 4
 	DemoEndType      messageType = 5
+	RoundType        messageType = 6
 )
 
 type Message struct {
@@ -26,6 +27,21 @@ type Message struct {
 	*AddPlayer    `json:"addPlayer,omitempty"`
 	*RemovePlayer `json:"removePlayer,omitempty"`
 	*Init         `json:"init,omitempty"`
+	*Round        `json:"round,omitempty"`
+}
+
+type Round struct {
+	Ticks []Message
+}
+
+func NewRound() *Round {
+	return &Round{
+		Ticks: make([]Message, 0),
+	}
+}
+
+func (r *Round) Add(message *Message) {
+	r.Ticks = append(r.Ticks, *message)
 }
 
 type Init struct {

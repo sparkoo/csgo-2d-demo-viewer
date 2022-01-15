@@ -44,30 +44,55 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		},
 	}, parser.GameState())
 
+	roundMessage := message.NewRound()
+
+	parser.RegisterEventHandler(func(e events.RoundEnd) {
+		log.Printf("round end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
+	})
+	parser.RegisterEventHandler(func(e events.RoundEndOfficial) {
+		log.Printf("round end offic '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
+		msg := &message.Message{
+			MsgType: message.RoundType,
+			Tick:    parser.CurrentFrame(),
+			Round:   roundMessage,
+		}
+		log.Printf("sending round '%+v', messages '%v'", msg, len(msg.Round.Ticks))
+		handler(msg, parser.GameState())
+	})
+	parser.RegisterEventHandler(func(e events.RoundStart) {
+		log.Printf("round start '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
+		roundMessage = message.NewRound()
+	})
+
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		gameStarted = true
 	})
 	parser.RegisterEventHandler(func(e events.ScoreUpdated) {
 		tick := parser.GameState()
-		handler(message.CreateTeamUpdateMessage(tick, parser), tick)
+		roundMessage.Add(message.CreateTeamUpdateMessage(tick, parser))
+		//handler(message.CreateTeamUpdateMessage(tick, parser), tick)
 	})
 	parser.RegisterEventHandler(func(e events.PlayerConnect) {
 		if isActiveTeam(e.Player.Team) {
+			//roundMessage.Add(message.CreateAddPlayerMessage(e.Player, parser, mapCS))
 			tick := parser.GameState()
 			handler(message.CreateAddPlayerMessage(e.Player, parser, mapCS), tick)
 		}
 	})
 	parser.RegisterEventHandler(func(e events.PlayerDisconnected) {
-		tick := parser.GameState()
-		handler(&message.Message{
+		message := &message.Message{
 			MsgType:      message.RemovePlayerType,
 			Tick:         parser.CurrentFrame(),
 			RemovePlayer: &message.RemovePlayer{PlayerId: e.Player.UserID},
-		}, tick)
+		}
+		roundMessage.Add(message)
+		//tick := parser.GameState()
+		//handler(message, tick)
 	})
 	parser.RegisterEventHandler(func(e events.PlayerTeamChange) {
 		if isActiveTeam(e.Player.Team) {
+			//roundMessage.Add(message.CreateAddPlayerMessage(e.Player, parser, mapCS))
 			tick := parser.GameState()
 			handler(message.CreateAddPlayerMessage(e.Player, parser, mapCS), tick)
 		}
@@ -86,12 +111,17 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			continue
 		}
 
+		//if parser.CurrentFrame() % 1024 == 0 {
+		//	parser.Progress()
+		//}
+
 		if parser.CurrentFrame()%16 != 0 {
 			continue
 		}
 
 		tick := parser.GameState()
-		handler(createMessagePlayerUpdate(tick, &mapCS, parser), tick)
+		roundMessage.Add(createMessagePlayerUpdate(tick, &mapCS, parser))
+		//handler(createMessagePlayerUpdate(tick, &mapCS, parser), tick)
 		//handler(tick)
 		//return nil
 	}

@@ -14,6 +14,13 @@ socket.onmessage = function (event) {
   if (msg.msgType === 5) {
     console.log("done, playing demo");
     play();
+  } else if (msg.msgType === 6) {
+    msg.round.Ticks.forEach(function (msgTick) {
+      if (!messages[msgTick.tick]) {
+        messages[msgTick.tick] = [];
+      }
+      messages[msgTick.tick].push(msgTick);
+    })
   } else {
     if (!messages[msg.tick]) {
       messages[msg.tick] = [];
@@ -53,6 +60,10 @@ async function play() {
       });
     });
   })
+}
+
+function handleRound(msg) {
+
 }
 
 function playTick(tickMessages) {
