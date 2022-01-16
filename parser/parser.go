@@ -218,10 +218,14 @@ func parseHeader(parser dem.Parser) (*match.Match, error) {
 func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map, parser dem.Parser) *message.Message {
 	msgPlayers := make([]message.Player, 0)
 	for _, p := range tick.TeamTerrorists().Members() {
-		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
+		if p.IsAlive() {
+			msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
+		}
 	}
 	for _, p := range tick.TeamCounterTerrorists().Members() {
-		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
+		if p.IsAlive() {
+			msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
+		}
 	}
 
 	return &message.Message{
