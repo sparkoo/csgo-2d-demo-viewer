@@ -21,6 +21,7 @@ const (
 	TimeUpdateType   messageType = 8
 	ShotType         messageType = 9
 	EmptyType        messageType = 10
+	KillType         messageType = 11
 )
 
 type Message struct {
@@ -35,6 +36,7 @@ type Message struct {
 	*Progress     `json:"progress,omitempty"`
 	*RoundTime    `json:"roundTime,omitempty"`
 	*Shot         `json:"shot,omitempty"`
+	*Kill         `json:"kill,omitempty"`
 }
 
 type RoundTime struct {
@@ -54,6 +56,10 @@ func NewRound() *Round {
 
 func (r *Round) Add(message *Message) {
 	r.Ticks = append(r.Ticks, *message)
+}
+
+type Kill struct {
+	VictimId int
 }
 
 type Progress struct {

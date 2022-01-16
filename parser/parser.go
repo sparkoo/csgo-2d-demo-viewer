@@ -62,6 +62,13 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		})
 	})
 
+	parser.RegisterEventHandler(func(e events.Kill) {
+		roundMessage.Add(&message.Message{
+			MsgType: message.KillType,
+			Tick:    parser.CurrentFrame(),
+			Kill:    &message.Kill{VictimId: e.Victim.UserID},
+		})
+	})
 	parser.RegisterEventHandler(func(e events.RoundEnd) {
 		log.Printf("round end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 	})

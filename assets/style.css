@@ -61,6 +61,11 @@ html, body {
 
   position: absolute;
   box-shadow: 0 0 15px 0 var(--BlackColor);
+  opacity: 1;
+}
+
+.player .dead {
+  opacity: .25;
 }
 
 .playerArrow {

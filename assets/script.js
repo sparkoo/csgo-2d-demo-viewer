@@ -80,6 +80,7 @@ function togglePlay() {
   }
 }
 
+
 function playTick(tickMessages) {
   tickMessages.forEach(function (msg) {
     switch (msg.msgType) {
@@ -101,6 +102,10 @@ function playTick(tickMessages) {
       case 9:
         handleShot(msg.shot);
         break;
+      case 11:
+        handleKill(msg.kill);
+        break;
+      case 10:break;
       default:
         console.log(`I don't know this message type ${msg.msgType}`);
         console.log(msg);
@@ -191,6 +196,7 @@ function playerUpdate(playerUpdate) {
     if (mapItem) {
       mapItem.style.left = player.X + "%";
       mapItem.style.top = player.Y + "%";
+      mapItem.style.opacity = "1";
     }
 
     let playerArrow = document.getElementById(`playerArrow${player.PlayerId}`);
@@ -206,7 +212,6 @@ function playerUpdate(playerUpdate) {
 }
 
 function handleShot(shotMsg) {
-  console.log(shotMsg);
   let shot = document.createElement("div");
   shot.className = "playerShot";
   shot.style.top = shotMsg.Y + "%";
@@ -220,4 +225,11 @@ function handleShot(shotMsg) {
   setTimeout(function () {
     shot.remove();
   }, 100)
+}
+
+function handleKill(kill) {
+  let player = document.getElementById(`playerMap${kill.VictimId}`);
+  if (player) {
+    player.style.opacity = ".2";
+  }
 }
