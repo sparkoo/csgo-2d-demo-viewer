@@ -190,7 +190,7 @@ function playerUpdate(playerUpdate) {
 
     let playerArrow = document.getElementById(`playerArrow${player.PlayerId}`);
     if (playerArrow) {
-      playerArrow.style.transform = `rotate(${player.Rotation}deg) translateY(-35%)`;
+      playerArrow.style.transform = `rotate(${player.Rotation}deg) translateY(-40%)`;
     }
 
     let playerShot = document.getElementById(`playerShot${player.PlayerId}`);
