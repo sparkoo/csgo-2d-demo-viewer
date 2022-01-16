@@ -163,7 +163,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 
 		if parser.CurrentFrame()%16 == 0 {
 			freezeTime, _ := parser.GameState().Rules().FreezeTime()
-			roundTime := parser.CurrentTime() - currentRoundTimer.lastRoundStart - freezeTime
+			roundTime := parser.CurrentTime() - currentRoundTimer.lastRoundStart - (freezeTime + 1)
 			minutes := int(roundTime.Minutes())
 			roundMessage.Add(&message.Message{
 				MsgType: message.TimeUpdateType,
@@ -175,6 +175,10 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		}
 
 		if parser.CurrentFrame()%4 != 0 {
+			roundMessage.Add(&message.Message{
+				MsgType: message.EmptyType,
+				Tick:    parser.CurrentFrame(),
+			})
 			continue
 		}
 

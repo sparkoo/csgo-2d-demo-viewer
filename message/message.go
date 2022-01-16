@@ -20,6 +20,7 @@ const (
 	LoadProgressType messageType = 7
 	TimeUpdateType   messageType = 8
 	ShotType         messageType = 9
+	EmptyType        messageType = 10
 )
 
 type Message struct {

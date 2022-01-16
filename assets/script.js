@@ -31,7 +31,7 @@ socket.onmessage = function (event) {
       updateLoadProgress(msg);
       break;
     default:
-      addTick(msg)
+      addTick(msg);
   }
 };
 
@@ -53,7 +53,7 @@ function sleep(ms) {
 }
 
 function play() {
-  const interval = 62;
+  const interval = 15;
   let promise = Promise.resolve();
 
   promise.then(function () {
