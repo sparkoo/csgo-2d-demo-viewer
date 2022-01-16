@@ -57,6 +57,8 @@ html, body {
   /*make it round*/
   border-radius: 50%;
 
+  transition: 60ms linear;
+
   position: absolute;
   box-shadow: 0 0 15px 0 var(--BlackColor);
 }
@@ -76,9 +78,10 @@ html, body {
 
 .playerShot {
   transition: 100ms linear;
+  transform-origin: top;
   width: 1px;
-  height: 10%;
-  background-color: white;
+  height: 5%;
+  background-color: gray;
   position: absolute;
 }
 

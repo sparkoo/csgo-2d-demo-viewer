@@ -52,8 +52,8 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function play() {
-  const interval = 15;
+function play() {
+  const interval = 62;
   let promise = Promise.resolve();
 
   promise.then(function () {
@@ -61,11 +61,16 @@ async function play() {
   });
 
   let tickArray = Array.from(ticks)
-  for (; currentTickI < tickArray.length && playing; currentTickI++) {
-    let tickMessages = messages[tickArray[currentTickI]]
-    playTick(tickMessages);
-    await sleep(interval);
-  }
+  let player = setInterval(function () {
+    if (currentTickI >= tickArray.length) {
+      playing = false;
+    }
+    if (!playing) {
+      clearInterval(player);
+    }
+    playTick(messages[tickArray[currentTickI]]);
+    currentTickI++
+  }, interval)
 }
 
 function togglePlay() {
@@ -210,6 +215,9 @@ function handleShot(shotMsg) {
 
   document.getElementById("map").appendChild(shot);
   setTimeout(function () {
-    shot.style.transform = `rotate(${shotMsg.Rotation}deg) translateY(-1000%)`
+    shot.style.transform = `rotate(${shotMsg.Rotation}deg) translateY(-500%)`
   }, 10)
+  setTimeout(function () {
+    shot.remove();
+  }, 100)
 }
