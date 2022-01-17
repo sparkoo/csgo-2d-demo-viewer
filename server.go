@@ -1,6 +1,7 @@
 package main
 
 import (
+	"csgo/faceit"
 	"csgo/message"
 	"csgo/parser"
 	"encoding/json"
@@ -42,7 +43,20 @@ func server(out chan []byte, in chan []byte) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		temp, err := template.ParseFiles("templates/index.html")
+		temp, err := template.ParseFiles("templates/list.html")
+		if err != nil {
+			http.Error(writer, err.Error(), 500)
+		}
+
+		if temp.Execute(writer, nil) != nil {
+			http.Error(writer, err.Error(), 500)
+		}
+
+		faceit.LoadPlayerMatches("d0a85a88-0f69-4671-8f5e-d6dd10b98168")
+	})
+
+	mux.HandleFunc("/player", func(writer http.ResponseWriter, request *http.Request) {
+		temp, err := template.ParseFiles("templates/player.html")
 		if err != nil {
 			http.Error(writer, err.Error(), 500)
 		}

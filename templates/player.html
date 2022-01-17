@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Hello</title>
-  <link rel="stylesheet" type="text/css" href="/assets/style.css" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  <link rel="stylesheet" type="text/css" href="/assets/style.css"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"/>
 </head>
 <body>
 <div class="grid-container">
@@ -15,13 +15,17 @@
     </div>
   </div>
   <div class="grid-item">
-    <div id="loadingProgress" class="w3-dark-gray w3-xlarge w3-left-align">
-      <div id="loadingProgressValue" class="w3-container w3-green">
-        parsing...
-      </div>
-    </div>
     <div class="w3-row">
-      <span id="timer" class="w3-large">0:00</span>
+      <div id="loadingProgress" class="w3-dark-gray w3-xlarge w3-left-align">
+        <div id="loadingProgressValue" class="w3-container w3-green">
+          parsing...
+        </div>
+      </div>
+      <div class="w3-xlarge w3-left-align">
+        <div id="timer" class="w3-container w3-green">
+          0:00
+        </div>
+      </div>
     </div>
     <button onclick="togglePlay()">&#x23EF;</button>
     <h3>

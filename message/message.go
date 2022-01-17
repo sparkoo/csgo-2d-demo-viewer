@@ -45,12 +45,18 @@ type RoundTime struct {
 }
 
 type Round struct {
-	Ticks []Message
+	RoundNo           int
+	RoundTookSeconds  int
+	StartTick         int
+	FreezetimeEndTick int
+	EndTick           int
+	Ticks             []Message
 }
 
-func NewRound() *Round {
+func NewRound(startTick int) *Round {
 	return &Round{
-		Ticks: make([]Message, 0),
+		StartTick: startTick,
+		Ticks:     make([]Message, 0),
 	}
 }
 

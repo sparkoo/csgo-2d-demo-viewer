@@ -43,7 +43,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 
 	parser.ParseNextFrame()
 
-	roundMessage := message.NewRound()
+	roundMessage := message.NewRound(parser.CurrentFrame())
 	currentRoundTimer := RoundTimer{
 		lastRoundStart: parser.CurrentTime(),
 	}
@@ -74,6 +74,9 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	})
 	parser.RegisterEventHandler(func(e events.RoundEndOfficial) {
 		log.Printf("round end offic '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
+		roundMessage.RoundTookSeconds = int((parser.CurrentTime() - currentRoundTimer.lastRoundStart).Seconds())
+		roundMessage.RoundNo = parser.GameState().TotalRoundsPlayed()
+		roundMessage.EndTick = parser.CurrentFrame()
 		msg := &message.Message{
 			MsgType: message.RoundType,
 			Tick:    parser.CurrentFrame(),
@@ -84,7 +87,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	})
 	parser.RegisterEventHandler(func(e events.RoundStart) {
 		log.Printf("round start '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
-		roundMessage = message.NewRound()
+		roundMessage = message.NewRound(parser.CurrentFrame())
 		currentRoundTimer.lastRoundStart = parser.CurrentTime()
 		roundMessage.Add(message.CreateTeamUpdateMessage(parser.GameState(), parser))
 	})
@@ -105,6 +108,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			}, parser.GameState())
 		}
 
+		roundMessage.FreezetimeEndTick = parser.CurrentFrame()
 		gameStarted = true
 	})
 	parser.RegisterEventHandler(func(e events.ScoreUpdated) {
