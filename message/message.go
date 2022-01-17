@@ -22,6 +22,7 @@ const (
 	ShotType         messageType = 9
 	EmptyType        messageType = 10
 	KillType         messageType = 11
+	ParseRequestType messageType = 12
 )
 
 type Message struct {
@@ -37,6 +38,11 @@ type Message struct {
 	*RoundTime    `json:"roundTime,omitempty"`
 	*Shot         `json:"shot,omitempty"`
 	*Kill         `json:"kill,omitempty"`
+	*Demo         `json:"demo,omitempty"`
+}
+
+type Demo struct {
+	filename string
 }
 
 type RoundTime struct {

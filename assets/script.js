@@ -2,14 +2,14 @@ let socket = new WebSocket("ws://localhost:8080/ws")
 
 socket.onopen = function (e) {
   console.log("[open] Connection established");
-  socket.send("parse");
+  const urlParams = new URLSearchParams(window.location.search);
+  socket.send(JSON.stringify({"msgType": 12, "filename": urlParams.get("demo")}));
 };
 
 let messages = []
 let currentTickI = 0
 let playing = true
 let ticks = new Set()
-
 
 let interval = 15;
 
@@ -84,7 +84,6 @@ function togglePlay() {
   }
 }
 
-
 function playTick(tickMessages) {
   tickMessages.forEach(function (msg) {
     switch (msg.msgType) {
@@ -109,7 +108,8 @@ function playTick(tickMessages) {
       case 11:
         handleKill(msg.kill);
         break;
-      case 10:break;
+      case 10:
+        break;
       default:
         console.log(`I don't know this message type ${msg.msgType}`);
         console.log(msg);

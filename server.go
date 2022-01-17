@@ -10,17 +10,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 )
 
 const port string = ":8080"
 
-var demoFile = "d:\\cs\\demos\\1-2358b701-c4b8-4294-86e4-48dfb66eefa2-1-1.dem"
-
 func main() {
-	if len(os.Args) > 1 {
-		demoFile = os.Args[1]
-	}
 	out := make(chan []byte)
 	in := make(chan []byte)
 	go handleMessages(in, out)
@@ -30,10 +24,13 @@ func main() {
 
 func handleMessages(in chan []byte, out chan []byte) {
 	for msg := range in {
-		messageString := string(msg)
-		log.Printf("received '%v'", messageString)
-		switch messageString {
-		case "parse":
+		var messageObj message.Message
+		err := json.Unmarshal(msg, &messageObj)
+		if err != nil {
+			log.Print("failed unmarshal websocket message", err)
+		}
+		switch messageObj.MsgType {
+		case message.ParseRequestType:
 			go parse(out)
 		}
 	}
@@ -71,7 +68,7 @@ func server(out chan []byte, in chan []byte) {
 
 	mux.HandleFunc("/ws", func(writer http.ResponseWriter, request *http.Request) {
 		// Upgrade our raw HTTP connection to a websocket based one
-		var upgrader = websocket.Upgrader{}
+		upgrader := websocket.Upgrader{}
 		conn, err := upgrader.Upgrade(writer, request, nil)
 		if err != nil {
 			log.Print("Error during connection upgradation:", err)
@@ -110,7 +107,7 @@ func server(out chan []byte, in chan []byte) {
 }
 
 func parse(out chan []byte) {
-	err := parser.Parse(demoFile, func(msg *message.Message, tick demoinfocs.GameState) {
+	err := parser.Parse("bla", func(msg *message.Message, tick demoinfocs.GameState) {
 		payload, err := json.Marshal(msg)
 		if err != nil {
 			log.Fatalln(err)
