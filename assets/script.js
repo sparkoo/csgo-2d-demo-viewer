@@ -10,6 +10,9 @@ let currentTickI = 0
 let playing = true
 let ticks = new Set()
 
+
+let interval = 15;
+
 socket.onmessage = function (event) {
   // console.log(`[message] Data received from server: ${event.data}`);
   let msg = JSON.parse(event.data)
@@ -36,8 +39,10 @@ socket.onmessage = function (event) {
 };
 
 function updateLoadProgress(msg) {
-  document.getElementById("loadingProgress").setAttribute("value",
-      msg.progress.Progress);
+  let progressValue = document.getElementById("loadingProgressValue");
+  if (progressValue) {
+    progressValue.style.width = `${msg.progress.Progress}%`;
+  }
 }
 
 function addTick(msg) {
@@ -53,7 +58,6 @@ function sleep(ms) {
 }
 
 function play() {
-  const interval = 15;
   let promise = Promise.resolve();
 
   promise.then(function () {

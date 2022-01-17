@@ -18,6 +18,7 @@ html, body {
   grid-template-columns: 60% 40%;
   grid-template-rows: auto;
   background-color: var(--BlackColor);
+  color: var(--LightColor) !important;
   margin: 0;
   padding: 0;
 
