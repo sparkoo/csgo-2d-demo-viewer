@@ -3,7 +3,13 @@ let socket = new WebSocket("ws://localhost:8080/ws")
 socket.onopen = function (e) {
   console.log("[open] Connection established");
   const urlParams = new URLSearchParams(window.location.search);
-  socket.send(JSON.stringify({"msgType": 12, "filename": urlParams.get("demo")}));
+  socket.send(JSON.stringify(
+      {
+        "msgType": 12,
+        "demo": {
+          "filename": urlParams.get("demo")
+        }
+      }));
 };
 
 let messages = []

@@ -42,7 +42,7 @@ type Message struct {
 }
 
 type Demo struct {
-	filename string
+	Filename string `json:"filename"`
 }
 
 type RoundTime struct {

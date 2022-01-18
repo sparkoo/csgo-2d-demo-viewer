@@ -1,10 +1,12 @@
 package main
 
 import (
+	"csgo/conf"
 	"csgo/faceit"
 	"csgo/message"
 	"csgo/parser"
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	"html/template"
@@ -14,7 +16,10 @@ import (
 
 const port string = ":8080"
 
+var config *conf.Conf
+
 func main() {
+	config = conf.ParseArgs()
 	out := make(chan []byte)
 	in := make(chan []byte)
 	go handleMessages(in, out)
@@ -31,7 +36,7 @@ func handleMessages(in chan []byte, out chan []byte) {
 		}
 		switch messageObj.MsgType {
 		case message.ParseRequestType:
-			go parse(out)
+			go parse(out, messageObj.Demo.Filename)
 		}
 	}
 }
@@ -106,8 +111,8 @@ func server(out chan []byte, in chan []byte) {
 	log.Fatal(http.ListenAndServe(port, mux))
 }
 
-func parse(out chan []byte) {
-	err := parser.Parse("bla", func(msg *message.Message, tick demoinfocs.GameState) {
+func parse(out chan []byte, demoFilename string) {
+	err := parser.Parse(fmt.Sprintf("%s/%s", config.Demodir, demoFilename), func(msg *message.Message, tick demoinfocs.GameState) {
 		payload, err := json.Marshal(msg)
 		if err != nil {
 			log.Fatalln(err)
