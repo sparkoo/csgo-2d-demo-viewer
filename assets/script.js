@@ -157,18 +157,9 @@ function togglePlay() {
 function playTick(tickMessages) {
   tickMessages.forEach(function (msg) {
     switch (msg.msgType) {
-        // case 0:
-        //   handleScoreUpdate(msg.teamUpdate);
-        //   break
       case 1:
         playerUpdate(msg.playerUpdate);
         break
-        // case 2:
-        //   handleAddPlayer(msg.addPlayer);
-        //   break
-        // case 3:
-        //   removePlayer(msg.removePlayer.PlayerId);
-        //   break;
       case 8:
         updateTime(msg.roundTime);
         break;
@@ -215,8 +206,13 @@ function handleAddPlayer(msg) {
   // if player is already there and in correct team, we do nothing
   // TODO: we should update stats when it's there
   let listItem = document.getElementById(
-      `${msg.Team}playerListItem${msg.PlayerId}`)
+      `playerListItem${msg.PlayerId}`)
   if (listItem) {
+    if (msg.Alive) {
+      listItem.style.opacity = "1"
+    } else {
+      listItem.style.opacity = ".5"
+    }
     return;
   }
 
@@ -225,7 +221,7 @@ function handleAddPlayer(msg) {
 
   // add player to the list
   listItem = document.createElement("li");
-  listItem.id = `${msg.Team}playerListItem${msg.PlayerId}`;
+  listItem.id = `playerListItem${msg.PlayerId}`;
   listItem.innerHTML = `${msg.Name} (${msg.PlayerId})`;
 
   document.getElementById(msg.Team + "List").appendChild(listItem);
@@ -259,6 +255,7 @@ function handleInitMessage(msg) {
 }
 
 function removePlayer(playerId) {
+  console.log("removing ", playerId)
   let playerListItem = document.getElementById(`playerListItem${playerId}`)
   if (document.contains(playerListItem)) {
     playerListItem.remove();
@@ -271,6 +268,7 @@ function removePlayer(playerId) {
 }
 
 function playerUpdate(playerUpdate) {
+  removeOrphanedPlayers(playerUpdate.Players);
   playerUpdate.Players.forEach(updatePlayer);
 
   function updatePlayer(player) {
@@ -280,19 +278,35 @@ function playerUpdate(playerUpdate) {
     if (mapItem) {
       mapItem.style.left = player.X + "%";
       mapItem.style.top = player.Y + "%";
-      mapItem.style.opacity = "1";
-    }
-
-    let playerArrow = document.getElementById(`playerArrow${player.PlayerId}`);
-    if (playerArrow) {
-      playerArrow.style.transform = `rotate(${player.Rotation}deg) translateY(-40%)`;
-    }
-
-    let playerShot = document.getElementById(`playerShot${player.PlayerId}`);
-    if (playerShot) {
-      playerShot.style.transform = `rotate(${player.Rotation}deg) translateY(-100%)`;
+      if (player.Alive) {
+        mapItem.style.opacity = "1";
+        let playerArrow = document.getElementById(`playerArrow${player.PlayerId}`);
+        if (playerArrow) {
+          playerArrow.style.transform = `rotate(${player.Rotation}deg) translateY(-40%)`;
+        }
+      } else {
+        mapItem.style.opacity = ".2";
+      }
     }
   }
+}
+
+function removeOrphanedPlayers(players) {
+  Array.from(document.getElementById("TList").children).forEach(function (playerItem) {
+    playerItem.classList.add("deletePlayer");
+  })
+  Array.from(document.getElementById("CTList").children).forEach(function (playerItem) {
+    playerItem.classList.add("deletePlayer");
+  })
+  players.forEach(function (player) {
+    let playerItem = document.getElementById(`playerListItem${player.PlayerId}`)
+    if (playerItem && playerItem.parentElement.classList.contains(player.Team)) {
+      playerItem.classList.remove("deletePlayer")
+    }
+  })
+  Array.from(document.getElementsByClassName("deletePlayer")).forEach(function (playerToDelete) {
+    removePlayer(playerToDelete.id.replace("playerListItem", ""))
+  })
 }
 
 function handleShot(shotMsg) {
@@ -312,8 +326,8 @@ function handleShot(shotMsg) {
 }
 
 function handleKill(kill) {
-  let player = document.getElementById(`playerMap${kill.VictimId}`);
-  if (player) {
-    player.style.opacity = ".2";
-  }
+  // let player = document.getElementById(`playerMap${kill.VictimId}`);
+  // if (player) {
+  //   player.style.opacity = ".2";
+  // }
 }

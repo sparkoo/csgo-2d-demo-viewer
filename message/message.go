@@ -115,6 +115,7 @@ type Player struct {
 	Y        float64
 	Z        float64
 	Rotation float32
+	Alive    bool
 }
 
 func CreateTeamUpdateMessage(tick demoinfocs.GameState) *TeamUpdate {

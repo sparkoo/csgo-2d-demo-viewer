@@ -3,6 +3,7 @@ package parser
 import (
 	"csgo/message"
 	"fmt"
+	"github.com/golang/geo/r3"
 	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
@@ -48,7 +49,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	}
 
 	parser.RegisterEventHandler(func(e events.WeaponFire) {
-		x, y := translatePosition(e.Shooter, &mapCS)
+		x, y := translatePosition(e.Shooter.Position(), &mapCS)
 		roundMessage.Add(&message.Message{
 			MsgType: message.ShotType,
 			Tick:    parser.CurrentFrame(),
@@ -174,14 +175,10 @@ func isActiveTeam(team common.Team) bool {
 func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map, parser dem.Parser) *message.Message {
 	msgPlayers := make([]message.Player, 0)
 	for _, p := range tick.TeamTerrorists().Members() {
-		if p.IsAlive() {
-			msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
-		}
+		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
 	}
 	for _, p := range tick.TeamCounterTerrorists().Members() {
-		if p.IsAlive() {
-			msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
-		}
+		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
 	}
 
 	return &message.Message{
@@ -194,7 +191,7 @@ func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map, parser d
 }
 
 func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
-	x, y := translatePosition(p, mapCS)
+	x, y := translatePosition(p.LastAlivePosition, mapCS)
 
 	return message.Player{
 		PlayerId: p.UserID,
@@ -204,11 +201,11 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		Y:        y,
 		Z:        p.Position().Z,
 		Rotation: -(p.ViewDirectionX() - 90.0),
+		Alive:    p.IsAlive(),
 	}
 }
 
-func translatePosition(p *common.Player, mapCS *metadata.Map) (float64, float64) {
-	position := p.Position()
+func translatePosition(position r3.Vector, mapCS *metadata.Map) (float64, float64) {
 	x, y := mapCS.TranslateScale(position.X, position.Y)
 	x = x / 1024 * 100
 	y = y / 1024 * 100
