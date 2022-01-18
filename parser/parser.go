@@ -70,6 +70,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	})
 	parser.RegisterEventHandler(func(e events.RoundEnd) {
 		log.Printf("round end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
+		roundMessage.Winner = team(e.Winner)
 	})
 	parser.RegisterEventHandler(func(e events.RoundEndOfficial) {
 		log.Printf("round end offic '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())

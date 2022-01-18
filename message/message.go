@@ -53,6 +53,7 @@ type Round struct {
 	EndTick           int
 	Ticks             []Message
 	TeamState         *TeamUpdate
+	Winner            string
 }
 
 func NewRound(startTick int) *Round {

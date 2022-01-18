@@ -35,6 +35,7 @@ socket.onmessage = function (event) {
       console.log("done loading, playing demo now");
       document.getElementById("loadingProgress").remove()
       handleInitMessage(msg.init);
+      initRounds();
       play();
       break;
     case 6:
@@ -64,6 +65,23 @@ function handleAddRound(roundMsg) {
 
   roundMsg.Ticks = roundTicks;
   rounds.push(roundMsg);
+}
+
+
+function initRounds() {
+  let roundNavBar = document.getElementById("roundNavBar");
+  rounds.forEach(function (round) {
+    //<a href="#" class="w3-button roundNav CT" onclick="playRound(0)">1</a>
+    let roundNavItem = document.createElement("a");
+    roundNavItem.href = "#"
+    roundNavItem.className=`w3-button roundNav ${round.Winner}`
+    roundNavItem.onclick = function() {
+      playRound(round.RoundNo)
+    }
+    roundNavItem.innerHTML = `${round.RoundNo}`
+
+    roundNavBar.appendChild(roundNavItem)
+  })
 }
 
 function updateLoadProgress(msg) {
