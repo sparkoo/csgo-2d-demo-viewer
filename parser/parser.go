@@ -84,15 +84,13 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		log.Printf("sending round '%+v', messages '%v'", msg, len(msg.Round.Ticks))
 		handler(msg, parser.GameState())
 	})
-	parser.RegisterEventHandler(func(e events.RoundStart) {
-		log.Printf("round start '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
-		roundMessage = message.NewRound(parser.CurrentFrame())
-		currentRoundTimer.lastRoundStart = parser.CurrentTime()
-		roundMessage.TeamState = message.CreateTeamUpdateMessage(parser.GameState())
-	})
 
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
+
+		roundMessage = message.NewRound(parser.CurrentFrame())
+		currentRoundTimer.lastRoundStart = parser.CurrentTime()
+		roundMessage.TeamState = message.CreateTeamUpdateMessage(parser.GameState())
 
 		if !gameStarted {
 			mapCS = metadata.MapNameToMap[parser.Header().MapName]
@@ -110,35 +108,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 
 		roundMessage.FreezetimeEndTick = parser.CurrentFrame()
 	})
-	//parser.RegisterEventHandler(func(e events.ScoreUpdated) {
-	//	tick := parser.GameState()
-	//	roundMessage.Add(message.CreateTeamUpdateMessage(tick, parser))
-	//	//handler(message.CreateTeamUpdateMessage(tick, parser), tick)
-	//})
-	//parser.RegisterEventHandler(func(e events.PlayerConnect) {
-	//	if isActiveTeam(e.Player.Team) {
-	//		//roundMessage.Add(message.CreateAddPlayerMessage(e.Player, parser, mapCS))
-	//		tick := parser.GameState()
-	//		handler(message.CreateAddPlayerMessage(e.Player, parser, mapCS), tick)
-	//	}
-	//})
-	//parser.RegisterEventHandler(func(e events.PlayerDisconnected) {
-	//message := &message.Message{
-	//	MsgType:      message.RemovePlayerType,
-	//	Tick:         parser.CurrentFrame(),
-	//	RemovePlayer: &message.RemovePlayer{PlayerId: e.Player.UserID},
-	//}
-	//roundMessage.Add(message)
-	//tick := parser.GameState()
-	//handler(message, tick)
-	//})
-	//parser.RegisterEventHandler(func(e events.PlayerTeamChange) {
-	//	if isActiveTeam(e.Player.Team) {
-	//		//roundMessage.Add(message.CreateAddPlayerMessage(e.Player, parser, mapCS))
-	//		tick := parser.GameState()
-	//		handler(message.CreateAddPlayerMessage(e.Player, parser, mapCS), tick)
-	//	}
-	//})
+
 	for {
 		more, err := parser.ParseNextFrame()
 		if err != nil {
@@ -172,8 +142,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		}
 
 		if parser.CurrentFrame()%16 == 0 {
-			freezeTime, _ := parser.GameState().Rules().FreezeTime()
-			roundTime := parser.CurrentTime() - currentRoundTimer.lastRoundStart - (freezeTime + 1)
+			roundTime := parser.CurrentTime() - currentRoundTimer.lastRoundStart
 			minutes := int(roundTime.Minutes())
 			roundMessage.Add(&message.Message{
 				MsgType: message.TimeUpdateType,
