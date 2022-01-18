@@ -2,18 +2,13 @@ package message
 
 import (
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
-	"log"
 )
 
 type messageType int
 
 const (
-	TeamUpdateType   messageType = 0
 	PlayerUpdateType messageType = 1
 	AddPlayerType    messageType = 2
-	RemovePlayerType messageType = 3
 	InitType         messageType = 4
 	DemoEndType      messageType = 5
 	RoundType        messageType = 6
@@ -57,6 +52,7 @@ type Round struct {
 	FreezetimeEndTick int
 	EndTick           int
 	Ticks             []Message
+	TeamState         *TeamUpdate
 }
 
 func NewRound(startTick int) *Round {
@@ -120,48 +116,11 @@ type Player struct {
 	Rotation float32
 }
 
-func CreateTeamUpdateMessage(tick demoinfocs.GameState, parser demoinfocs.Parser) *Message {
-	return &Message{
-		MsgType: TeamUpdateType,
-		Tick:    parser.CurrentFrame(),
-		TeamUpdate: &TeamUpdate{
-			TName:   tick.TeamTerrorists().ClanName(),
-			TScore:  tick.TeamTerrorists().Score(),
-			CTName:  tick.TeamCounterTerrorists().ClanName(),
-			CTScore: tick.TeamCounterTerrorists().Score(),
-		},
+func CreateTeamUpdateMessage(tick demoinfocs.GameState) *TeamUpdate {
+	return &TeamUpdate{
+		TName:   tick.TeamTerrorists().ClanName(),
+		TScore:  tick.TeamTerrorists().Score(),
+		CTName:  tick.TeamCounterTerrorists().ClanName(),
+		CTScore: tick.TeamCounterTerrorists().Score(),
 	}
-}
-
-func CreateAddPlayerMessage(player *common.Player, parser demoinfocs.Parser, mapCS metadata.Map) *Message {
-	position := player.Position()
-	x, y := mapCS.TranslateScale(position.X, position.Y)
-	x = x / 1024 * 100
-	y = y / 1024 * 100
-	return &Message{
-		MsgType: AddPlayerType,
-		Tick:    parser.CurrentFrame(),
-		AddPlayer: &AddPlayer{
-			&Player{
-				PlayerId: player.UserID,
-				Name:     player.Name,
-				Team:     team(player.Team),
-				X:        0,
-				Y:        0,
-				Z:        0,
-			},
-		},
-	}
-}
-
-func team(team common.Team) string {
-	switch team {
-	case common.TeamCounterTerrorists:
-		return "CT"
-	case common.TeamTerrorists:
-		return "T"
-	default:
-		log.Fatalf("I don't know the team '%v'. Should not get here.", team)
-	}
-	return ""
 }

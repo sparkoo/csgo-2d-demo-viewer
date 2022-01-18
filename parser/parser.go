@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"csgo/match"
 	"csgo/message"
 	"fmt"
 	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
@@ -89,7 +88,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		log.Printf("round start '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		roundMessage = message.NewRound(parser.CurrentFrame())
 		currentRoundTimer.lastRoundStart = parser.CurrentTime()
-		roundMessage.Add(message.CreateTeamUpdateMessage(parser.GameState(), parser))
+		roundMessage.TeamState = message.CreateTeamUpdateMessage(parser.GameState())
 	})
 
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
@@ -106,40 +105,40 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 					TName:   parser.GameState().TeamTerrorists().ClanName(),
 				},
 			}, parser.GameState())
+			gameStarted = true
 		}
 
 		roundMessage.FreezetimeEndTick = parser.CurrentFrame()
-		gameStarted = true
 	})
-	parser.RegisterEventHandler(func(e events.ScoreUpdated) {
-		tick := parser.GameState()
-		roundMessage.Add(message.CreateTeamUpdateMessage(tick, parser))
-		//handler(message.CreateTeamUpdateMessage(tick, parser), tick)
-	})
-	parser.RegisterEventHandler(func(e events.PlayerConnect) {
-		if isActiveTeam(e.Player.Team) {
-			//roundMessage.Add(message.CreateAddPlayerMessage(e.Player, parser, mapCS))
-			tick := parser.GameState()
-			handler(message.CreateAddPlayerMessage(e.Player, parser, mapCS), tick)
-		}
-	})
-	parser.RegisterEventHandler(func(e events.PlayerDisconnected) {
-		message := &message.Message{
-			MsgType:      message.RemovePlayerType,
-			Tick:         parser.CurrentFrame(),
-			RemovePlayer: &message.RemovePlayer{PlayerId: e.Player.UserID},
-		}
-		roundMessage.Add(message)
-		//tick := parser.GameState()
-		//handler(message, tick)
-	})
-	parser.RegisterEventHandler(func(e events.PlayerTeamChange) {
-		if isActiveTeam(e.Player.Team) {
-			//roundMessage.Add(message.CreateAddPlayerMessage(e.Player, parser, mapCS))
-			tick := parser.GameState()
-			handler(message.CreateAddPlayerMessage(e.Player, parser, mapCS), tick)
-		}
-	})
+	//parser.RegisterEventHandler(func(e events.ScoreUpdated) {
+	//	tick := parser.GameState()
+	//	roundMessage.Add(message.CreateTeamUpdateMessage(tick, parser))
+	//	//handler(message.CreateTeamUpdateMessage(tick, parser), tick)
+	//})
+	//parser.RegisterEventHandler(func(e events.PlayerConnect) {
+	//	if isActiveTeam(e.Player.Team) {
+	//		//roundMessage.Add(message.CreateAddPlayerMessage(e.Player, parser, mapCS))
+	//		tick := parser.GameState()
+	//		handler(message.CreateAddPlayerMessage(e.Player, parser, mapCS), tick)
+	//	}
+	//})
+	//parser.RegisterEventHandler(func(e events.PlayerDisconnected) {
+	//message := &message.Message{
+	//	MsgType:      message.RemovePlayerType,
+	//	Tick:         parser.CurrentFrame(),
+	//	RemovePlayer: &message.RemovePlayer{PlayerId: e.Player.UserID},
+	//}
+	//roundMessage.Add(message)
+	//tick := parser.GameState()
+	//handler(message, tick)
+	//})
+	//parser.RegisterEventHandler(func(e events.PlayerTeamChange) {
+	//	if isActiveTeam(e.Player.Team) {
+	//		//roundMessage.Add(message.CreateAddPlayerMessage(e.Player, parser, mapCS))
+	//		tick := parser.GameState()
+	//		handler(message.CreateAddPlayerMessage(e.Player, parser, mapCS), tick)
+	//	}
+	//})
 	for {
 		more, err := parser.ParseNextFrame()
 		if err != nil {
@@ -195,35 +194,11 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 
 		tick := parser.GameState()
 		roundMessage.Add(createMessagePlayerUpdate(tick, &mapCS, parser))
-		//handler(createMessagePlayerUpdate(tick, &mapCS, parser), tick)
-		//handler(tick)
-		//return nil
 	}
 }
 
 func isActiveTeam(team common.Team) bool {
 	return team == 2 || team == 3
-}
-
-func createParser(demoFile string) dem.Parser {
-	f, err := os.Open(demoFile)
-	if err != nil {
-		panic(err)
-	}
-
-	return dem.NewParser(f)
-}
-
-func parseHeader(parser dem.Parser) (*match.Match, error) {
-	if header, err := parser.ParseHeader(); err != nil {
-		return nil, err
-	} else {
-		return &match.Match{
-			OriginalTickrate: header.FrameRate(),
-			Map:              header.MapName,
-			Ticks:            header.PlaybackTicks,
-		}, nil
-	}
 }
 
 func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map, parser dem.Parser) *message.Message {
@@ -254,6 +229,7 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 	return message.Player{
 		PlayerId: p.UserID,
 		Name:     p.Name,
+		Team:     team(p.Team),
 		X:        x,
 		Y:        y,
 		Z:        p.Position().Z,
@@ -267,4 +243,16 @@ func translatePosition(p *common.Player, mapCS *metadata.Map) (float64, float64)
 	x = x / 1024 * 100
 	y = y / 1024 * 100
 	return x, y
+}
+
+func team(team common.Team) string {
+	switch team {
+	case common.TeamCounterTerrorists:
+		return "CT"
+	case common.TeamTerrorists:
+		return "T"
+	default:
+		log.Fatalf("I don't know the team '%v'. Should not get here.", team)
+	}
+	return ""
 }

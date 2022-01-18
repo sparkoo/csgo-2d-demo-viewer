@@ -17,6 +17,10 @@ let currentTickI = 0
 let playing = true
 let ticks = new Set()
 
+let rounds = []
+let playingRoundI = 0
+let playingTickI = 0
+
 let interval = 15;
 
 socket.onmessage = function (event) {
@@ -34,7 +38,8 @@ socket.onmessage = function (event) {
       play();
       break;
     case 6:
-      msg.round.Ticks.forEach(addTick);
+      handleAddRound(msg.round)
+      // msg.round.Ticks.forEach(addTick);
       break;
     case 7:
       updateLoadProgress(msg);
@@ -43,6 +48,23 @@ socket.onmessage = function (event) {
       addTick(msg);
   }
 };
+
+function handleAddRound(roundMsg) {
+  let roundTicks = []
+  let tickMessages = []
+  let currentTick = roundMsg.Ticks[0].tick
+  roundMsg.Ticks.forEach(function (tick) {
+    if (tick.tick !== currentTick) {
+      roundTicks.push(tickMessages);
+      tickMessages = []
+      currentTick = tick.tick;
+    }
+    tickMessages.push(tick);
+  })
+
+  roundMsg.Ticks = roundTicks;
+  rounds.push(roundMsg);
+}
 
 function updateLoadProgress(msg) {
   let progressValue = document.getElementById("loadingProgressValue");
@@ -59,10 +81,6 @@ function addTick(msg) {
   ticks.add(msg.tick)
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 function play() {
   let promise = Promise.resolve();
 
@@ -70,15 +88,26 @@ function play() {
     console.log('Loop finished.');
   });
 
-  let tickArray = Array.from(ticks)
+  let round = rounds[playingRoundI]
+  playRound(round)
+}
+
+function playRound(round) {
   let player = setInterval(function () {
-    if (currentTickI >= tickArray.length) {
-      playing = false;
+    if (currentTickI >= round.Ticks.length + 1) {
+      if (playingRoundI >= rounds.length) {
+        playing = false;
+      } else {
+        //TODO: somehow play next round, this does not work
+        playingRoundI++;
+        round = rounds[playingRoundI];
+      }
     }
     if (!playing) {
       clearInterval(player);
     }
-    playTick(messages[tickArray[currentTickI]]);
+    //TODO: it fails here and I'm not sure why, index overflow should be handled at the top
+    playTick(round.Ticks[currentTickI]);
     currentTickI++
   }, interval)
 }
@@ -93,18 +122,18 @@ function togglePlay() {
 function playTick(tickMessages) {
   tickMessages.forEach(function (msg) {
     switch (msg.msgType) {
-      case 0:
-        handleScoreUpdate(msg.teamUpdate);
-        break
+        // case 0:
+        //   handleScoreUpdate(msg.teamUpdate);
+        //   break
       case 1:
         playerUpdate(msg.playerUpdate);
         break
-      case 2:
-        handleAddPlayer(msg.addPlayer);
-        break
-      case 3:
-        removePlayer(msg.removePlayer.PlayerId);
-        break;
+        // case 2:
+        //   handleAddPlayer(msg.addPlayer);
+        //   break
+        // case 3:
+        //   removePlayer(msg.removePlayer.PlayerId);
+        //   break;
       case 8:
         updateTime(msg.roundTime);
         break;
@@ -148,12 +177,20 @@ function updateTime(roundTime) {
 }
 
 function handleAddPlayer(msg) {
+  // if player is already there and in correct team, we do nothing
+  // TODO: we should update stats when it's there
+  let listItem = document.getElementById(
+      `${msg.Team}playerListItem${msg.PlayerId}`)
+  if (listItem) {
+    return;
+  }
+
   // first remove the player to avoid duplicates
   removePlayer(msg.PlayerId)
 
   // add player to the list
-  let listItem = document.createElement("li");
-  listItem.id = `playerListItem${msg.PlayerId}`;
+  listItem = document.createElement("li");
+  listItem.id = `${msg.Team}playerListItem${msg.PlayerId}`;
   listItem.innerHTML = `${msg.Name} (${msg.PlayerId})`;
 
   document.getElementById(msg.Team + "List").appendChild(listItem);
@@ -202,6 +239,8 @@ function playerUpdate(playerUpdate) {
   playerUpdate.Players.forEach(updatePlayer);
 
   function updatePlayer(player) {
+    handleAddPlayer(player);
+
     let mapItem = document.getElementById(`playerMap${player.PlayerId}`);
     if (mapItem) {
       mapItem.style.left = player.X + "%";
