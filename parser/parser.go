@@ -82,7 +82,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			Tick:    parser.CurrentFrame(),
 			Round:   roundMessage,
 		}
-		log.Printf("sending round '%+v', messages '%v'", msg, len(msg.Round.Ticks))
+		log.Printf("sending round '%+v', messages '%v', roundNo '%v'   T [%v : %v] CT", msg, len(msg.Round.Ticks), msg.RoundNo, msg.TeamState.TScore, msg.TeamState.CTScore)
 		handler(msg, parser.GameState())
 	})
 

@@ -112,6 +112,8 @@ html, body {
 }
 
 .roundNav {
+  width: 6%;
+  margin: 1px;
   color: var(--BlackColor) !important;
 }
 
@@ -121,4 +123,8 @@ html, body {
 
 .roundNav.CT {
   background-color: var(--CTColor) !important;
+}
+
+.roundNav.active {
+  filter: brightness(1.5);
 }

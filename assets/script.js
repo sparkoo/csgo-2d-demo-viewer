@@ -71,16 +71,20 @@ function handleAddRound(roundMsg) {
 function initRounds() {
   let roundNavBar = document.getElementById("roundNavBar");
   rounds.forEach(function (round) {
-    //<a href="#" class="w3-button roundNav CT" onclick="playRound(0)">1</a>
     let roundNavItem = document.createElement("a");
     roundNavItem.href = "#"
     roundNavItem.className=`w3-button roundNav ${round.Winner}`
     roundNavItem.onclick = function() {
-      playRound(round.RoundNo)
+      playRound(round.RoundNo - 1)
     }
     roundNavItem.innerHTML = `${round.RoundNo}`
+    roundNavItem.id = `roundNav${round.RoundNo}`
 
     roundNavBar.appendChild(roundNavItem)
+
+    if (round.RoundNo % 15 === 0) {
+      roundNavBar.appendChild(document.createElement("br"))
+    }
   })
 }
 
@@ -104,6 +108,7 @@ function playRound(roundI) {
   clearInterval(player)
   playingRoundI = roundI
   currentTickI = 0
+  highlightActiveRound(roundI)
   play()
 }
 
@@ -111,6 +116,7 @@ function play() {
   playing = true;
   let round = rounds[playingRoundI]
   handleScoreUpdate(round.TeamState)
+  highlightActiveRound(playingRoundI)
   player = setInterval(function () {
     if (currentTickI >= round.Ticks.length) {
       if (playingRoundI >= rounds.length) {
@@ -120,6 +126,7 @@ function play() {
         round = rounds[playingRoundI];
         currentTickI = 0;
         handleScoreUpdate(round.TeamState)
+        highlightActiveRound(playingRoundI)
       }
     }
     if (!playing) {
@@ -128,6 +135,16 @@ function play() {
     playTick(round.Ticks[currentTickI]);
     currentTickI++
   }, interval)
+}
+
+function highlightActiveRound(roundI) {
+  Array.from(document.getElementsByClassName("roundNav")).forEach((item) => {
+    item.classList.remove("active");
+  })
+  let roundNavItem = document.getElementById(`roundNav${roundI + 1}`)
+  if (roundNavItem) {
+    roundNavItem.classList.add("active")
+  }
 }
 
 function togglePlay() {
