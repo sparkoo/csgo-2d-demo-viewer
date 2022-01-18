@@ -13,13 +13,13 @@ socket.onopen = function (e) {
 };
 
 let messages = []
-let currentTickI = 0
 let playing = true
+let currentTickI = 0
 let ticks = new Set()
 
 let rounds = []
 let playingRoundI = 0
-let playingTickI = 0
+let player
 
 let interval = 15;
 
@@ -81,32 +81,32 @@ function addTick(msg) {
   ticks.add(msg.tick)
 }
 
-function play() {
-  let promise = Promise.resolve();
-
-  promise.then(function () {
-    console.log('Loop finished.');
-  });
-
-  let round = rounds[playingRoundI]
-  playRound(round)
+function playRound(roundI) {
+  playing = false
+  clearInterval(player)
+  playingRoundI = roundI
+  currentTickI = 0
+  play()
 }
 
-function playRound(round) {
-  let player = setInterval(function () {
-    if (currentTickI >= round.Ticks.length + 1) {
+function play() {
+  playing = true;
+  let round = rounds[playingRoundI]
+  handleScoreUpdate(round.TeamState)
+  player = setInterval(function () {
+    if (currentTickI >= round.Ticks.length) {
       if (playingRoundI >= rounds.length) {
         playing = false;
       } else {
-        //TODO: somehow play next round, this does not work
         playingRoundI++;
         round = rounds[playingRoundI];
+        currentTickI = 0;
+        handleScoreUpdate(round.TeamState)
       }
     }
     if (!playing) {
       clearInterval(player);
     }
-    //TODO: it fails here and I'm not sure why, index overflow should be handled at the top
     playTick(round.Ticks[currentTickI]);
     currentTickI++
   }, interval)
