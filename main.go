@@ -2,7 +2,6 @@ package main
 
 import (
 	"csgo/conf"
-	"csgo/faceit"
 	"csgo/message"
 	"csgo/parser"
 	"encoding/json"
@@ -54,7 +53,7 @@ func server(out chan []byte, in chan []byte) {
 			http.Error(writer, err.Error(), 500)
 		}
 
-		faceit.LoadPlayerMatches("d0a85a88-0f69-4671-8f5e-d6dd10b98168")
+		//faceit.LoadPlayerMatches("d0a85a88-0f69-4671-8f5e-d6dd10b98168")
 	})
 
 	mux.HandleFunc("/player", func(writer http.ResponseWriter, request *http.Request) {
