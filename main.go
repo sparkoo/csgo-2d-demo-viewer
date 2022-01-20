@@ -34,8 +34,8 @@ func handleMessages(in chan []byte, out chan []byte) {
 			log.Print("failed unmarshal websocket message", err)
 		}
 		switch messageObj.MsgType {
-		case message.ParseRequestType:
-			go parse(out, messageObj.Demo.MatchId)
+		case message.PlayRequestType:
+			go playDemo(out, messageObj.Demo.MatchId)
 		}
 	}
 }
@@ -110,8 +110,12 @@ func server(out chan []byte, in chan []byte) {
 	log.Fatal(http.ListenAndServe(port, mux))
 }
 
-func parse(out chan []byte, demoFilename string) {
-	err := parser.Parse(fmt.Sprintf("%s/%s", config.Demodir, demoFilename), func(msg *message.Message, tick demoinfocs.GameState) {
+func playDemo(out chan []byte, matchId string) {
+	filename, downloadErr := downloadFileIfNeeded(matchId)
+	if downloadErr != nil {
+		log.Fatalln(downloadErr)
+	}
+	err := parser.Parse(fmt.Sprintf("%s/%s", config.Demodir, filename), func(msg *message.Message, tick demoinfocs.GameState) {
 		payload, err := json.Marshal(msg)
 		if err != nil {
 			log.Fatalln(err)
@@ -121,4 +125,8 @@ func parse(out chan []byte, demoFilename string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func downloadFileIfNeeded(matchId string) (string, error) {
+	return matchId, nil
 }

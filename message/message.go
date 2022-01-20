@@ -17,7 +17,7 @@ const (
 	ShotType         messageType = 9
 	EmptyType        messageType = 10
 	KillType         messageType = 11
-	ParseRequestType messageType = 12
+	PlayRequestType  messageType = 12
 )
 
 type Message struct {
