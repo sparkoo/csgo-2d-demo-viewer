@@ -2,6 +2,7 @@ package main
 
 import (
 	"csgo/conf"
+	"csgo/faceit"
 	"csgo/message"
 	"csgo/parser"
 	"encoding/json"
@@ -128,5 +129,6 @@ func playDemo(out chan []byte, matchId string) {
 }
 
 func downloadFileIfNeeded(matchId string) (string, error) {
-	return matchId, nil
+	faceit.LoadMatch(matchId)
+	return fmt.Sprintf("%s-1-1.dem", matchId), nil
 }
