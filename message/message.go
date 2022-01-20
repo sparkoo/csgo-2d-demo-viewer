@@ -12,12 +12,13 @@ const (
 	InitType         messageType = 4
 	DemoEndType      messageType = 5
 	RoundType        messageType = 6
-	LoadProgressType messageType = 7
+	ProgressType     messageType = 7
 	TimeUpdateType   messageType = 8
 	ShotType         messageType = 9
 	EmptyType        messageType = 10
 	KillType         messageType = 11
 	PlayRequestType  messageType = 12
+	ErrorType        messageType = 13
 )
 
 type Message struct {
@@ -34,6 +35,11 @@ type Message struct {
 	*Shot         `json:"shot,omitempty"`
 	*Kill         `json:"kill,omitempty"`
 	*Demo         `json:"demo,omitempty"`
+	*Error        `json:"error,omitempty"`
+}
+
+type Error struct {
+	Message string `json:"message"`
 }
 
 type Demo struct {

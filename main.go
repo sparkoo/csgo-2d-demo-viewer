@@ -116,21 +116,33 @@ func server(out chan []byte, in chan []byte) {
 }
 
 func playDemo(out chan []byte, matchId string) {
-	demoFile, closer, err := obtainDemoFile(matchId)
+	demoFile, closer, err := obtainDemoFile(matchId, out)
+	if err != nil {
+		sendError(err.Error(), out)
+		return
+	}
 	defer closer.Close()
 	err = parser.Parse(demoFile, func(msg *message.Message, tick demoinfocs.GameState) {
-		payload, err := json.Marshal(msg)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		out <- payload
+		sendMessage(msg, out)
 	})
 	if err != nil {
-		log.Fatalln(err)
+		sendError(err.Error(), out)
 	}
 }
 
-func obtainDemoFile(matchId string) (io.Reader, io.Closer, error) {
+func sendMessage(msg *message.Message, out chan []byte) {
+	payload, jsonErr := json.Marshal(msg)
+	if jsonErr != nil {
+		sendError(jsonErr.Error(), out)
+	}
+	out <- payload
+}
+
+func sendError(errorMessage string, out chan []byte) {
+	out <- []byte(fmt.Sprintf("{'msgType': 13, 'error': {'message': %s}}", errorMessage))
+}
+
+func obtainDemoFile(matchId string, messageChannel chan []byte) (io.Reader, io.Closer, error) {
 	demoFileName := fmt.Sprintf("%s/%s.dem.gz", config.Demodir, matchId)
 
 	var demoFile *os.File
@@ -140,9 +152,16 @@ func obtainDemoFile(matchId string) (io.Reader, io.Closer, error) {
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				log.Printf("Demo '%s' not found, downloading ...", demoFileName)
+				sendMessage(&message.Message{
+					MsgType: message.ProgressType,
+					Progress: &message.Progress{
+						Progress: 0,
+						Message:  "Downloading demo ...",
+					},
+				}, messageChannel)
 				dlErr := faceit.DownloadDemo(matchId, demoFileName)
 				if dlErr != nil {
-					return nil, nil, dlErr
+					log.Printf("Download demo '%s' failed, trying again ...", demoFileName)
 				}
 			} else {
 				log.Printf("Failed to open demo file '%s'.", demoFileName)
@@ -153,10 +172,13 @@ func obtainDemoFile(matchId string) (io.Reader, io.Closer, error) {
 			break
 		}
 	}
+	if demoFile == nil {
+		return nil, nil, fmt.Errorf("failed to download the demo '%s'. giving up", matchId)
+	}
 
 	r, err := gzip.NewReader(demoFile)
 	if err != nil {
-		log.Fatalln(err)
+		return nil, nil, err
 	}
 	return r, r, err
 }

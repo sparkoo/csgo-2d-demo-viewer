@@ -67,14 +67,13 @@ function handleAddRound(roundMsg) {
   rounds.push(roundMsg);
 }
 
-
 function initRounds() {
   let roundNavBar = document.getElementById("roundNavBar");
   rounds.forEach(function (round) {
     let roundNavItem = document.createElement("a");
     roundNavItem.href = "#"
-    roundNavItem.className=`w3-button roundNav ${round.Winner}`
-    roundNavItem.onclick = function() {
+    roundNavItem.className = `w3-button roundNav ${round.Winner}`
+    roundNavItem.onclick = function () {
       playRound(round.RoundNo - 1)
     }
     roundNavItem.innerHTML = `${round.RoundNo}`
@@ -89,10 +88,13 @@ function initRounds() {
 }
 
 function updateLoadProgress(msg) {
+  console.log("update progress", msg)
   document.getElementById("loadingProgress").hidden = false;
   document.getElementById("controlPanel").hidden = true;
-  document.getElementById("loadingProgressValue").style.width = `${msg.progress.Progress}%`;
-  document.getElementById("loadingProgressMessage").innerHTML = msg.progress.Message;
+  document.getElementById(
+      "loadingProgressValue").style.width = `${msg.progress.Progress}%`;
+  document.getElementById(
+      "loadingProgressMessage").innerHTML = msg.progress.Message;
 }
 
 function progressDone() {
@@ -285,7 +287,8 @@ function playerUpdate(playerUpdate) {
       mapItem.style.top = player.Y + "%";
       if (player.Alive) {
         mapItem.style.opacity = "1";
-        let playerArrow = document.getElementById(`playerArrow${player.PlayerId}`);
+        let playerArrow = document.getElementById(
+            `playerArrow${player.PlayerId}`);
         if (playerArrow) {
           playerArrow.style.transform = `rotate(${player.Rotation}deg) translateY(-40%)`;
         }
@@ -297,21 +300,25 @@ function playerUpdate(playerUpdate) {
 }
 
 function removeOrphanedPlayers(players) {
-  Array.from(document.getElementById("TList").children).forEach(function (playerItem) {
-    playerItem.classList.add("deletePlayer");
-  })
-  Array.from(document.getElementById("CTList").children).forEach(function (playerItem) {
-    playerItem.classList.add("deletePlayer");
-  })
+  Array.from(document.getElementById("TList").children).forEach(
+      function (playerItem) {
+        playerItem.classList.add("deletePlayer");
+      })
+  Array.from(document.getElementById("CTList").children).forEach(
+      function (playerItem) {
+        playerItem.classList.add("deletePlayer");
+      })
   players.forEach(function (player) {
     let playerItem = document.getElementById(`playerListItem${player.PlayerId}`)
-    if (playerItem && playerItem.parentElement.classList.contains(player.Team)) {
+    if (playerItem && playerItem.parentElement.classList.contains(
+        player.Team)) {
       playerItem.classList.remove("deletePlayer")
     }
   })
-  Array.from(document.getElementsByClassName("deletePlayer")).forEach(function (playerToDelete) {
-    removePlayer(playerToDelete.id.replace("playerListItem", ""))
-  })
+  Array.from(document.getElementsByClassName("deletePlayer")).forEach(
+      function (playerToDelete) {
+        removePlayer(playerToDelete.id.replace("playerListItem", ""))
+      })
 }
 
 function handleShot(shotMsg) {

@@ -129,7 +129,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		if parser.CurrentFrame()%1024 == 0 {
 			progressWholePercent := int(math.Round(float64(parser.Progress()) * 100))
 			handler(&message.Message{
-				MsgType: message.LoadProgressType,
+				MsgType: message.ProgressType,
 				Tick:    parser.CurrentFrame(),
 				Progress: &message.Progress{
 					Progress: progressWholePercent,

@@ -26,12 +26,19 @@ func DownloadDemo(matchId string, targetFilename string) error {
 	}
 	q := req.URL.Query()
 	req.URL.RawQuery = q.Encode()
-	content := doRequest(req)
+	content, doReqErr := doRequest(req)
+	if doReqErr != nil {
+		return doReqErr
+	}
 
 	demo := &MatchDemo{}
 	jsonErr := json.Unmarshal(content, demo)
 	if jsonErr != nil {
 		return jsonErr
+	}
+
+	if len(demo.DemoUrl) == 0 {
+		return fmt.Errorf("no demos found for match '%s'", matchId)
 	}
 
 	if err := downloadFile(demo.DemoUrl[0], targetFilename); err != nil {
@@ -47,7 +54,10 @@ func downloadFile(sourceUrl string, target string) error {
 	if reqErr != nil {
 		return reqErr
 	}
-	content := doRequest(req)
+	content, doReqErr := doRequest(req)
+	if doReqErr != nil {
+		return doReqErr
+	}
 	writeErr := ioutil.WriteFile(target, content, 0644)
 	if writeErr != nil {
 		return writeErr
@@ -68,20 +78,26 @@ func createRequest(url string, auth bool) (*http.Request, error) {
 	return req, nil
 }
 
-func doRequest(req *http.Request) []byte {
+func doRequest(req *http.Request) ([]byte, error) {
 	client := &http.Client{Timeout: time.Second * 10}
 
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal("Error reading response. ", err)
+	var resp *http.Response
+	for i := 0; i < 3; i++ {
+		var err error
+		resp, err = client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode == 200 {
+			break
+		}
+		log.Printf("response code '%d'", resp.StatusCode)
 	}
-	defer resp.Body.Close()
-	log.Printf("response code '%d'", resp.StatusCode)
-
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal("Error reading body. ", err)
+		return nil, err
 	}
 
-	return body
+	return body, nil
 }
