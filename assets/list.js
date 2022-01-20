@@ -28,7 +28,7 @@ function matchRow(key, TeamA, TeamB, ScoreA, ScoreB, time, gameMode,
     <td className="w3-col l2 actionButtons w3-right-align">
       <a href={faceitUrl} target="_blank"
          className="material-icons w3-hover-text-deep-orange">table_chart</a>
-      <a href={"/player?matchId=" + key}
+      <a href={"/player?matchId=" + key} target="_blank"
          className="material-icons w3-hover-text-amber">play_circle_outline</a>
     </td>
   </tr>;
@@ -83,37 +83,43 @@ function handleMatches(matchesResponse) {
 
 function playerSearchSubmit(e) {
   if (e.keyCode === 13) {
-    const loading = <span
-        className="material-icons w3-xxxlarge rotate">autorenew</span>
-    ReactDOM.render(
-        [],
-        document.getElementById('matchList')
-    );
-    ReactDOM.render(
-        loading,
-        document.getElementById('searchNote')
-    );
-
-    fetch(`${faceitApiUrlBase}/players?nickname=${e.target.value}`,
-        reqParamHeaders)
-    .then(response => {
-      if (response.ok) {
-        response.json()
-        .then(player => fetchMatches(player.player_id))
-        .catch(reason => console.log("failed", reason))
-      } else {
-        ReactDOM.render(
-            [],
-            document.getElementById('matchList')
-        );
-        ReactDOM.render(
-            <span>player '{e.target.value}' does not exist on faceit ...</span>,
-            document.getElementById("searchNote")
-        )
-      }
-    })
-    .catch(reason => console.log("failed", reason))
+    listMatches(e.target.value)
   }
+}
+
+function listMatches(nickname) {
+  const loading = <span
+      className="material-icons w3-xxxlarge rotate">autorenew</span>
+  ReactDOM.render(
+      [],
+      document.getElementById('matchList')
+  );
+  ReactDOM.render(
+      loading,
+      document.getElementById('searchNote')
+  );
+
+  saveSearchedNicknameToCookie(nickname)
+
+  fetch(`${faceitApiUrlBase}/players?nickname=${nickname}`,
+      reqParamHeaders)
+  .then(response => {
+    if (response.ok) {
+      response.json()
+      .then(player => fetchMatches(player.player_id))
+      .catch(reason => console.log("failed", reason))
+    } else {
+      ReactDOM.render(
+          [],
+          document.getElementById('matchList')
+      );
+      ReactDOM.render(
+          <span>player '{nickname}' does not exist on faceit ...</span>,
+          document.getElementById("searchNote")
+      )
+    }
+  })
+  .catch(reason => console.log("failed", reason))
 }
 
 function fetchMatches(playerId) {
@@ -123,11 +129,28 @@ function fetchMatches(playerId) {
   .catch(reason => console.log("failed", reason))
 }
 
+function saveSearchedNicknameToCookie(nickname) {
+  document.cookie = `lastSearchedNickname=${nickname}`
+}
+
+let lastSearchedNickname = ""
+if (document.cookie.length > 0) {
+  let cookie = document.cookie
+  cookie.split(";").forEach(c => {
+    let kv = c.split("=")
+    if (kv[0] === "lastSearchedNickname") {
+      lastSearchedNickname = kv[1]
+      listMatches(lastSearchedNickname)
+    }
+  })
+}
+
 const searchInput = <input
     className="w3-input w3-round w3-xxlarge"
     type="text"
     placeholder="faceit nickname or id"
-    onKeyUp={playerSearchSubmit}/>
+    onKeyUp={playerSearchSubmit}
+    defaultValue={lastSearchedNickname}/>
 ReactDOM.render(
     searchInput,
     document.getElementById("searchBar")
