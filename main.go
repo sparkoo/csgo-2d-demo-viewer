@@ -24,11 +24,8 @@ var config *conf.Conf
 
 func main() {
 	config = conf.ParseArgs()
-	out := make(chan []byte)
-	in := make(chan []byte)
-	go handleMessages(in, out)
 
-	server(out, in)
+	server(handleMessages)
 }
 
 func handleMessages(in chan []byte, out chan []byte) {
@@ -45,7 +42,7 @@ func handleMessages(in chan []byte, out chan []byte) {
 	}
 }
 
-func server(out chan []byte, in chan []byte) {
+func server(messageHandler func(out chan []byte, in chan []byte)) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
@@ -83,6 +80,10 @@ func server(out chan []byte, in chan []byte) {
 			log.Print("Error during connection upgradation:", err)
 			return
 		}
+
+		out := make(chan []byte)
+		in := make(chan []byte)
+		go handleMessages(in, out)
 
 		// out routine
 		go func() {
