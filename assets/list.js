@@ -64,19 +64,20 @@ function playerSearchSubmit(e) {
         document.getElementById('searchNote')
     );
 
-    fetch(`${faceitApiUrlBase}/search/players?nickname=${e.target.value}`,
+    fetch(`${faceitApiUrlBase}/players?nickname=${e.target.value}`,
         reqParamHeaders)
-    .then(response => response.json())
-    .then(players => {
-      if (players.items.length > 0) {
-        fetchMatches(players.items[0].player_id)
+    .then(response => {
+      if (response.ok) {
+        response.json()
+            .then(player => fetchMatches(player.player_id))
+            .catch(reason => console.log("failed", reason))
       } else {
         ReactDOM.render(
             [],
             document.getElementById('matchList')
         );
         ReactDOM.render(
-            <span>No player found</span>,
+            <span>player '{e.target.value}' does not exist on faceit ...</span>,
             document.getElementById("searchNote")
         )
       }
