@@ -26,7 +26,7 @@ function matchRow(key, TeamA, TeamB, ScoreA, ScoreB, time, gameMode, faceitUrl) 
         </td>
         <td className="w3-col l2 actionButtons w3-right-align">
             <a href={faceitUrl} target="_blank" className="material-icons w3-hover-text-deep-orange">table_chart</a>
-            <a href="#" className="material-icons w3-hover-text-amber">play_circle_outline</a>
+            <a href={"/player?matchId=" + key} className="material-icons w3-hover-text-amber">play_circle_outline</a>
         </td>
     </tr>;
 }

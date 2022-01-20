@@ -23,7 +23,7 @@ type MatchDemo struct {
 func LoadMatch(matchId string) MatchDemo {
 	url := fmt.Sprintf("%s/matches/%s", faceitApiUrlBase, matchId)
 	log.Printf("requesting url '%s'", url)
-	req := createRequest(url)
+	req := createRequest(url, true)
 	q := req.URL.Query()
 	req.URL.RawQuery = q.Encode()
 	content := doRequest(req)
@@ -41,7 +41,7 @@ func LoadMatch(matchId string) MatchDemo {
 
 func downloadFile(fileUrl string, matchId string) {
 	log.Printf("Downloading file '%s'", fileUrl)
-	content := doRequest(createRequest(fileUrl))
+	content := doRequest(createRequest(fileUrl, false))
 	log.Printf("Downloaded '%d' bytes", len(content))
 	saveFilePath := fmt.Sprintf("/Users/mvala/tmp/%s.dem.gz", matchId)
 	log.Printf("Saving to file '%s'", saveFilePath)
@@ -64,7 +64,7 @@ func downloadFile(fileUrl string, matchId string) {
 
 	log.Printf("extracting and writing to file")
 	// Empty byte slice.
-	result := make([]byte, 1024*1024)
+	result := make([]byte, 32768)
 	// Read in data.
 	targetFile, err := os.OpenFile(fmt.Sprintf("/Users/mvala/tmp/%s.dem", matchId), os.O_CREATE|os.O_WRONLY, 0644)
 	defer targetFile.Close()
@@ -72,12 +72,11 @@ func downloadFile(fileUrl string, matchId string) {
 		log.Fatalln(err)
 	}
 	for {
-		count, err := r.Read(result)
-		written, writeErr := targetFile.Write(result)
+		_, err := r.Read(result)
+		_, writeErr := targetFile.Write(result)
 		if writeErr != nil {
 			log.Fatalln(writeErr)
 		}
-		log.Printf("written '%d'", written)
 		if err != nil {
 			if err == io.EOF {
 				log.Println("end of file")
@@ -85,19 +84,19 @@ func downloadFile(fileUrl string, matchId string) {
 			}
 			log.Fatalln(err)
 		}
-		// Print our decompressed data.
-		log.Printf("extracted '%d'", count)
 	}
 	log.Printf("done")
 	os.Exit(1)
 }
 
-func createRequest(url string) *http.Request {
+func createRequest(url string, auth bool) *http.Request {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal("Error reading request. ", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+apikey)
+	if auth {
+		req.Header.Set("Authorization", "Bearer "+apikey)
+	}
 
 	return req
 }
@@ -110,6 +109,7 @@ func doRequest(req *http.Request) []byte {
 		log.Fatal("Error reading response. ", err)
 	}
 	defer resp.Body.Close()
+	log.Printf("response code '%d'", resp.StatusCode)
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
