@@ -140,7 +140,7 @@ func sendMessage(msg *message.Message, out chan []byte) {
 }
 
 func sendError(errorMessage string, out chan []byte) {
-	out <- []byte(fmt.Sprintf("{'msgType': 13, 'error': {'message': %s}}", errorMessage))
+	out <- []byte(fmt.Sprintf("{\"msgType\": %d, \"error\": {\"message\": \"%s\"}}", message.ErrorType, errorMessage))
 }
 
 func obtainDemoFile(matchId string, messageChannel chan []byte) (io.Reader, io.Closer, error) {

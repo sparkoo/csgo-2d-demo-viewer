@@ -24,7 +24,7 @@ let player
 let interval = 15;
 
 socket.onmessage = function (event) {
-  // console.log(`[message] Data received from server: ${event.data}`);
+  console.log(`[message] Data received from server: ${event.data}`);
   let msg = JSON.parse(event.data)
 
   switch (msg.msgType) {
@@ -44,6 +44,9 @@ socket.onmessage = function (event) {
       break;
     case 7:
       updateLoadProgress(msg);
+      break;
+    case 13:
+      alert(msg.error.message);
       break;
     default:
       addTick(msg);
