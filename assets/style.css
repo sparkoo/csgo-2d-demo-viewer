@@ -2,7 +2,7 @@
   --TColor: #de9b35;
   --CTColor: #5d79ae;
   --BlackColor: #0c0f12;
-  --LightColor :#ccba7c;
+  --LightColor: #ccba7c;
   --DarkColor: #413a27;
 }
 
@@ -127,4 +127,19 @@ html, body {
 
 .roundNav.active {
   filter: brightness(1.5);
+}
+
+.rotate {
+  animation: rotation 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }
