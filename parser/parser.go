@@ -139,6 +139,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 				Tick:    parser.CurrentFrame(),
 				Progress: &message.Progress{
 					Progress: progressWholePercent,
+					Message:  "Parsing demo ...",
 				},
 			}, parser.GameState())
 		}

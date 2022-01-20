@@ -35,7 +35,7 @@ func handleMessages(in chan []byte, out chan []byte) {
 		}
 		switch messageObj.MsgType {
 		case message.ParseRequestType:
-			go parse(out, messageObj.Demo.Filename)
+			go parse(out, messageObj.Demo.MatchId)
 		}
 	}
 }

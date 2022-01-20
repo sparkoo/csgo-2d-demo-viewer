@@ -37,7 +37,7 @@ type Message struct {
 }
 
 type Demo struct {
-	Filename string `json:"filename"`
+	MatchId string `json:"matchId"`
 }
 
 type RoundTime struct {
@@ -73,6 +73,7 @@ type Kill struct {
 
 type Progress struct {
 	Progress int
+	Message  string
 }
 
 type Init struct {

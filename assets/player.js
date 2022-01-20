@@ -7,7 +7,7 @@ socket.onopen = function (e) {
       {
         "msgType": 12,
         "demo": {
-          "filename": urlParams.get("demo")
+          "matchId": urlParams.get("matchId")
         }
       }));
 };
@@ -33,7 +33,7 @@ socket.onmessage = function (event) {
       break
     case 5:
       console.log("done loading, playing demo now");
-      document.getElementById("loadingProgress").remove()
+      progressDone();
       handleInitMessage(msg.init);
       initRounds();
       play();
@@ -89,10 +89,15 @@ function initRounds() {
 }
 
 function updateLoadProgress(msg) {
-  let progressValue = document.getElementById("loadingProgressValue");
-  if (progressValue) {
-    progressValue.style.width = `${msg.progress.Progress}%`;
-  }
+  document.getElementById("loadingProgress").hidden = false;
+  document.getElementById("controlPanel").hidden = true;
+  document.getElementById("loadingProgressValue").style.width = `${msg.progress.Progress}%`;
+  document.getElementById("loadingProgressMessage").innerHTML = msg.progress.Message;
+}
+
+function progressDone() {
+  document.getElementById("loadingProgress").hidden = true;
+  document.getElementById("controlPanel").hidden = false;
 }
 
 function addTick(msg) {

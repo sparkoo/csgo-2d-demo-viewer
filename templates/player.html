@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Hello</title>
+  <title>CS:GO 2D Demo Player</title>
   <link rel="stylesheet" type="text/css" href="/assets/style.css"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"/>
@@ -17,33 +17,38 @@
   </div>
   <div class="grid-item">
     <div class="w3-row">
-      <div id="loadingProgress" class="w3-dark-gray w3-xlarge w3-left-align">
-        <div id="loadingProgressValue" class="w3-container w3-green">
-          parsing...
+      <div id="loadingProgress">
+        <div class="w3-dark-gray w3-xlarge w3-left-align">
+          <div id="loadingProgressValue" class="w3-container w3-green">
+            <br>
+          </div>
         </div>
+        <span id="loadingProgressMessage"></span>
       </div>
+    </div>
+    <div class="w3-row" id="controlPanel">
       <div class="w3-xlarge w3-left-align">
         <div id="timer" class="w3-container w3-green">
           0:00
         </div>
       </div>
+      <div class="w3-bar w3-small w3-left-align" id="roundNavBar">
+      </div>
+      <button onclick="togglePlay()">&#x23EF;</button>
+      <h3>
+        <span id="TName" class="T">Terrorists</span>
+        <span id="CTName" class="CT">Counter Terrorists</span>
+      </h3>
+      <span class="T" id="TScore">0</span>
+      :
+      <span class="CT" id="CTScore">0</span>
+      <ul class="T w3-ul w3-medium" id="TList">
+      </ul>
+      <ul class="CT w3-ul w3-medium" id="CTList">
+      </ul>
     </div>
-    <div class="w3-bar w3-small w3-left-align" id="roundNavBar">
-    </div>
-    <button onclick="togglePlay()">&#x23EF;</button>
-    <h3>
-      <span id="TName" class="T">Terrorists</span>
-      <span id="CTName" class="CT">Counter Terrorists</span>
-    </h3>
-    <span class="T" id="TScore">0</span>
-    :
-    <span class="CT" id="CTScore">0</span>
-    <ul class="T w3-ul w3-medium" id="TList">
-    </ul>
-    <ul class="CT w3-ul w3-medium" id="CTList">
-    </ul>
   </div>
 </div>
-<script src="/assets/script.js"></script>
+<script src="/assets/player.js"></script>
 </body>
 </html>
