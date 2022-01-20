@@ -1,17 +1,21 @@
 package main
 
 import (
+	"compress/gzip"
 	"csgo/conf"
 	"csgo/faceit"
 	"csgo/message"
 	"csgo/parser"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 const port string = ":8080"
@@ -112,11 +116,9 @@ func server(out chan []byte, in chan []byte) {
 }
 
 func playDemo(out chan []byte, matchId string) {
-	filename, downloadErr := downloadFileIfNeeded(matchId)
-	if downloadErr != nil {
-		log.Fatalln(downloadErr)
-	}
-	err := parser.Parse(fmt.Sprintf("%s/%s", config.Demodir, filename), func(msg *message.Message, tick demoinfocs.GameState) {
+	demoFile, closer, err := obtainDemoFile(matchId)
+	defer closer.Close()
+	err = parser.Parse(demoFile, func(msg *message.Message, tick demoinfocs.GameState) {
 		payload, err := json.Marshal(msg)
 		if err != nil {
 			log.Fatalln(err)
@@ -128,7 +130,33 @@ func playDemo(out chan []byte, matchId string) {
 	}
 }
 
-func downloadFileIfNeeded(matchId string) (string, error) {
-	faceit.LoadMatch(matchId)
-	return fmt.Sprintf("%s-1-1.dem", matchId), nil
+func obtainDemoFile(matchId string) (io.Reader, io.Closer, error) {
+	demoFileName := fmt.Sprintf("%s/%s.dem.gz", config.Demodir, matchId)
+
+	var demoFile *os.File
+	for i := 0; i < 3; i++ {
+		var err error
+		demoFile, err = os.Open(demoFileName)
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				log.Printf("Demo '%s' not found, downloading ...", demoFileName)
+				dlErr := faceit.DownloadDemo(matchId, demoFileName)
+				if dlErr != nil {
+					return nil, nil, dlErr
+				}
+			} else {
+				log.Printf("Failed to open demo file '%s'.", demoFileName)
+				return nil, nil, err
+			}
+		} else {
+			log.Printf("Demo '%s' found.", demoFileName)
+			break
+		}
+	}
+
+	r, err := gzip.NewReader(demoFile)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return r, r, err
 }

@@ -1,14 +1,11 @@
 package faceit
 
 import (
-	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -20,85 +17,55 @@ type MatchDemo struct {
 	DemoUrl []string `json:"demo_url"`
 }
 
-func LoadMatch(matchId string) MatchDemo {
+func DownloadDemo(matchId string, targetFilename string) error {
 	url := fmt.Sprintf("%s/matches/%s", faceitApiUrlBase, matchId)
 	log.Printf("requesting url '%s'", url)
-	req := createRequest(url, true)
+	req, reqErr := createRequest(url, true)
+	if reqErr != nil {
+		return reqErr
+	}
 	q := req.URL.Query()
 	req.URL.RawQuery = q.Encode()
 	content := doRequest(req)
 
 	demo := &MatchDemo{}
-	err := json.Unmarshal(content, demo)
-	if err != nil {
-		log.Fatalln(err)
+	jsonErr := json.Unmarshal(content, demo)
+	if jsonErr != nil {
+		return jsonErr
 	}
 
-	downloadFile(demo.DemoUrl[0], matchId)
+	if err := downloadFile(demo.DemoUrl[0], targetFilename); err != nil {
+		return err
+	}
 
-	return MatchDemo{}
+	return nil
 }
 
-func downloadFile(fileUrl string, matchId string) {
-	log.Printf("Downloading file '%s'", fileUrl)
-	content := doRequest(createRequest(fileUrl, false))
-	log.Printf("Downloaded '%d' bytes", len(content))
-	saveFilePath := fmt.Sprintf("/Users/mvala/tmp/%s.dem.gz", matchId)
-	log.Printf("Saving to file '%s'", saveFilePath)
-	err := ioutil.WriteFile(saveFilePath, content, 0644)
-	if err != nil {
-		log.Fatalln(err)
+func downloadFile(sourceUrl string, target string) error {
+	log.Printf("Downloading file '%s' to '%s'", sourceUrl, target)
+	req, reqErr := createRequest(sourceUrl, false)
+	if reqErr != nil {
+		return reqErr
+	}
+	content := doRequest(req)
+	writeErr := ioutil.WriteFile(target, content, 0644)
+	if writeErr != nil {
+		return writeErr
 	}
 	log.Println("saved")
-
-	log.Println("extracting")
-	demoFile, err := os.Open(saveFilePath)
-	defer demoFile.Close()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	r, err := gzip.NewReader(demoFile)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	log.Printf("extracting and writing to file")
-	// Empty byte slice.
-	result := make([]byte, 32768)
-	// Read in data.
-	targetFile, err := os.OpenFile(fmt.Sprintf("/Users/mvala/tmp/%s.dem", matchId), os.O_CREATE|os.O_WRONLY, 0644)
-	defer targetFile.Close()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	for {
-		_, err := r.Read(result)
-		_, writeErr := targetFile.Write(result)
-		if writeErr != nil {
-			log.Fatalln(writeErr)
-		}
-		if err != nil {
-			if err == io.EOF {
-				log.Println("end of file")
-				break
-			}
-			log.Fatalln(err)
-		}
-	}
-	log.Printf("done")
-	os.Exit(1)
+	return nil
 }
 
-func createRequest(url string, auth bool) *http.Request {
+func createRequest(url string, auth bool) (*http.Request, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatal("Error reading request. ", err)
+		return nil, err
 	}
 	if auth {
 		req.Header.Set("Authorization", "Bearer "+apikey)
 	}
 
-	return req
+	return req, nil
 }
 
 func doRequest(req *http.Request) []byte {

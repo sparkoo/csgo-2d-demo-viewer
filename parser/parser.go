@@ -8,9 +8,9 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
+	"io"
 	"log"
 	"math"
-	"os"
 	"time"
 )
 
@@ -18,15 +18,8 @@ type RoundTimer struct {
 	lastRoundStart time.Duration
 }
 
-func Parse(demoFile string, handler func(msg *message.Message, state dem.GameState)) error {
-	log.Printf("Parsing demo '%v'", demoFile)
-	f, err := os.Open(demoFile)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	parser := dem.NewParser(f)
+func Parse(demoFile io.Reader, handler func(msg *message.Message, state dem.GameState)) error {
+	parser := dem.NewParser(demoFile)
 	defer parser.Close()
 
 	matchErr := parseMatch(parser, handler)
@@ -38,6 +31,7 @@ func Parse(demoFile string, handler func(msg *message.Message, state dem.GameSta
 }
 
 func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.GameState)) error {
+	log.Println("parsing started")
 	gameStarted := false
 	var mapCS metadata.Map
 
@@ -70,11 +64,11 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		})
 	})
 	parser.RegisterEventHandler(func(e events.RoundEnd) {
-		log.Printf("round end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
+		//log.Printf("round end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		roundMessage.Winner = team(e.Winner)
 	})
 	parser.RegisterEventHandler(func(e events.RoundEndOfficial) {
-		log.Printf("round end offic '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
+		//log.Printf("round end offic '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		roundMessage.RoundTookSeconds = int((parser.CurrentTime() - currentRoundTimer.lastRoundStart).Seconds())
 		roundMessage.RoundNo = parser.GameState().TotalRoundsPlayed()
 		roundMessage.EndTick = parser.CurrentFrame()
@@ -83,12 +77,12 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			Tick:    parser.CurrentFrame(),
 			Round:   roundMessage,
 		}
-		log.Printf("sending round '%+v', messages '%v', roundNo '%v'   T [%v : %v] CT", msg, len(msg.Round.Ticks), msg.RoundNo, msg.TeamState.TScore, msg.TeamState.CTScore)
+		//log.Printf("sending round '%+v', messages '%v', roundNo '%v'   T [%v : %v] CT", msg, len(msg.Round.Ticks), msg.RoundNo, msg.TeamState.TScore, msg.TeamState.CTScore)
 		handler(msg, parser.GameState())
 	})
 
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
-		log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
+		//log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 
 		roundMessage = message.NewRound(parser.CurrentFrame())
 		currentRoundTimer.lastRoundStart = parser.CurrentTime()
@@ -139,7 +133,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 				Tick:    parser.CurrentFrame(),
 				Progress: &message.Progress{
 					Progress: progressWholePercent,
-					Message:  "Parsing demo ...",
+					Message:  "Loading demo ...",
 				},
 			}, parser.GameState())
 		}
