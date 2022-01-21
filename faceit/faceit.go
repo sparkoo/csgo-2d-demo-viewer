@@ -18,7 +18,7 @@ type MatchDemo struct {
 	DemoUrl []string `json:"demo_url"`
 }
 
-var NoDemoError = errors.New("no demo found for match")
+var NoDemoError = errors.New("no demo found for this match")
 
 func DownloadDemo(matchId string, targetFilename string) error {
 	url := fmt.Sprintf("%s/matches/%s", faceitApiUrlBase, matchId)

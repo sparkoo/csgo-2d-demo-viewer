@@ -108,14 +108,6 @@ function formatDate(time) {
   return dateString.join("")
 }
 
-function handleMatches(matchesResponse) {
-  matchesResponse.items
-  .filter(m => m.game_mode.includes("5v5", 0))
-  .forEach(match => {
-    matchTableUpdater.addMatch(<MatchRow match={match} key={match.match_id}/>)
-  })
-}
-
 function playerSearchSubmit(e) {
   if (e.keyCode === 13) {
     listMatches(e.target.value)
@@ -123,15 +115,12 @@ function playerSearchSubmit(e) {
 }
 
 function listMatches(nickname) {
-  const loading = <span
-      className="material-icons w3-xxxlarge rotate">autorenew</span>
   ReactDOM.render(
-      loading,
+      <span className="material-icons w3-xxxlarge rotate">autorenew</span>,
       document.getElementById('searchNote')
   );
 
   saveSearchedNicknameToCookie(nickname)
-  console.log(matchTableUpdater)
   matchTableUpdater.clearMatches()
 
   fetch(`${faceitApiUrlBase}/players?nickname=${nickname}`,
@@ -154,7 +143,17 @@ function listMatches(nickname) {
 function fetchMatches(playerId) {
   fetch(`${faceitApiUrlBase}/players/${playerId}/history`, reqParamHeaders)
   .then(response => response.json())
-  .then(content => handleMatches(content))
+  .then(matchesResponse => {
+    matchesResponse.items
+    .filter(m => m.game_mode.includes("5v5", 0))
+    .forEach(match => {
+      matchTableUpdater.addMatch(<MatchRow match={match} key={match.match_id}/>)
+    })
+    ReactDOM.render(
+        null,
+        document.getElementById('searchNote')
+    );
+  })
   .catch(reason => console.log("failed", reason))
 }
 
