@@ -84,7 +84,9 @@ function initRounds() {
 
     roundNavBar.appendChild(roundNavItem)
 
-    if (round.RoundNo % 15 === 0) {
+    if (round.RoundNo <= 30 && round.RoundNo % 15 === 0) {
+      roundNavBar.appendChild(document.createElement("br"))
+    } else if (round.RoundNo > 30 && round.RoundNo % 6 === 0) {
       roundNavBar.appendChild(document.createElement("br"))
     }
   })

@@ -2,6 +2,7 @@ package faceit
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -16,6 +17,8 @@ const faceitApiUrlBase = "https://open.faceit.com/data/v4"
 type MatchDemo struct {
 	DemoUrl []string `json:"demo_url"`
 }
+
+var NoDemoError = errors.New("no demo found for match")
 
 func DownloadDemo(matchId string, targetFilename string) error {
 	url := fmt.Sprintf("%s/matches/%s", faceitApiUrlBase, matchId)
@@ -38,7 +41,7 @@ func DownloadDemo(matchId string, targetFilename string) error {
 	}
 
 	if len(demo.DemoUrl) == 0 {
-		return fmt.Errorf("no demos found for match '%s'", matchId)
+		return NoDemoError
 	}
 
 	if err := downloadFile(demo.DemoUrl[0], targetFilename); err != nil {

@@ -117,12 +117,18 @@ func server(messageHandler func(out chan []byte, in chan []byte)) {
 }
 
 func playDemo(out chan []byte, matchId string) {
-	demoFile, closer, err := obtainDemoFile(matchId, out)
+	demoFile, closers, err := obtainDemoFile(matchId, out)
 	if err != nil {
 		sendError(err.Error(), out)
 		return
 	}
-	defer closer.Close()
+	defer func() {
+		for _, c := range closers {
+			if closeErr := c.Close(); closeErr != nil {
+				log.Printf("[%s] failed to close resource. %s", matchId, closeErr)
+			}
+		}
+	}()
 	err = parser.Parse(demoFile, func(msg *message.Message, tick demoinfocs.GameState) {
 		sendMessage(msg, out)
 	})
@@ -143,16 +149,18 @@ func sendError(errorMessage string, out chan []byte) {
 	out <- []byte(fmt.Sprintf("{\"msgType\": %d, \"error\": {\"message\": \"%s\"}}", message.ErrorType, errorMessage))
 }
 
-func obtainDemoFile(matchId string, messageChannel chan []byte) (io.Reader, io.Closer, error) {
+func obtainDemoFile(matchId string, messageChannel chan []byte) (io.Reader, []io.Closer, error) {
+	closers := make([]io.Closer, 0)
 	demoFileName := fmt.Sprintf("%s/%s.dem.gz", config.Demodir, matchId)
 
+	// try 3 times to download the file
 	var demoFile *os.File
 	for i := 0; i < 3; i++ {
-		var err error
-		demoFile, err = os.Open(demoFileName)
-		if err != nil {
-			if errors.Is(err, os.ErrNotExist) {
-				log.Printf("Demo '%s' not found, downloading ...", demoFileName)
+		var demoOpenErr error
+		demoFile, demoOpenErr = os.Open(demoFileName)
+		if demoOpenErr != nil {
+			if errors.Is(demoOpenErr, os.ErrNotExist) {
+				log.Printf("[%s] Demo '%s' not found, downloading ...", matchId, demoFileName)
 				sendMessage(&message.Message{
 					MsgType: message.ProgressType,
 					Progress: &message.Progress{
@@ -162,24 +170,31 @@ func obtainDemoFile(matchId string, messageChannel chan []byte) (io.Reader, io.C
 				}, messageChannel)
 				dlErr := faceit.DownloadDemo(matchId, demoFileName)
 				if dlErr != nil {
-					log.Printf("Download demo '%s' failed, trying again ...", demoFileName)
+					if errors.Is(dlErr, faceit.NoDemoError) {
+						log.Printf("[%s] no demos found", matchId)
+						return nil, closers, dlErr
+					}
+					log.Printf("[%s] Download demo '%s' failed, trying again ... '%s'", matchId, demoFileName, dlErr)
 				}
 			} else {
-				log.Printf("Failed to open demo file '%s'.", demoFileName)
-				return nil, nil, err
+				log.Printf("[%s] Failed to open demo file '%s'. '%s'", matchId, demoFileName, demoOpenErr)
+				return nil, closers, demoOpenErr
 			}
 		} else {
-			log.Printf("Demo '%s' found.", demoFileName)
+			log.Printf("[%s] Demo '%s' found.", matchId, demoFileName)
+			closers = append(closers, demoFile)
 			break
 		}
 	}
 	if demoFile == nil {
-		return nil, nil, fmt.Errorf("failed to download the demo '%s'. giving up", matchId)
+		return nil, closers, fmt.Errorf("failed to download the demo '%s'. giving up", matchId)
 	}
 
-	r, err := gzip.NewReader(demoFile)
-	if err != nil {
-		return nil, nil, err
+	gzipReader, gzipErr := gzip.NewReader(demoFile)
+	if gzipErr != nil {
+		log.Printf("[%s] Failed to create gzip reader from demo '%s'. %s", matchId, demoFileName, gzipErr)
+		return nil, closers, gzipErr
 	}
-	return r, r, err
+	closers = append(closers, gzipReader)
+	return gzipReader, closers, gzipErr
 }

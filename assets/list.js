@@ -60,6 +60,9 @@ function formatDate(time) {
 function handleMatches(matchesResponse) {
   const matchesList = []
   matchesResponse.items.forEach(match => {
+    if (!match.game_mode.includes("5v5", 0)) {
+      return
+    }
     const time = new Date(match.finished_at * 1000);
     matchesList.push(matchRow(
         match.match_id,
