@@ -1,159 +1,173 @@
 :root {
-    --TColor: #de9b35;
-    --CTColor: #5d79ae;
-    --BlackColor: #0c0f12;
-    --LightColor: #ccba7c;
-    --DarkColor: #413a27;
+  --TColor: #de9b35;
+  --CTColor: #5d79ae;
+  --BlackColor: #0c0f12;
+  --LightColor: #ccba7c;
+  --DarkColor: #413a27;
 }
 
 html, body {
-    height: 100%;
-    margin: 0 auto;
-    padding: 0;
-    font-family: "Roboto Light", sans-serif;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0;
+  font-family: "Roboto Light", sans-serif;
 }
 
 .grid-container {
-    display: grid;
-    grid-template-columns: 60% 40%;
-    grid-template-rows: auto;
-    background-color: var(--BlackColor);
-    color: var(--LightColor) !important;
-    margin: 0;
-    padding: 0;
+  display: grid;
+  grid-template-columns: 60% 40%;
+  grid-template-rows: auto;
+  background-color: var(--BlackColor);
+  color: var(--LightColor) !important;
+  margin: 0;
+  padding: 0;
 
-    height: 100%;
+  height: 100%;
 }
 
 .grid-container > div {
-    text-align: center;
-    padding: 0;
-    font-size: 30px;
-    height: calc(100vh);
+  text-align: center;
+  padding: 0;
+  font-size: 30px;
+  height: calc(100vh);
 }
 
 .map {
-    background-color: black;
+  background-color: black;
 }
 
 .map-container {
-    position: relative;
-    /*width: 100%;*/
-    height: 100%;
-    aspect-ratio: 1/1;
-    /*background-image: url("https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/de_mirage.jpg");*/
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    margin: 0 auto;
+  position: relative;
+  /*width: 100%;*/
+  height: 100%;
+  aspect-ratio: 1/1;
+  /*background-image: url("https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/de_mirage.jpg");*/
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin: 0 auto;
+  z-index: 0;
 }
 
 .player {
-    /* scale size */
-    width: 1.5%;
-    height: 1.5%;
-    /* and center it */
-    margin-left: -.75%;
-    margin-top: -.75%;
-    /*make it round*/
-    border-radius: 50%;
+  /* scale size */
+  width: 1.5%;
+  height: 1.5%;
+  /* and center it */
+  margin-left: -.75%;
+  margin-top: -.75%;
+  /*make it round*/
+  border-radius: 50%;
 
-    transition: 60ms linear;
+  transition: 60ms linear;
 
-    position: absolute;
-    box-shadow: 0 0 15px 0 var(--BlackColor);
-    opacity: 1;
+  position: absolute;
+  box-shadow: 0 0 15px 0 var(--BlackColor);
+  opacity: 1;
 }
 
 .player .dead {
-    opacity: .5;
+  opacity: .5;
 }
 
 .playerArrow {
-    width: 100%;
-    height: 100%;
-    clip-path: polygon(50% 0%, 25% 30%, 75% 30%);
-    margin: auto;
-    position: absolute;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(50% 0%, 25% 30%, 75% 30%);
+  margin: auto;
+  position: absolute;
 }
 
 .playerArrowContainer {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .playerShot {
-    transition: 100ms linear;
-    transform-origin: top;
-    width: 1px;
-    height: 5%;
-    background-color: gray;
-    position: absolute;
+  transition: 100ms linear;
+  transform-origin: top;
+  width: 1px;
+  height: 5%;
+  background-color: gray;
+  position: absolute;
 }
 
 .player.T, .playerArrow.T {
-    background-color: var(--TColor);
+  background-color: var(--TColor);
 }
 
 .player.CT, .playerArrow.CT {
-    background-color: var(--CTColor);
+  background-color: var(--CTColor);
 }
 
 .T {
-    color: var(--TColor);
+  color: var(--TColor);
 }
 
 .CT {
-    color: var(--CTColor);
+  color: var(--CTColor);
 }
 
 #timer {
-    color: var(--LightColor);
+  color: var(--LightColor);
 }
 
 .roundNav {
-    width: 6%;
-    margin: 1px;
-    color: var(--BlackColor) !important;
+  width: 6%;
+  margin: 1px;
+  color: var(--BlackColor) !important;
 }
 
 .roundNav.T {
-    background-color: var(--TColor) !important;
+  background-color: var(--TColor) !important;
 }
 
 .roundNav.CT {
-    background-color: var(--CTColor) !important;
+  background-color: var(--CTColor) !important;
 }
 
 .roundNav.active {
-    filter: brightness(1.5);
+  filter: brightness(1.5);
 }
 
 .rotate {
-    animation: rotation 1s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
+  animation: rotation 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
 @keyframes rotation {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(359deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }
 
 .actionButtons {
-    padding-bottom: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 .actionButtons a {
-    text-decoration: none;
-    margin: 0 5px;
+  text-decoration: none;
+  margin: 0 5px;
 }
 
 .preload {
-    position: absolute;
-    left: -1000px;
+  position: absolute;
+  left: -1000px;
+}
+
+.playerNameTag {
+  position: absolute;
+  transform: translate(-40%, -200%);
+  display: block;
+  border: 1px solid black;
+  background-color: var(--DarkColor);
+  white-space: nowrap;
+  padding: 0 2px;
+  opacity: .7;
+  z-index: -5;
+  font-size: 1vh;
 }

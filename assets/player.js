@@ -253,8 +253,13 @@ function handleAddPlayer(msg) {
   playerArrow.id = `playerArrow${msg.PlayerId}`;
   playerArrow.className = `playerArrow ${msg.Team}`;
 
+  let playerNameTag = document.createElement("div");
+  playerNameTag.innerHTML = msg.Name
+  playerNameTag.className = "playerNameTag"
+
   playerArrowContainer.appendChild(playerArrow);
   mapItemPlayer.appendChild(playerArrowContainer);
+  mapItemPlayer.appendChild(playerNameTag);
   document.getElementById("map").appendChild(mapItemPlayer);
 }
 
