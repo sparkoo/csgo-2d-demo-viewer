@@ -181,3 +181,11 @@ html, body {
   opacity: .5;
   z-index: -4;
 }
+
+.knife {
+  transform: translate(-30%, -500%);
+}
+
+.he, .flash, .smoke {
+  transform: translate(5%, -320%);
+}
