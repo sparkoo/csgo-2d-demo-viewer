@@ -8,30 +8,81 @@ const reqParamHeaders = {
   }
 }
 
-function matchRow(key, TeamA, TeamB, ScoreA, ScoreB, time, gameMode,
-    faceitUrl) {
-  return <tr key={key} className="w3-hover-gray w3-medium">
-    <td className="w3-col l2">
-      {time}
-    </td>
-    <td className="w3-col l3">
-      {gameMode}
-    </td>
-    <td className="w3-col l1">
-      de_dust2
-    </td>
-    <td className="w3-col l4">
-      <span className={ScoreA > ScoreB ? "w3-green"
-          : ""}>{TeamA}</span> {ScoreA} : {ScoreB} <span
-        className={ScoreA < ScoreB ? "w3-green" : ""}>{TeamB}</span>
-    </td>
-    <td className="w3-col l2 actionButtons w3-right-align">
-      <a href={faceitUrl} target="_blank"
-         className="material-icons w3-hover-text-deep-orange">table_chart</a>
-      <a href={"/player?matchId=" + key} target="_blank"
-         className="material-icons w3-hover-text-amber">play_circle_outline</a>
-    </td>
-  </tr>;
+let matchTableUpdater = {};
+
+class MatchTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {matches: []}
+  }
+
+  componentDidMount() {
+    matchTableUpdater.addMatch = (match) => {
+      let updatedMatches = [...this.state.matches];
+      updatedMatches.push(match);
+      this.setState({
+        matches: updatedMatches
+      });
+    }
+    matchTableUpdater.clearMatches = () => {
+      this.setState({
+        matches: []
+      })
+    }
+  }
+
+  render() {
+    return <tbody>
+    {this.state.matches}
+    </tbody>
+  }
+}
+
+class MatchRow extends React.Component {
+  constructor(props) {
+    super(props);
+    const time = new Date(props.match.finished_at * 1000);
+    this.state = {
+      playedTime: formatDate(time),
+      TeamA: props.match.teams.faction1.nickname,
+      TeamB: props.match.teams.faction2.nickname,
+      ScoreA: props.match.results.score.faction1,
+      ScoreB: props.match.results.score.faction2,
+    }
+  }
+
+  render() {
+    return <tr className="w3-hover-gray w3-medium">
+      <td className="w3-col l2">
+        {this.state.playedTime}
+      </td>
+      <td className="w3-col l3">
+        {this.props.match.game_mode}
+      </td>
+      <td className="w3-col l1">
+        {this.state.playedMap}
+      </td>
+      <td className="w3-col l4">
+      <span className={this.state.ScoreA > this.state.ScoreB ?
+          "w3-green" : ""}>
+        {this.state.TeamA}
+      </span>
+        {this.state.ScoreA} : {this.state.ScoreB}
+        <span
+            className={this.state.ScoreA < this.state.ScoreB ?
+                "w3-green" : ""}>
+        {this.state.TeamB}
+      </span>
+      </td>
+      <td className="w3-col l2 actionButtons w3-right-align">
+        <a href={this.props.match.faceit_url.replace("{lang}", "en")}
+           target="_blank"
+           className="material-icons w3-hover-text-deep-orange">table_chart</a>
+        <a href={"/player?matchId=" + this.props.match.match_id} target="_blank"
+           className="material-icons w3-hover-text-amber">play_circle_outline</a>
+      </td>
+    </tr>;
+  }
 }
 
 function twoDigits(number) {
@@ -58,30 +109,11 @@ function formatDate(time) {
 }
 
 function handleMatches(matchesResponse) {
-  const matchesList = []
-  matchesResponse.items.forEach(match => {
-    if (!match.game_mode.includes("5v5", 0)) {
-      return
-    }
-    const time = new Date(match.finished_at * 1000);
-    matchesList.push(matchRow(
-        match.match_id,
-        match.teams.faction1.nickname,
-        match.teams.faction2.nickname,
-        match.results.score.faction1,
-        match.results.score.faction2,
-        formatDate(time),
-        match.game_mode,
-        match.faceit_url.replace("{lang}", "en")))
+  matchesResponse.items
+  .filter(m => m.game_mode.includes("5v5", 0))
+  .forEach(match => {
+    matchTableUpdater.addMatch(<MatchRow match={match} key={match.match_id}/>)
   })
-  ReactDOM.render(
-      matchesList,
-      document.getElementById('matchList')
-  );
-  ReactDOM.render(
-      [],
-      document.getElementById("searchNote")
-  )
 }
 
 function playerSearchSubmit(e) {
@@ -94,15 +126,13 @@ function listMatches(nickname) {
   const loading = <span
       className="material-icons w3-xxxlarge rotate">autorenew</span>
   ReactDOM.render(
-      [],
-      document.getElementById('matchList')
-  );
-  ReactDOM.render(
       loading,
       document.getElementById('searchNote')
   );
 
   saveSearchedNicknameToCookie(nickname)
+  console.log(matchTableUpdater)
+  matchTableUpdater.clearMatches()
 
   fetch(`${faceitApiUrlBase}/players?nickname=${nickname}`,
       reqParamHeaders)
@@ -112,10 +142,6 @@ function listMatches(nickname) {
       .then(player => fetchMatches(player.player_id))
       .catch(reason => console.log("failed", reason))
     } else {
-      ReactDOM.render(
-          [],
-          document.getElementById('matchList')
-      );
       ReactDOM.render(
           <span>player '{nickname}' does not exist on faceit ...</span>,
           document.getElementById("searchNote")
@@ -135,6 +161,11 @@ function fetchMatches(playerId) {
 function saveSearchedNicknameToCookie(nickname) {
   document.cookie = `lastSearchedNickname=${nickname}`
 }
+
+ReactDOM.render(
+    <MatchTable/>,
+    document.getElementById("matchList")
+)
 
 let lastSearchedNickname = ""
 if (document.cookie.length > 0) {
