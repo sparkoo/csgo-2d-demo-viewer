@@ -24,7 +24,7 @@ let player
 let interval = 15;
 
 socket.onmessage = function (event) {
-  console.log(`[message] Data received from server: ${event.data}`);
+  // console.log(`[message] Data received from server: ${event.data}`);
   let msg = JSON.parse(event.data)
 
   switch (msg.msgType) {
@@ -93,7 +93,6 @@ function initRounds() {
 }
 
 function updateLoadProgress(msg) {
-  console.log("update progress", msg)
   document.getElementById("loadingProgress").hidden = false;
   document.getElementById("controlPanel").hidden = true;
   document.getElementById(
@@ -254,12 +253,19 @@ function handleAddPlayer(msg) {
   playerArrow.className = `playerArrow ${msg.Team}`;
 
   let playerNameTag = document.createElement("div");
+  playerNameTag.id = `playerNameTag${msg.PlayerId}`
   playerNameTag.innerHTML = msg.Name
   playerNameTag.className = "playerNameTag"
+
+  let playerWeapon = document.createElement("img")
+  playerWeapon.id = `playerMapWeapon${msg.PlayerId}`
+  playerWeapon.src = `/assets/icons/csgo/${msg.Weapon}.svg`
+  playerWeapon.className = `playerMapWeapon ${msg.Weapon}`
 
   playerArrowContainer.appendChild(playerArrow);
   mapItemPlayer.appendChild(playerArrowContainer);
   mapItemPlayer.appendChild(playerNameTag);
+  mapItemPlayer.appendChild(playerWeapon);
   document.getElementById("map").appendChild(mapItemPlayer);
 }
 
@@ -302,7 +308,18 @@ function playerUpdate(playerUpdate) {
         if (playerArrow) {
           playerArrow.style.transform = `rotate(${player.Rotation}deg) translateY(-40%)`;
         }
+
+        document.getElementById(
+            `playerNameTag${player.PlayerId}`).innerHTML = player.Name
+
+        let playerWeapon = document.getElementById(
+            `playerMapWeapon${player.PlayerId}`)
+        playerWeapon.src = `/assets/icons/csgo/${player.Weapon}.svg`
+        playerWeapon.className = `playerMapWeapon ${player.Weapon}`
+        playerWeapon.hidden = false
       } else {
+        document.getElementById(
+            `playerMapWeapon${player.PlayerId}`).hidden = true
         mapItem.style.opacity = ".2";
       }
     }

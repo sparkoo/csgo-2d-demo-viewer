@@ -188,6 +188,11 @@ func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map, parser d
 func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 	x, y := translatePosition(p.LastAlivePosition, mapCS)
 
+	var weapon string
+	if w := p.ActiveWeapon(); w != nil {
+		weapon = convertWeapon(w.OriginalString)
+	}
+
 	return message.Player{
 		PlayerId: p.UserID,
 		Name:     p.Name,
@@ -197,6 +202,7 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		Z:        p.Position().Z,
 		Rotation: -(p.ViewDirectionX() - 90.0),
 		Alive:    p.IsAlive(),
+		Weapon:   weapon,
 	}
 }
 

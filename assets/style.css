@@ -161,7 +161,7 @@ html, body {
 
 .playerNameTag {
   position: absolute;
-  transform: translate(-40%, -200%);
+  transform: translate(-35%, -200%);
   display: block;
   border: 1px solid black;
   background-color: var(--DarkColor);
@@ -170,4 +170,14 @@ html, body {
   opacity: .7;
   z-index: -5;
   font-size: 1vh;
+}
+
+.playerMapWeapon {
+  position: absolute;
+  max-width: 400%;
+  max-height: 120%;
+  display: block;
+  transform: translate(-30%, -340%);
+  opacity: .5;
+  z-index: -4;
 }
