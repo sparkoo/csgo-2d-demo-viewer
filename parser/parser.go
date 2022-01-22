@@ -163,10 +163,6 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	}
 }
 
-func isActiveTeam(team common.Team) bool {
-	return team == 2 || team == 3
-}
-
 func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map, parser dem.Parser) *message.Message {
 	msgPlayers := make([]message.Player, 0)
 	for _, p := range tick.TeamTerrorists().Members() {
@@ -177,9 +173,9 @@ func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map, parser d
 	}
 
 	return &message.Message{
-		MsgType: message.PlayerUpdateType,
+		MsgType: message.TickStateUpdate,
 		Tick:    parser.CurrentFrame(),
-		PlayerUpdate: &message.PlayerUpdate{
+		TickState: &message.TickState{
 			Players: msgPlayers,
 		},
 	}

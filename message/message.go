@@ -7,25 +7,26 @@ import (
 type messageType int
 
 const (
-	PlayerUpdateType messageType = 1
-	AddPlayerType    messageType = 2
-	InitType         messageType = 4
-	DemoEndType      messageType = 5
-	RoundType        messageType = 6
-	ProgressType     messageType = 7
-	TimeUpdateType   messageType = 8
-	ShotType         messageType = 9
-	EmptyType        messageType = 10
-	KillType         messageType = 11
-	PlayRequestType  messageType = 12
-	ErrorType        messageType = 13
+	TickStateUpdate    messageType = 1
+	AddPlayerType      messageType = 2
+	InitType           messageType = 4
+	DemoEndType        messageType = 5
+	RoundType          messageType = 6
+	ProgressType       messageType = 7
+	TimeUpdateType     messageType = 8
+	ShotType           messageType = 9
+	EmptyType          messageType = 10
+	KillType           messageType = 11
+	PlayRequestType    messageType = 12
+	ErrorType          messageType = 13
+	GrenadesUpdateType messageType = 14
 )
 
 type Message struct {
 	MsgType       messageType `json:"msgType"`
 	Tick          int         `json:"tick"`
 	*TeamUpdate   `json:"teamUpdate,omitempty"`
-	*PlayerUpdate `json:"playerUpdate,omitempty"`
+	*TickState    `json:"tickState,omitempty"`
 	*AddPlayer    `json:"addPlayer,omitempty"`
 	*RemovePlayer `json:"removePlayer,omitempty"`
 	*Init         `json:"init,omitempty"`
@@ -95,7 +96,7 @@ type TeamUpdate struct {
 	CTScore int
 }
 
-type PlayerUpdate struct {
+type TickState struct {
 	Players []Player
 }
 

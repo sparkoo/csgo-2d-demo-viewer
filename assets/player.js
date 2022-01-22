@@ -169,7 +169,7 @@ function playTick(tickMessages) {
   tickMessages.forEach(function (msg) {
     switch (msg.msgType) {
       case 1:
-        playerUpdate(msg.playerUpdate);
+        tickState(msg.tickState);
         break
       case 8:
         updateTime(msg.roundTime);
@@ -277,7 +277,6 @@ function handleInitMessage(msg) {
 }
 
 function removePlayer(playerId) {
-  console.log("removing ", playerId)
   let playerListItem = document.getElementById(`playerListItem${playerId}`)
   if (document.contains(playerListItem)) {
     playerListItem.remove();
@@ -289,9 +288,9 @@ function removePlayer(playerId) {
   }
 }
 
-function playerUpdate(playerUpdate) {
-  removeOrphanedPlayers(playerUpdate.Players);
-  playerUpdate.Players.forEach(updatePlayer);
+function tickState(tick) {
+  removeOrphanedPlayers(tick.Players);
+  tick.Players.forEach(updatePlayer);
 
   function updatePlayer(player) {
     handleAddPlayer(player);
