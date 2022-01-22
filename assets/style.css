@@ -189,3 +189,41 @@ html, body {
   background-repeat: no-repeat;
   background-position: center;
 }
+
+.nade {
+  /* scale size */
+  width: 1%;
+  height: 1%;
+  /* and center it */
+  margin-left: -.5%;
+  margin-top: -.5%;
+  /*make it round*/
+  border-radius: 50%;
+
+  transition: 60ms linear;
+
+  position: absolute;
+  box-shadow: 0 0 15px 0 var(--BlackColor);
+  background-color: red;
+  opacity: 1;
+}
+
+.nade .he {
+  background-color: green;
+}
+
+.nade .smoke {
+  background-color: grey;
+}
+
+.nade .molotov, .nade .incendiary {
+  background-color: orangered;
+}
+
+.nade .decoy {
+  background-color: yellow;
+}
+
+.nade .flash {
+  background-color: lightblue;
+}

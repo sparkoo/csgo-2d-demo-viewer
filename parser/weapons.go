@@ -1,6 +1,9 @@
 package parser
 
-import "log"
+import (
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	"log"
+)
 
 var WeaponModels = map[string]string{
 	"models/weapons/v_rif_m4a1_s.mdl":                   "m4a1s",
@@ -77,6 +80,15 @@ var WeaponModels = map[string]string{
 	"models/weapons/v_snip_g3sg1.mdl":                   "g3sg1",
 	"models/weapons/v_smg_bizon.mdl":                    "bizon",
 	"models/weapons/v_mach_m249para.mdl":                "para",
+}
+
+var WeaponsEqType = map[common.EquipmentType]string{
+	common.EqDecoy:      "decoy",
+	common.EqMolotov:    "molotov",
+	common.EqIncendiary: "incendiary",
+	common.EqFlash:      "flash",
+	common.EqSmoke:      "smoke",
+	common.EqHE:         "he",
 }
 
 func convertWeapon(originalName string) string {

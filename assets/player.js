@@ -292,6 +292,8 @@ function tickState(tick) {
   removeOrphanedPlayers(tick.Players);
   tick.Players.forEach(updatePlayer);
 
+  tick.Nades.forEach(updateNades);
+
   function updatePlayer(player) {
     handleAddPlayer(player);
 
@@ -320,6 +322,22 @@ function tickState(tick) {
             `playerMapWeapon${player.PlayerId}`).hidden = true
         mapItem.style.opacity = ".2";
       }
+    }
+  }
+
+  function updateNades(nade) {
+    let nadeId = `mapNade${nade.id}`
+    let mapItemNade = document.getElementById(nadeId)
+    if (mapItemNade) {
+      mapItemNade.style.left = nade.x + "%";
+      mapItemNade.style.top = nade.y + "%";
+    } else {
+      mapItemNade = document.createElement("div");
+      mapItemNade.className = `nade ${nade.kind}`;
+      mapItemNade.id = `mapNade${nade.id}`
+      mapItemNade.style.left = nade.x + "%";
+      mapItemNade.style.top = nade.y + "%";
+      document.getElementById("map").appendChild(mapItemNade);
     }
   }
 }

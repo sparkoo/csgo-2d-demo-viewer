@@ -158,12 +158,11 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			continue
 		}
 
-		tick := parser.GameState()
-		roundMessage.Add(createMessagePlayerUpdate(tick, &mapCS, parser))
+		roundMessage.Add(createTickStateMessage(parser.GameState(), &mapCS, parser))
 	}
 }
 
-func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map, parser dem.Parser) *message.Message {
+func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.Parser) *message.Message {
 	msgPlayers := make([]message.Player, 0)
 	for _, p := range tick.TeamTerrorists().Members() {
 		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
@@ -172,11 +171,24 @@ func createMessagePlayerUpdate(tick dem.GameState, mapCS *metadata.Map, parser d
 		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
 	}
 
+	nades := make([]message.Grenade, 0)
+	for _, g := range tick.GrenadeProjectiles() {
+		x, y := translatePosition(g.Position(), mapCS)
+		nades = append(nades, message.Grenade{
+			Id:   g.Entity.ID(),
+			Kind: WeaponsEqType[g.WeaponInstance.Type],
+			X:    x,
+			Y:    y,
+			Z:    g.Position().Z,
+		})
+	}
+
 	return &message.Message{
 		MsgType: message.TickStateUpdate,
 		Tick:    parser.CurrentFrame(),
 		TickState: &message.TickState{
 			Players: msgPlayers,
+			Nades:   nades,
 		},
 	}
 }
