@@ -176,3 +176,16 @@ html, body {
 #matchList td {
   white-space: nowrap;
 }
+
+.playerMapWeapon {
+  width: 200%;
+  height: 100%;
+  display: block;
+  transform: translate(-30%, -300%);
+  opacity: .5;
+  z-index: -4;
+  background-size: contain;
+  background-image: url("/assets/icons/csgo/aug.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+}

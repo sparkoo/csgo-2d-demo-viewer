@@ -2,7 +2,7 @@ package parser
 
 import "log"
 
-var weaponModels = map[string]string{
+var WeaponModels = map[string]string{
 	"models/weapons/v_rif_m4a1_s.mdl":                   "m4a1s",
 	"models/weapons/w_rif_m4a1_s_dropped.mdl":           "m4a1s",
 	"models/weapons/v_rif_m4a1.mdl":                     "m4a1",
@@ -80,7 +80,7 @@ var weaponModels = map[string]string{
 }
 
 func convertWeapon(originalName string) string {
-	if w, ok := weaponModels[originalName]; ok {
+	if w, ok := WeaponModels[originalName]; ok {
 		return w
 	} else {
 		log.Printf("model not found '%s'", originalName)

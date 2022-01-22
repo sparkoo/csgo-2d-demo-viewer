@@ -257,9 +257,8 @@ function handleAddPlayer(msg) {
   playerNameTag.innerHTML = msg.Name
   playerNameTag.className = "playerNameTag"
 
-  let playerWeapon = document.createElement("img")
+  let playerWeapon = document.createElement("div")
   playerWeapon.id = `playerMapWeapon${msg.PlayerId}`
-  playerWeapon.src = `/assets/icons/csgo/${msg.Weapon}.svg`
   playerWeapon.className = `playerMapWeapon ${msg.Weapon}`
 
   playerArrowContainer.appendChild(playerArrow);

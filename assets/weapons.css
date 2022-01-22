@@ -1,21 +1,166 @@
-.playerMapWeapon {
-    position: absolute;
-    max-width: 200%;
-    max-height: 80%;
-    display: block;
-    transform: translate(-20%, -415%);
-    opacity: .5;
-    z-index: -4;
+/* THIS FILE IS GENERATED, PLEASE DO NOT CHANGE !!! */
+
+.he {
+  background-image: url("/assets/icons/csgo/he.svg");
+}
+
+.m4a1s {
+  background-image: url("/assets/icons/csgo/m4a1s.svg");
+}
+
+.nova {
+  background-image: url("/assets/icons/csgo/nova.svg");
+}
+
+.negev {
+  background-image: url("/assets/icons/csgo/negev.svg");
 }
 
 .knife {
-    transform: translate(-25%, -750%);
+  background-image: url("/assets/icons/csgo/knife.svg");
 }
 
-.he, .flash, .smoke {
-    transform: translate(5%, -320%);
+.ak47 {
+  background-image: url("/assets/icons/csgo/ak47.svg");
+}
+
+.incendiary {
+  background-image: url("/assets/icons/csgo/incendiary.svg");
+}
+
+.mag7 {
+  background-image: url("/assets/icons/csgo/mag7.svg");
+}
+
+.mp5 {
+  background-image: url("/assets/icons/csgo/mp5.svg");
+}
+
+.ump45 {
+  background-image: url("/assets/icons/csgo/ump45.svg");
+}
+
+.mp7 {
+  background-image: url("/assets/icons/csgo/mp7.svg");
+}
+
+.xm1014 {
+  background-image: url("/assets/icons/csgo/xm1014.svg");
+}
+
+.awp {
+  background-image: url("/assets/icons/csgo/awp.svg");
+}
+
+.famas {
+  background-image: url("/assets/icons/csgo/famas.svg");
 }
 
 .glock {
-    transform: translate(-5%, -380%);
+  background-image: url("/assets/icons/csgo/glock.svg");
 }
+
+.duals {
+  background-image: url("/assets/icons/csgo/duals.svg");
+}
+
+.mp9 {
+  background-image: url("/assets/icons/csgo/mp9.svg");
+}
+
+.sg556 {
+  background-image: url("/assets/icons/csgo/sg556.svg");
+}
+
+.scar {
+  background-image: url("/assets/icons/csgo/scar.svg");
+}
+
+.cz75 {
+  background-image: url("/assets/icons/csgo/cz75.svg");
+}
+
+.p250 {
+  background-image: url("/assets/icons/csgo/p250.svg");
+}
+
+.smoke {
+  background-image: url("/assets/icons/csgo/smoke.svg");
+}
+
+.tec9 {
+  background-image: url("/assets/icons/csgo/tec9.svg");
+}
+
+.flash {
+  background-image: url("/assets/icons/csgo/flash.svg");
+}
+
+.bizon {
+  background-image: url("/assets/icons/csgo/bizon.svg");
+}
+
+.c4 {
+  background-image: url("/assets/icons/csgo/c4.svg");
+}
+
+.hkp2000 {
+  background-image: url("/assets/icons/csgo/hkp2000.svg");
+}
+
+.deagle {
+  background-image: url("/assets/icons/csgo/deagle.svg");
+}
+
+.g3sg1 {
+  background-image: url("/assets/icons/csgo/g3sg1.svg");
+}
+
+.mac10 {
+  background-image: url("/assets/icons/csgo/mac10.svg");
+}
+
+.taser {
+  background-image: url("/assets/icons/csgo/taser.svg");
+}
+
+.fiveseven {
+  background-image: url("/assets/icons/csgo/fiveseven.svg");
+}
+
+.molotov {
+  background-image: url("/assets/icons/csgo/molotov.svg");
+}
+
+.m4a1 {
+  background-image: url("/assets/icons/csgo/m4a1.svg");
+}
+
+.galil {
+  background-image: url("/assets/icons/csgo/galil.svg");
+}
+
+.decoy {
+  background-image: url("/assets/icons/csgo/decoy.svg");
+}
+
+.aug {
+  background-image: url("/assets/icons/csgo/aug.svg");
+}
+
+.p90 {
+  background-image: url("/assets/icons/csgo/p90.svg");
+}
+
+.scout {
+  background-image: url("/assets/icons/csgo/scout.svg");
+}
+
+.para {
+  background-image: url("/assets/icons/csgo/para.svg");
+}
+
+.usp-s {
+  background-image: url("/assets/icons/csgo/usp-s.svg");
+}
+

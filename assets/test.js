@@ -8,7 +8,6 @@ let mapPlayerWeapons = Array.from(
 
 function updateWeapon(weapon) {
   mapPlayerWeapons.forEach(w => {
-    w.src = `/assets/icons/csgo/${weapon}.svg`
     w.className = `playerMapWeapon ${weapon}`
   })
 }
