@@ -173,24 +173,6 @@ html, body {
   font-size: 1vh;
 }
 
-.playerMapWeapon {
-  position: absolute;
-  max-width: 200%;
-  max-height: 80%;
-  display: block;
-  transform: translate(-20%, -415%);
-  opacity: .5;
-  z-index: -4;
-}
-
-.knife {
-  transform: translate(-25%, -750%);
-}
-
-.he, .flash, .smoke {
-  transform: translate(5%, -320%);
-}
-
 #matchList td {
   white-space: nowrap;
 }

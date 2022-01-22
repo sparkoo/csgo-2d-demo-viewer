@@ -58,6 +58,17 @@ func server(messageHandler func(out chan []byte, in chan []byte)) {
 		//faceit.LoadPlayerMatches("d0a85a88-0f69-4671-8f5e-d6dd10b98168")
 	})
 
+	mux.HandleFunc("/test", func(writer http.ResponseWriter, request *http.Request) {
+		temp, err := template.ParseFiles("templates/test.html")
+		if err != nil {
+			http.Error(writer, err.Error(), 500)
+		}
+
+		if temp.Execute(writer, nil) != nil {
+			http.Error(writer, err.Error(), 500)
+		}
+	})
+
 	mux.HandleFunc("/player", func(writer http.ResponseWriter, request *http.Request) {
 		temp, err := template.ParseFiles("templates/player.html")
 		if err != nil {
