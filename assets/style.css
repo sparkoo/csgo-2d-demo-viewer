@@ -163,7 +163,8 @@ html, body {
   position: absolute;
   transform: translate(-35%, -200%);
   display: block;
-  border: 1px solid black;
+  /*border: 1px solid black;*/
+  border-radius: 2px;
   background-color: var(--DarkColor);
   white-space: nowrap;
   padding: 0 2px;
@@ -174,18 +175,22 @@ html, body {
 
 .playerMapWeapon {
   position: absolute;
-  max-width: 400%;
-  max-height: 120%;
+  max-width: 200%;
+  max-height: 80%;
   display: block;
-  transform: translate(-30%, -340%);
+  transform: translate(-20%, -415%);
   opacity: .5;
   z-index: -4;
 }
 
 .knife {
-  transform: translate(-30%, -500%);
+  transform: translate(-25%, -750%);
 }
 
 .he, .flash, .smoke {
   transform: translate(5%, -320%);
+}
+
+#matchList td {
+  white-space: nowrap;
 }

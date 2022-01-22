@@ -105,10 +105,10 @@ class MatchRow extends React.Component {
       <td className="w3-col l2">
         {this.state.playedTime}
       </td>
-      <td className="w3-col l1">
+      <td className="w3-col l2">
         {this.state.playedMap}
       </td>
-      <td className="w3-col l2 w3-centered">
+      <td className="w3-col l1 w3-centered">
         {this.props.match.game_mode}
       </td>
       <td className="w3-col l3 w3-right-align">
