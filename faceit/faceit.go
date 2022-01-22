@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -20,53 +21,49 @@ type MatchDemo struct {
 
 var NoDemoError = errors.New("no demo found for this match")
 
-func DownloadDemo(matchId string, targetFilename string) error {
+func DemoStream(matchId string) (io.ReadCloser, error) {
+	demoUrl, urlErr := getDemoUrl(matchId)
+	if urlErr != nil {
+		return nil, urlErr
+	}
+
+	log.Printf("Reading file '%s'", demoUrl)
+	req, reqErr := createRequest(demoUrl, false)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	reader, doReqErr := doRequestStream(req)
+	if doReqErr != nil {
+		return nil, doReqErr
+	}
+	return reader, nil
+}
+
+func getDemoUrl(matchId string) (string, error) {
 	url := fmt.Sprintf("%s/matches/%s", faceitApiUrlBase, matchId)
 	log.Printf("requesting url '%s'", url)
 	req, reqErr := createRequest(url, true)
 	if reqErr != nil {
-		return reqErr
+		return "", reqErr
 	}
 	q := req.URL.Query()
 	req.URL.RawQuery = q.Encode()
 	content, doReqErr := doRequest(req)
 	if doReqErr != nil {
-		return doReqErr
+		return "", doReqErr
 	}
 
 	demo := &MatchDemo{}
 	jsonErr := json.Unmarshal(content, demo)
 	if jsonErr != nil {
-		return jsonErr
+		return "", jsonErr
 	}
 
 	if len(demo.DemoUrl) == 0 {
-		return NoDemoError
+		return "", NoDemoError
 	}
 
-	if err := downloadFile(demo.DemoUrl[0], targetFilename); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func downloadFile(sourceUrl string, target string) error {
-	log.Printf("Downloading file '%s' to '%s'", sourceUrl, target)
-	req, reqErr := createRequest(sourceUrl, false)
-	if reqErr != nil {
-		return reqErr
-	}
-	content, doReqErr := doRequest(req)
-	if doReqErr != nil {
-		return doReqErr
-	}
-	writeErr := ioutil.WriteFile(target, content, 0644)
-	if writeErr != nil {
-		return writeErr
-	}
-	log.Println("saved")
-	return nil
+	return demo.DemoUrl[0], nil
 }
 
 func createRequest(url string, auth bool) (*http.Request, error) {
@@ -103,4 +100,24 @@ func doRequest(req *http.Request) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+func doRequestStream(req *http.Request) (io.ReadCloser, error) {
+	client := &http.Client{Timeout: time.Second * 30}
+
+	var resp *http.Response
+	for i := 0; i < 3; i++ {
+		var err error
+		resp, err = client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		if resp.StatusCode == 200 {
+			return resp.Body, nil
+		}
+		log.Printf("failed request, response code '%d'", resp.StatusCode)
+		resp.Body.Close()
+	}
+
+	return nil, fmt.Errorf("failed 3 times to do a request")
 }
