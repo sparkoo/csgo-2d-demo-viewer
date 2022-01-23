@@ -173,6 +173,10 @@ function play() {
       clearInterval(player);
     }
     playTick(round.Ticks[currentTickI]);
+
+    let progress = currentTickI / round.Ticks.length
+    roundProgress.style.width = `${progress * 100}%`
+
     currentTickI++
   }, interval)
 }
