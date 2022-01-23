@@ -45,7 +45,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	parser.RegisterEventHandler(func(ge events.GrenadeEventIf) {
 		x, y := translatePosition(ge.Base().Position, &mapCS)
 		switch ge.(type) {
-		case events.FlashExplode:
+		case events.FlashExplode, events.HeExplode:
 			roundMessage.Add(&message.Message{
 				MsgType: message.GrenadeEventType,
 				Tick:    parser.CurrentFrame(),

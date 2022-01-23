@@ -381,14 +381,18 @@ function handleShot(shotMsg) {
 }
 
 function handleGrenadeEvent(nade) {
+  console.log(nade)
   let mapItemNade = document.createElement("div");
-  mapItemNade.className = `mapNade ${nade.nade.kind} ${nade.event}`;
+  mapItemNade.className = `mapNade ${nade.nade.kind}`;
   mapItemNade.style.left = nade.nade.x + "%";
   mapItemNade.style.top = nade.nade.y + "%";
   document.getElementById("map").appendChild(mapItemNade);
   setTimeout(function () {
+    mapItemNade.classList.add(nade.event)
+  }, 10)
+  setTimeout(function () {
     mapItemNade.remove()
-  }, 500)
+  }, 300)
 }
 
 function handleKill(kill) {

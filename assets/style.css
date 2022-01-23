@@ -234,8 +234,14 @@ html, body {
   background-color: lightblue;
 }
 
-.explode {
+.flash.explode {
   box-shadow: 0 0 10px 10px whitesmoke;
   transition: box-shadow 0.1s linear;
   background: whitesmoke;
+}
+
+.he.explode {
+  box-shadow: 0 0 25px 25px orangered;
+  transition: box-shadow 0.2s linear;
+  background: orangered;
 }
