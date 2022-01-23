@@ -217,19 +217,6 @@ function updateTime(roundTime) {
 }
 
 function handleAddPlayer(msg) {
-  // if player is already there and in correct team, we do nothing
-  // TODO: we should update stats when it's there
-  let listItem = document.getElementById(
-      `playerListItem${msg.PlayerId}`)
-  if (listItem) {
-    if (msg.Alive) {
-      listItem.style.opacity = "1"
-    } else {
-      listItem.style.opacity = ".5"
-    }
-    return;
-  }
-
   // first remove the player to avoid duplicates
   removePlayer(msg.PlayerId)
 
@@ -281,12 +268,12 @@ function handleInitMessage(msg) {
 
 function removePlayer(playerId) {
   let playerListItem = document.getElementById(`playerListItem${playerId}`)
-  if (document.contains(playerListItem)) {
+  if (playerListItem) {
     playerListItem.remove();
   }
 
   let playerMap = document.getElementById(`playerMap${playerId}`)
-  if (document.contains(playerMap)) {
+  if (playerMap) {
     playerMap.remove();
   }
 }
@@ -305,10 +292,13 @@ function tickState(tick) {
   }
 
   function updatePlayer(player) {
-    handleAddPlayer(player);
-
     let mapItem = document.getElementById(`playerMap${player.PlayerId}`);
     if (mapItem) {
+      // if player changed the ream, we add it again
+      if (!mapItem.classList.contains(player.Team)) {
+        handleAddPlayer(player)
+      }
+
       mapItem.style.left = player.X + "%";
       mapItem.style.top = player.Y + "%";
       mapItem.classList.remove("toDelete")
@@ -339,6 +329,8 @@ function tickState(tick) {
             `playerMapWeapon${player.PlayerId}`).hidden = true
         mapItem.style.opacity = ".2";
       }
+    } else {
+      handleAddPlayer(player);
     }
   }
 }
