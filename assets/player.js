@@ -353,9 +353,12 @@ function updateNades(nades) {
       mapItemNade.style.left = nade.x + "%";
       mapItemNade.style.top = nade.y + "%";
       mapItemNade.classList.remove("toDelete")
+      if (nade.action) {
+        mapItemNade.classList.add(nade.action)
+      }
     } else {
       mapItemNade = document.createElement("div");
-      mapItemNade.className = `mapNade ${nade.kind} deletable`;
+      mapItemNade.className = `mapNade ${nade.kind} deletable ${nade.action}`;
       mapItemNade.id = `mapNade${nade.id}`
       mapItemNade.style.left = nade.x + "%";
       mapItemNade.style.top = nade.y + "%";
@@ -381,14 +384,13 @@ function handleShot(shotMsg) {
 }
 
 function handleGrenadeEvent(nade) {
-  console.log(nade)
   let mapItemNade = document.createElement("div");
-  mapItemNade.className = `mapNade ${nade.nade.kind}`;
-  mapItemNade.style.left = nade.nade.x + "%";
-  mapItemNade.style.top = nade.nade.y + "%";
+  mapItemNade.className = `mapNade ${nade.kind}`;
+  mapItemNade.style.left = nade.x + "%";
+  mapItemNade.style.top = nade.y + "%";
   document.getElementById("map").appendChild(mapItemNade);
   setTimeout(function () {
-    mapItemNade.classList.add(nade.event)
+    mapItemNade.classList.add(nade.action)
   }, 10)
   setTimeout(function () {
     mapItemNade.remove()

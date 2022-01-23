@@ -35,7 +35,10 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	gameStarted := false
 	var mapCS metadata.Map
 
-	parser.ParseNextFrame()
+	// parse one frame to have something
+	if more, err := parser.ParseNextFrame(); !more || err != nil {
+		return err
+	}
 
 	roundMessage := message.NewRound(parser.CurrentFrame())
 	currentRoundTimer := RoundTimer{
@@ -49,15 +52,13 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			roundMessage.Add(&message.Message{
 				MsgType: message.GrenadeEventType,
 				Tick:    parser.CurrentFrame(),
-				GrenadeEvent: &message.GrenadeEvent{
-					Nade: message.Grenade{
-						Id:   ge.Base().GrenadeEntityID,
-						Kind: WeaponsEqType[ge.Base().Grenade.Type],
-						X:    x,
-						Y:    y,
-						Z:    ge.Base().Position.Z,
-					},
-					Event: "explode",
+				GrenadeEvent: &message.Grenade{
+					Id:     ge.Base().GrenadeEntityID,
+					Kind:   WeaponsEqType[ge.Base().Grenade.Type],
+					X:      x,
+					Y:      y,
+					Z:      ge.Base().Position.Z,
+					Action: "explode",
 				},
 			})
 		}
@@ -196,18 +197,26 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 
 	nades := make([]message.Grenade, 0)
 	for _, g := range tick.GrenadeProjectiles() {
+		var action string
 		if g.WeaponInstance.Type == common.EqHE {
+			// HE for some reason keep on map longer. we want to remove them after they explode
 			if exploded, ok := g.Entity.PropertyValue("m_nExplodeEffectIndex"); ok && exploded.IntVal > 0 {
 				continue
 			}
 		}
+		if g.WeaponInstance.Type == common.EqSmoke {
+			if exploded, ok := g.Entity.PropertyValue("m_bDidSmokeEffect"); ok && exploded.IntVal > 0 {
+				action = "explode"
+			}
+		}
 		x, y := translatePosition(g.Position(), mapCS)
 		nades = append(nades, message.Grenade{
-			Id:   g.Entity.ID(),
-			Kind: WeaponsEqType[g.WeaponInstance.Type],
-			X:    x,
-			Y:    y,
-			Z:    g.Position().Z,
+			Id:     g.Entity.ID(),
+			Kind:   WeaponsEqType[g.WeaponInstance.Type],
+			X:      x,
+			Y:      y,
+			Z:      g.Position().Z,
+			Action: action,
 		})
 	}
 

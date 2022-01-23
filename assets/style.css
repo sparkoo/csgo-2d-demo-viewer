@@ -207,7 +207,7 @@ html, body {
   transition: 60ms linear;
 
   position: absolute;
-  box-shadow: 0 0 15px 0 var(--BlackColor);
+  box-shadow: 0 0 1vh 0 var(--BlackColor);
   opacity: .8;
   background-size: contain;
   background-repeat: no-repeat;
@@ -235,13 +235,22 @@ html, body {
 }
 
 .flash.explode {
-  box-shadow: 0 0 10px 10px whitesmoke;
-  transition: box-shadow 0.1s linear;
+  box-shadow: 0 0 1vh 2vh whitesmoke;
+  transition: box-shadow 0.05s linear;
   background: whitesmoke;
+  opacity: .8;
 }
 
 .he.explode {
-  box-shadow: 0 0 25px 25px orangered;
+  box-shadow: 0 0 2vh 2vh orangered;
   transition: box-shadow 0.2s linear;
   background: orangered;
+  opacity: .8;
+}
+
+.smoke.explode {
+  box-shadow: 0 0 1vh 3vh darkgray;
+  transition: box-shadow 0.2s linear;
+  background: darkgray;
+  opacity: .5;
 }

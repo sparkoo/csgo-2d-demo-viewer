@@ -37,7 +37,7 @@ type Message struct {
 	*Kill         `json:"kill,omitempty"`
 	*Demo         `json:"demo,omitempty"`
 	*Error        `json:"error,omitempty"`
-	*GrenadeEvent `json:"grenadeEvent,omitempty"`
+	GrenadeEvent  *Grenade `json:"grenadeEvent,omitempty"`
 }
 
 type Error struct {
@@ -131,16 +131,12 @@ type Player struct {
 }
 
 type Grenade struct {
-	Id   int     `json:"id"`
-	Kind string  `json:"kind"`
-	X    float64 `json:"x"`
-	Y    float64 `json:"y"`
-	Z    float64 `json:"z"`
-}
-
-type GrenadeEvent struct {
-	Nade  Grenade `json:"nade"`
-	Event string  `json:"event"`
+	Id     int     `json:"id"`
+	Kind   string  `json:"kind"`
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+	Z      float64 `json:"z"`
+	Action string  `json:"action"`
 }
 
 func CreateTeamUpdateMessage(tick demoinfocs.GameState) *TeamUpdate {
