@@ -254,3 +254,21 @@ html, body {
   background: darkgray;
   opacity: .5;
 }
+
+.decoy.explode {
+  animation: decoyPop .5s linear infinite;
+}
+
+@keyframes decoyPop {
+  0% {
+    box-shadow: none;
+  }
+
+  10% {
+    box-shadow: 0 0 .5vh 1vh sandybrown;
+  }
+
+  20% {
+    box-shadow: none;
+  }
+}

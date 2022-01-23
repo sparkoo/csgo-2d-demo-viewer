@@ -14,6 +14,14 @@ import (
 	"time"
 )
 
+var zeroVector = r3.Vector{
+	X: 0,
+	Y: 0,
+	Z: 0,
+}
+
+const velocityDelta = 0.000001
+
 type RoundTimer struct {
 	lastRoundStart time.Duration
 }
@@ -206,6 +214,12 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 		}
 		if g.WeaponInstance.Type == common.EqSmoke {
 			if exploded, ok := g.Entity.PropertyValue("m_bDidSmokeEffect"); ok && exploded.IntVal > 0 {
+				action = "explode"
+			}
+		}
+		if g.WeaponInstance.Type == common.EqDecoy {
+			vel := g.Velocity()
+			if vel.Distance(zeroVector) <= velocityDelta {
 				action = "explode"
 			}
 		}
