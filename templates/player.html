@@ -28,21 +28,55 @@
       </div>
     </div>
     <div class="w3-row" id="controlPanel">
-      <div id="timerContainer" class="w3-xlarge w3-left-align">
+      <div id="timerContainer" class="w3-xlarge w3-left-align w3-dark-gray">
         <div id="timer" class="w3-container w3-green">
           0:00
         </div>
       </div>
       <div class="w3-bar w3-small" id="roundNavBar">
       </div>
-      <button onclick="togglePlay()">&#x23EF;</button>
-      <h3>
-        <span id="TName" class="T">Terrorists</span>
-        <span id="CTName" class="CT">Counter Terrorists</span>
-      </h3>
-      <span class="T" id="TScore">0</span>
-      :
-      <span class="CT" id="CTScore">0</span>
+      <div class="w3-row">
+        <div class="w3-col l4"><br></div>
+        <div class="w3-col l4">
+          <button class="w3-button w3-ripple w3-dark-gray material-icons"
+                  onclick="playRoundIncrement(-1)">&#xe045;
+          </button>
+          <button id="playToggleButton" class="w3-button w3-ripple w3-dark-gray material-icons"
+                  onclick="togglePlay()">&#xe037;
+          </button>
+          <button class="w3-button w3-ripple w3-dark-gray material-icons"
+                  onclick="playRoundIncrement(1)">&#xe044;
+          </button>
+        </div>
+        <div class="w3-col l4 w3-right-align">
+          <button class="w3-button w3-ripple w3-dark-gray material-icons" onclick="playSpeed(0.5)">
+            &#xe068;
+          </button>
+          <button class="w3-button w3-ripple w3-dark-gray material-icons" onclick="playSpeed(1)">
+            &#xe037;
+          </button>
+          <button class="w3-button w3-ripple w3-dark-gray material-icons" onclick="playSpeed(4)">
+            &#xe01f;
+          </button>
+        </div>
+      </div>
+      <hr/>
+      <div class="w3-row">
+        <div class="w3-col l6 w3-center">
+          <h2 class="T" id="TScore">0</h2>
+        </div>
+        <div class="w3-col l6 w3-center">
+          <h2 class="CT" id="CTScore">0</h2>
+        </div>
+      </div>
+      <div class="w3-row">
+        <div class="w3-col l6 w3-center">
+          <h3 id="TName" class="T">Terrorists</h3>
+        </div>
+        <div class="w3-col l6 w3-center">
+          <h3 id="CTName" class="CT">Counter Terrorists</h3>
+        </div>
+      </div>
       <ul class="T w3-ul w3-medium" id="TList">
       </ul>
       <ul class="CT w3-ul w3-medium" id="CTList">

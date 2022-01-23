@@ -21,7 +21,8 @@ let rounds = []
 let playingRoundI = 0
 let player
 
-let interval = 15;
+const defaultInterval = 16
+let interval = defaultInterval
 
 socket.onmessage = function (event) {
   // console.log(`[message] Data received from server: ${event.data}`);
@@ -63,14 +64,23 @@ roundProgressbar.onmousemove = function (e) {
 roundProgressbar.onmousedown = function (e) {
   roundProgressUpdate(e.x)
 }
-roundProgressbar.onmouseup = function (e) {
+roundProgressbar.onmouseup = function () {
   play()
 }
-roundProgressbar.onmouseleave = function () {
-  play()
+roundProgressbar.onmouseleave = function (e) {
+  if (e.buttons === 1) {
+    play()
+  }
+}
+
+function stop() {
+  playing = false
+  clearInterval(player)
+  document.getElementById("playToggleButton").innerHTML = "&#xe037;";
 }
 
 function roundProgressUpdate(x) {
+  stop()
   let progressWidth = roundProgressbar.getBoundingClientRect().right
       - roundProgressbar.getBoundingClientRect().left
   x = x - roundProgressbar.getBoundingClientRect().left
@@ -78,10 +88,7 @@ function roundProgressUpdate(x) {
   roundProgress.style.width = `${progress * 100}%`
 
   let round = rounds[playingRoundI]
-
   currentTickI = Math.round(round.Ticks.length * progress)
-  playing = false
-  clearInterval(player)
   playTick(round.Ticks[currentTickI]);
 }
 
@@ -147,16 +154,26 @@ function addTick(msg) {
 }
 
 function playRound(roundI) {
-  playing = false
-  clearInterval(player)
+  stop()
   playingRoundI = roundI
   currentTickI = 0
   highlightActiveRound(roundI)
   play()
 }
 
+function playRoundIncrement(increment) {
+  stop()
+  let shouldPlayRoundI = playingRoundI + increment
+  if (shouldPlayRoundI < rounds.length && shouldPlayRoundI >= 0) {
+    playRound(shouldPlayRoundI)
+  } else {
+    playRound(playingRoundI)
+  }
+}
+
 function play() {
   playing = true;
+  document.getElementById("playToggleButton").innerHTML = "&#xe034;";
   let round = rounds[playingRoundI]
   handleScoreUpdate(round.TeamState)
   highlightActiveRound(playingRoundI)
@@ -164,7 +181,7 @@ function play() {
   player = setInterval(function () {
     if (currentTickI >= round.Ticks.length) {
       if (playingRoundI >= rounds.length) {
-        playing = false;
+        stop()
       } else {
         playingRoundI++;
         round = rounds[playingRoundI];
@@ -196,10 +213,17 @@ function highlightActiveRound(roundI) {
 }
 
 function togglePlay() {
-  playing = !playing
   if (playing) {
+    stop()
+  } else {
     play()
   }
+}
+
+function playSpeed(multiplier) {
+  stop()
+  interval = defaultInterval / multiplier
+  play()
 }
 
 function playTick(tickMessages) {
