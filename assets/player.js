@@ -53,6 +53,35 @@ socket.onmessage = function (event) {
   }
 };
 
+let roundProgressbar = document.getElementById("timerContainer")
+let roundProgress = document.getElementById("timer")
+roundProgressbar.onmousemove = function (e) {
+  if (e.buttons === 1) {
+    roundProgressUpdate(e.x)
+  }
+}
+roundProgressbar.onmousedown = function (e) {
+  roundProgressUpdate(e.x)
+}
+roundProgressbar.onmouseup = function (e) {
+  play()
+}
+
+function roundProgressUpdate(x) {
+  let progressWidth = roundProgressbar.getBoundingClientRect().right
+      - roundProgressbar.getBoundingClientRect().left
+  x = x - roundProgressbar.getBoundingClientRect().left
+  let progress = (x / progressWidth)
+  roundProgress.style.width = `${progress * 100}%`
+
+  let round = rounds[playingRoundI]
+
+  currentTickI = Math.round(round.Ticks.length * progress)
+  playing = false
+  clearInterval(player)
+  playTick(round.Ticks[currentTickI]);
+}
+
 function handleAddRound(roundMsg) {
   let roundTicks = []
   let tickMessages = []
