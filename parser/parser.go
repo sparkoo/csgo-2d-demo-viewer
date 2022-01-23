@@ -196,6 +196,11 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 
 	nades := make([]message.Grenade, 0)
 	for _, g := range tick.GrenadeProjectiles() {
+		if g.WeaponInstance.Type == common.EqHE {
+			if exploded, ok := g.Entity.PropertyValue("m_nExplodeEffectIndex"); ok && exploded.IntVal > 0 {
+				continue
+			}
+		}
 		x, y := translatePosition(g.Position(), mapCS)
 		nades = append(nades, message.Grenade{
 			Id:   g.Entity.ID(),
