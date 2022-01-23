@@ -62,8 +62,16 @@ html, body {
   transition: 60ms linear;
 
   position: absolute;
-  box-shadow: 0 0 15px 0 var(--BlackColor);
+  box-shadow: 0 0 5px 2px var(--BlackColor);
   opacity: 1;
+}
+
+.player.CT {
+  box-shadow: 0 0 2px 2px var(--CTColor);
+}
+
+.player.T {
+  box-shadow: 0 0 2px 2px var(--TColor);
 }
 
 .player.flashed {

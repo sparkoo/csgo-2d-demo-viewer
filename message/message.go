@@ -128,6 +128,7 @@ type Player struct {
 	Alive    bool
 	Weapon   string
 	Flashed  bool
+	Hp       int
 }
 
 type Grenade struct {

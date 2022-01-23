@@ -280,6 +280,7 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		Alive:    p.IsAlive(),
 		Weapon:   weapon,
 		Flashed:  p.IsBlinded(),
+		Hp:       p.Health(),
 	}
 }
 
