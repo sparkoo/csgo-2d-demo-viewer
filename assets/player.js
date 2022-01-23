@@ -292,7 +292,7 @@ function tickState(tick) {
   removeOrphanedPlayers(tick.Players);
   tick.Players.forEach(updatePlayer);
 
-  tick.Nades.forEach(updateNades);
+  updateNades(tick.Nades);
 
   function updatePlayer(player) {
     handleAddPlayer(player);
@@ -324,16 +324,27 @@ function tickState(tick) {
       }
     }
   }
+}
 
-  function updateNades(nade) {
+function updateNades(nades) {
+  for (let nade of document.getElementsByClassName("mapNade")) {
+    nade.classList.add("toDelete");
+  }
+  nades.forEach(updateNade);
+  for (let nade of document.getElementsByClassName("toDelete")) {
+    nade.remove();
+  }
+
+  function updateNade(nade) {
     let nadeId = `mapNade${nade.id}`
     let mapItemNade = document.getElementById(nadeId)
     if (mapItemNade) {
       mapItemNade.style.left = nade.x + "%";
       mapItemNade.style.top = nade.y + "%";
+      mapItemNade.classList.remove("toDelete")
     } else {
       mapItemNade = document.createElement("div");
-      mapItemNade.className = `nade ${nade.kind}`;
+      mapItemNade.className = `mapNade ${nade.kind}`;
       mapItemNade.id = `mapNade${nade.id}`
       mapItemNade.style.left = nade.x + "%";
       mapItemNade.style.top = nade.y + "%";

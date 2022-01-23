@@ -190,7 +190,7 @@ html, body {
   background-position: center;
 }
 
-.nade {
+.mapNade {
   /* scale size */
   width: 1%;
   height: 1%;
@@ -208,22 +208,22 @@ html, body {
   opacity: 1;
 }
 
-.nade .he {
+.mapNade .he {
   background-color: green;
 }
 
-.nade .smoke {
+.mapNade .smoke {
   background-color: grey;
 }
 
-.nade .molotov, .nade .incendiary {
+.mapNade .molotov, .mapNade .incendiary {
   background-color: orangered;
 }
 
-.nade .decoy {
+.mapNade .decoy {
   background-color: yellow;
 }
 
-.nade .flash {
+.mapNade .flash {
   background-color: lightblue;
 }
