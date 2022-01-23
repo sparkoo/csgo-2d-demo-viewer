@@ -125,6 +125,7 @@ type Player struct {
 	Rotation float32
 	Alive    bool
 	Weapon   string
+	Flashed  bool
 }
 
 type Grenade struct {

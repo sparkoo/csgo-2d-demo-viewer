@@ -43,17 +43,19 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	}
 
 	parser.RegisterEventHandler(func(e events.WeaponFire) {
-		x, y := translatePosition(e.Shooter.Position(), &mapCS)
-		roundMessage.Add(&message.Message{
-			MsgType: message.ShotType,
-			Tick:    parser.CurrentFrame(),
-			Shot: &message.Shot{
-				PlayerId: e.Shooter.UserID,
-				X:        x,
-				Y:        y,
-				Rotation: -(e.Shooter.ViewDirectionX() - 90.0),
-			},
-		})
+		if c := e.Weapon.Class(); c == common.EqClassPistols || c == common.EqClassSMG || c == common.EqClassHeavy || c == common.EqClassRifle {
+			x, y := translatePosition(e.Shooter.Position(), &mapCS)
+			roundMessage.Add(&message.Message{
+				MsgType: message.ShotType,
+				Tick:    parser.CurrentFrame(),
+				Shot: &message.Shot{
+					PlayerId: e.Shooter.UserID,
+					X:        x,
+					Y:        y,
+					Rotation: -(e.Shooter.ViewDirectionX() - 90.0),
+				},
+			})
+		}
 	})
 
 	parser.RegisterEventHandler(func(e events.Kill) {
@@ -211,6 +213,7 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		Rotation: -(p.ViewDirectionX() - 90.0),
 		Alive:    p.IsAlive(),
 		Weapon:   weapon,
+		Flashed:  p.IsBlinded(),
 	}
 }
 

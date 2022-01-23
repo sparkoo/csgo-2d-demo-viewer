@@ -309,6 +309,12 @@ function tickState(tick) {
           playerArrow.style.transform = `rotate(${player.Rotation}deg) translateY(-40%)`;
         }
 
+        if (player.Flashed) {
+          mapItem.classList.add("flashed");
+        } else {
+          mapItem.classList.remove("flashed");
+        }
+
         document.getElementById(
             `playerNameTag${player.PlayerId}`).innerHTML = player.Name
 

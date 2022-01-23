@@ -66,6 +66,10 @@ html, body {
   opacity: 1;
 }
 
+.player.flashed {
+  box-shadow: 0 0 10px 2px white;
+}
+
 .player .dead {
   opacity: .5;
 }
@@ -204,8 +208,10 @@ html, body {
 
   position: absolute;
   box-shadow: 0 0 15px 0 var(--BlackColor);
-  background-color: red;
-  opacity: 1;
+  opacity: .8;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .mapNade .he {
