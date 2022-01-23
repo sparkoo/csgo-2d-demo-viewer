@@ -277,6 +277,14 @@ function updateTime(roundTime) {
   document.getElementById("timer").innerHTML = roundTime.RoundTime;
 }
 
+function handlePlayerListItemUpdate(player) {
+  let playerListItem = document.getElementById(
+      `playerListItem${player.PlayerId}`)
+  if (playerListItem) {
+    playerListItem.innerHTML = `${player.Name} HP${player.Hp}`;
+  }
+}
+
 function handleAddPlayer(msg) {
   // first remove the player to avoid duplicates
   removePlayer(msg.PlayerId)
@@ -284,7 +292,7 @@ function handleAddPlayer(msg) {
   // add player to the list
   listItem = document.createElement("li");
   listItem.id = `playerListItem${msg.PlayerId}`;
-  listItem.innerHTML = `${msg.Name} (${msg.PlayerId})`;
+  listItem.innerHTML = `${msg.Name}`;
 
   document.getElementById(msg.Team + "List").appendChild(listItem);
 
@@ -353,6 +361,7 @@ function tickState(tick) {
   }
 
   function updatePlayer(player) {
+    handlePlayerListItemUpdate(player)
     let mapItem = document.getElementById(`playerMap${player.PlayerId}`);
     if (mapItem) {
       // if player changed the ream, we add it again

@@ -268,7 +268,10 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 	if w := p.ActiveWeapon(); w != nil {
 		weapon = convertWeapon(w.OriginalString)
 	}
-
+	weapons := make([]string, 0)
+	for _, w := range p.Weapons() {
+		weapons = append(weapons, WeaponModels[w.OriginalString])
+	}
 	return message.Player{
 		PlayerId: p.UserID,
 		Name:     p.Name,
@@ -281,6 +284,11 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		Weapon:   weapon,
 		Flashed:  p.IsBlinded(),
 		Hp:       p.Health(),
+		Armor:    p.Armor(),
+		Helmet:   p.HasHelmet(),
+		Defuse:   p.HasDefuseKit(),
+		Money:    p.Money(),
+		Weapons:  weapons,
 	}
 }
 

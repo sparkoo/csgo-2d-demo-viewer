@@ -129,6 +129,11 @@ type Player struct {
 	Weapon   string
 	Flashed  bool
 	Hp       int
+	Armor    int
+	Helmet   bool
+	Defuse   bool
+	Money    int
+	Weapons  []string
 }
 
 type Grenade struct {
