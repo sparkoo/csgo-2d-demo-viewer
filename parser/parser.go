@@ -72,6 +72,8 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		}
 	})
 
+	parser.RegisterEventHandler(func(e events.WeaponFire) {})
+
 	parser.RegisterEventHandler(func(e events.WeaponFire) {
 		if c := e.Weapon.Class(); c == common.EqClassPistols || c == common.EqClassSMG || c == common.EqClassHeavy || c == common.EqClassRifle {
 			x, y := translatePosition(e.Shooter.Position(), &mapCS)
@@ -232,6 +234,21 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 			Z:      g.Position().Z,
 			Action: action,
 		})
+	}
+
+	for _, inferno := range tick.Infernos() {
+		for _, fire := range inferno.Fires().Active().ConvexHull3D().Vertices {
+			x, y := translatePosition(fire, mapCS)
+			dist := int(fire.Distance(zeroVector) * 100_000)
+			nades = append(nades, message.Grenade{
+				Id:     inferno.Entity.ID() + dist,
+				Kind:   "fire",
+				X:      x,
+				Y:      y,
+				Z:      fire.Z,
+				Action: "explode",
+			})
+		}
 	}
 
 	return &message.Message{

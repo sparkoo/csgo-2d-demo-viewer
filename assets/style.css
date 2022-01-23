@@ -234,6 +234,13 @@ html, body {
   background-color: lightblue;
 }
 
+.fire.explode {
+  box-shadow: 0 0 1vh 1vh orangered;
+  transition: box-shadow 0.2s linear;
+  background: orangered;
+  opacity: .8;
+}
+
 .flash.explode {
   box-shadow: 0 0 1vh 2vh whitesmoke;
   transition: box-shadow 0.05s linear;
@@ -252,7 +259,7 @@ html, body {
   box-shadow: 0 0 1vh 3vh darkgray;
   transition: box-shadow 0.2s linear;
   background: darkgray;
-  opacity: .5;
+  opacity: .6;
 }
 
 .decoy.explode {
@@ -270,5 +277,26 @@ html, body {
 
   20% {
     box-shadow: none;
+  }
+}
+
+.fire.explode {
+  transition: box-shadow 0.2s linear;
+  background: darkorange;
+  opacity: .5;
+  width: .5%;
+  height: .5%;
+  margin-left: -.25%;
+  margin-top: -.25%;
+  animation: firing 1s linear infinite;
+}
+
+@keyframes firing {
+  0% {
+    box-shadow: 0 0 0.2vh 0.3vh darkorange;
+  }
+
+  50% {
+    box-shadow: 0 0 0.3vh 0.5vh darkorange;
   }
 }
