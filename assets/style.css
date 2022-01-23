@@ -233,3 +233,9 @@ html, body {
 .mapNade .flash {
   background-color: lightblue;
 }
+
+.explode {
+  box-shadow: 0 0 10px 10px whitesmoke;
+  transition: box-shadow 0.1s linear;
+  background: whitesmoke;
+}

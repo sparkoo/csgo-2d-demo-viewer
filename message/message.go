@@ -7,18 +7,19 @@ import (
 type messageType int
 
 const (
-	TickStateUpdate messageType = 1
-	AddPlayerType   messageType = 2
-	InitType        messageType = 4
-	DemoEndType     messageType = 5
-	RoundType       messageType = 6
-	ProgressType    messageType = 7
-	TimeUpdateType  messageType = 8
-	ShotType        messageType = 9
-	EmptyType       messageType = 10
-	KillType        messageType = 11
-	PlayRequestType messageType = 12
-	ErrorType       messageType = 13
+	TickStateUpdate  messageType = 1
+	AddPlayerType    messageType = 2
+	InitType         messageType = 4
+	DemoEndType      messageType = 5
+	RoundType        messageType = 6
+	ProgressType     messageType = 7
+	TimeUpdateType   messageType = 8
+	ShotType         messageType = 9
+	EmptyType        messageType = 10
+	KillType         messageType = 11
+	PlayRequestType  messageType = 12
+	ErrorType        messageType = 13
+	GrenadeEventType messageType = 14
 )
 
 type Message struct {
@@ -36,6 +37,7 @@ type Message struct {
 	*Kill         `json:"kill,omitempty"`
 	*Demo         `json:"demo,omitempty"`
 	*Error        `json:"error,omitempty"`
+	*GrenadeEvent `json:"grenadeEvent,omitempty"`
 }
 
 type Error struct {
@@ -134,6 +136,11 @@ type Grenade struct {
 	X    float64 `json:"x"`
 	Y    float64 `json:"y"`
 	Z    float64 `json:"z"`
+}
+
+type GrenadeEvent struct {
+	Nade  Grenade `json:"nade"`
+	Event string  `json:"event"`
 }
 
 func CreateTeamUpdateMessage(tick demoinfocs.GameState) *TeamUpdate {

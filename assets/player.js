@@ -180,6 +180,9 @@ function playTick(tickMessages) {
       case 11:
         handleKill(msg.kill);
         break;
+      case 14:
+        handleGrenadeEvent(msg.grenadeEvent);
+        break;
       case 10:
         break;
       default:
@@ -239,7 +242,7 @@ function handleAddPlayer(msg) {
 
   // add player to the map
   let mapItemPlayer = document.createElement("div");
-  mapItemPlayer.className = `player ${msg.Team}`;
+  mapItemPlayer.className = `player ${msg.Team} deletable`;
   mapItemPlayer.id = `playerMap${msg.PlayerId}`;
   mapItemPlayer.style.left = msg.X + "%";
   mapItemPlayer.style.top = msg.Y + "%";
@@ -289,10 +292,17 @@ function removePlayer(playerId) {
 }
 
 function tickState(tick) {
-  removeOrphanedPlayers(tick.Players);
+  for (let nade of document.getElementsByClassName("deletable")) {
+    nade.classList.add("toDelete");
+  }
+
   tick.Players.forEach(updatePlayer);
 
   updateNades(tick.Nades);
+
+  for (let toDeleteElement of document.getElementsByClassName("toDelete")) {
+    toDeleteElement.remove();
+  }
 
   function updatePlayer(player) {
     handleAddPlayer(player);
@@ -301,6 +311,7 @@ function tickState(tick) {
     if (mapItem) {
       mapItem.style.left = player.X + "%";
       mapItem.style.top = player.Y + "%";
+      mapItem.classList.remove("toDelete")
       if (player.Alive) {
         mapItem.style.opacity = "1";
         let playerArrow = document.getElementById(
@@ -333,13 +344,7 @@ function tickState(tick) {
 }
 
 function updateNades(nades) {
-  for (let nade of document.getElementsByClassName("mapNade")) {
-    nade.classList.add("toDelete");
-  }
   nades.forEach(updateNade);
-  for (let nade of document.getElementsByClassName("toDelete")) {
-    nade.remove();
-  }
 
   function updateNade(nade) {
     let nadeId = `mapNade${nade.id}`
@@ -350,35 +355,13 @@ function updateNades(nades) {
       mapItemNade.classList.remove("toDelete")
     } else {
       mapItemNade = document.createElement("div");
-      mapItemNade.className = `mapNade ${nade.kind}`;
+      mapItemNade.className = `mapNade ${nade.kind} deletable`;
       mapItemNade.id = `mapNade${nade.id}`
       mapItemNade.style.left = nade.x + "%";
       mapItemNade.style.top = nade.y + "%";
       document.getElementById("map").appendChild(mapItemNade);
     }
   }
-}
-
-function removeOrphanedPlayers(players) {
-  Array.from(document.getElementById("TList").children).forEach(
-      function (playerItem) {
-        playerItem.classList.add("deletePlayer");
-      })
-  Array.from(document.getElementById("CTList").children).forEach(
-      function (playerItem) {
-        playerItem.classList.add("deletePlayer");
-      })
-  players.forEach(function (player) {
-    let playerItem = document.getElementById(`playerListItem${player.PlayerId}`)
-    if (playerItem && playerItem.parentElement.classList.contains(
-        player.Team)) {
-      playerItem.classList.remove("deletePlayer")
-    }
-  })
-  Array.from(document.getElementsByClassName("deletePlayer")).forEach(
-      function (playerToDelete) {
-        removePlayer(playerToDelete.id.replace("playerListItem", ""))
-      })
 }
 
 function handleShot(shotMsg) {
@@ -395,6 +378,17 @@ function handleShot(shotMsg) {
   setTimeout(function () {
     shot.remove();
   }, 100)
+}
+
+function handleGrenadeEvent(nade) {
+  let mapItemNade = document.createElement("div");
+  mapItemNade.className = `mapNade ${nade.nade.kind} ${nade.event}`;
+  mapItemNade.style.left = nade.nade.x + "%";
+  mapItemNade.style.top = nade.nade.y + "%";
+  document.getElementById("map").appendChild(mapItemNade);
+  setTimeout(function () {
+    mapItemNade.remove()
+  }, 500)
 }
 
 function handleKill(kill) {

@@ -42,6 +42,27 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		lastRoundStart: parser.CurrentTime(),
 	}
 
+	parser.RegisterEventHandler(func(ge events.GrenadeEventIf) {
+		x, y := translatePosition(ge.Base().Position, &mapCS)
+		switch ge.(type) {
+		case events.FlashExplode:
+			roundMessage.Add(&message.Message{
+				MsgType: message.GrenadeEventType,
+				Tick:    parser.CurrentFrame(),
+				GrenadeEvent: &message.GrenadeEvent{
+					Nade: message.Grenade{
+						Id:   ge.Base().GrenadeEntityID,
+						Kind: WeaponsEqType[ge.Base().Grenade.Type],
+						X:    x,
+						Y:    y,
+						Z:    ge.Base().Position.Z,
+					},
+					Event: "explode",
+				},
+			})
+		}
+	})
+
 	parser.RegisterEventHandler(func(e events.WeaponFire) {
 		if c := e.Weapon.Class(); c == common.EqClassPistols || c == common.EqClassSMG || c == common.EqClassHeavy || c == common.EqClassRifle {
 			x, y := translatePosition(e.Shooter.Position(), &mapCS)
