@@ -122,6 +122,7 @@ html, body {
 
 #timer {
   color: var(--LightColor);
+  user-select: none;
 }
 
 .roundNav {

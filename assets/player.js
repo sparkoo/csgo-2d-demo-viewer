@@ -66,6 +66,9 @@ roundProgressbar.onmousedown = function (e) {
 roundProgressbar.onmouseup = function (e) {
   play()
 }
+roundProgressbar.onmouseleave = function () {
+  play()
+}
 
 function roundProgressUpdate(x) {
   let progressWidth = roundProgressbar.getBoundingClientRect().right
@@ -157,6 +160,7 @@ function play() {
   let round = rounds[playingRoundI]
   handleScoreUpdate(round.TeamState)
   highlightActiveRound(playingRoundI)
+  clearInterval(player)
   player = setInterval(function () {
     if (currentTickI >= round.Ticks.length) {
       if (playingRoundI >= rounds.length) {
