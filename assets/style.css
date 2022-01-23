@@ -172,7 +172,7 @@ html, body {
   background-color: var(--DarkColor);
   white-space: nowrap;
   padding: 0 2px;
-  opacity: .7;
+  opacity: .4;
   z-index: -5;
   font-size: 1vh;
 }
@@ -186,7 +186,7 @@ html, body {
   height: 100%;
   display: block;
   transform: translate(-30%, -300%);
-  opacity: .5;
+  opacity: .4;
   z-index: -4;
   background-size: contain;
   background-image: url("/assets/icons/csgo/aug.svg");
