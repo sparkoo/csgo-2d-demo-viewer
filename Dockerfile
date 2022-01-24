@@ -15,8 +15,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build \
   -asmflags all=-trimpath=/ \
   main.go
 
-#FROM scratch
-FROM quay.io/app-sre/ubi8-ubi-minimal:8.5-218
+FROM scratch
 COPY --from=builder /csgo-2d-demo-player/_output/main /csgo-2d-demo-player/
 COPY --from=builder /csgo-2d-demo-player/templates/ /csgo-2d-demo-player/templates/
 COPY --from=builder /csgo-2d-demo-player/assets/ /csgo-2d-demo-player/assets/
