@@ -1,4 +1,8 @@
-let socket = new WebSocket("wss://" + location.host + "/ws")
+let websocketScheme = "wss"
+if (location.host.includes("localhost")) {
+  websocketScheme = "ws"
+}
+let socket = new WebSocket(`${websocketScheme}://${location.host}/ws`)
 
 socket.onopen = function (e) {
   console.log("[open] Connection established");

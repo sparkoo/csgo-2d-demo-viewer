@@ -16,13 +16,10 @@ import (
 	"net/http"
 )
 
-const port string = ":8080"
-
 var config *conf.Conf
 
 func main() {
 	config = conf.ParseArgs()
-
 	server()
 }
 
@@ -119,8 +116,8 @@ func server() {
 			}
 		}()
 	})
-	log.Println("Listening on ", port, " ...")
-	log.Fatal(http.ListenAndServe(port, mux))
+	log.Println("Listening on ", config.Port, " ...")
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), mux))
 }
 
 func playDemo(out chan []byte, matchId string) {
