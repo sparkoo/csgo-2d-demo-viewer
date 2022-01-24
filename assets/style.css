@@ -66,11 +66,11 @@ html, body {
 }
 
 .player.CT {
-  box-shadow: 0 0 .1vh .1vh var(--CTColor);
+  box-shadow: 0 0 0 .1vh var(--CTColor);
 }
 
 .player.T {
-  box-shadow: 0 0 .1vh .1vh var(--TColor);
+  box-shadow: 0 0 0 .1vh var(--TColor);
 }
 
 .player.flashed {
