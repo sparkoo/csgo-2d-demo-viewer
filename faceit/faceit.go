@@ -81,7 +81,7 @@ func createRequest(url string, auth bool) (*http.Request, error) {
 
 func doRequest(req *http.Request) ([]byte, error) {
 	client := &http.Client{
-		Timeout: time.Second * 30,
+		Timeout: time.Second * 10,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: true,
@@ -110,7 +110,13 @@ func doRequest(req *http.Request) ([]byte, error) {
 }
 
 func doRequestStream(req *http.Request) (io.ReadCloser, error) {
-	client := &http.Client{Timeout: time.Second * 30}
+	client := &http.Client{
+		Timeout: time.Second * 30,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		}}
 
 	var resp *http.Response
 	for i := 0; i < 3; i++ {
