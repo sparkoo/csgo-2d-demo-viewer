@@ -1,6 +1,7 @@
 package faceit
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -79,7 +80,13 @@ func createRequest(url string, auth bool) (*http.Request, error) {
 }
 
 func doRequest(req *http.Request) ([]byte, error) {
-	client := &http.Client{Timeout: time.Second * 10}
+	client := &http.Client{
+		Timeout: time.Second * 30,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		}}
 
 	var resp *http.Response
 	for i := 0; i < 3; i++ {
