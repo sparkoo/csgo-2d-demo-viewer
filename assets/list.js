@@ -55,6 +55,7 @@ class MatchRow extends React.Component {
       ScoreA: props.match.results.score.faction1,
       ScoreB: props.match.results.score.faction2,
       playedMap: "...",
+      demoLink: "#",
     }
     this.updateMatchDetail()
   }
@@ -85,6 +86,8 @@ class MatchRow extends React.Component {
             updatedState.Win = userTeam === round.round_stats.Winner
 
             this.setState(updatedState)
+
+            this.updateMatchDemoLink()
           } else {
             console.log(
                 `removing match ${this.props.match.match_id} because details rounds is ${detail.rounds.length} and teams is ${detail.teams.length}`)
@@ -100,18 +103,50 @@ class MatchRow extends React.Component {
     .catch(reason => console.log("failed", reason))
   }
 
+  updateMatchDemoLink() {
+    fetch(`${faceitApiUrlBase}/matches/${this.props.match.match_id}`,
+        reqParamHeaders)
+    .then(response => {
+      if (response.ok) {
+        response.json()
+        .then(detail => {
+          let updatedState = this.state;
+          if (detail.demo_url.length === 1) {
+            updatedState.demoLink = detail.demo_url[0]
+          } else {
+            updatedState.demoLink = ""
+          }
+          this.setState(updatedState)
+        })
+      } else {
+        updatedState.demoLink = ""
+        this.setState(updatedState)
+      }
+    })
+  }
+
   render() {
+    let demoDownloadLink;
+    if (this.state.demoLink.length > 0) {
+      demoDownloadLink = <a href={this.state.demoLink}
+                            className={"material-icons w3-hover-text-amber "
+                                + (this.state.demoLink === "#" ? "rotate"
+                                    : "")}>{(this.state.demoLink === "#"
+          ? "loop"
+          : "file_download")}</a>
+    }
+
     return <tr className="w3-hover-gray w3-medium">
       <td className="w3-col l2">
         {this.state.playedTime}
       </td>
-      <td className="w3-col l2">
+      <td className="w3-col l1">
         {this.state.playedMap}
       </td>
-      <td className="w3-col l1 w3-centered">
+      <td className="w3-col l2 w3-centered">
         {this.props.match.game_mode}
       </td>
-      <td className="w3-col l3 w3-right-align">
+      <td className="w3-col l2 w3-right-align">
         {this.state.TeamA}
       </td>
       <td className={"w3-col l1 " + (this.state.Win ? "w3-green" : "w3-red")}>
@@ -120,7 +155,8 @@ class MatchRow extends React.Component {
       <td className="w3-col l2 w3-left-align">
         {this.state.TeamB}
       </td>
-      <td className="w3-col l1 actionButtons w3-right-align">
+      <td className="w3-col l2 actionButtons w3-right-align">
+        {demoDownloadLink}
         <a href={this.props.match.faceit_url.replace("{lang}", "en")}
            target="_blank"
            className="material-icons w3-hover-text-deep-orange">table_chart</a>
@@ -191,7 +227,7 @@ function listMatches(nickname) {
 }
 
 function fetchMatches(playerId) {
-  fetch(`${faceitApiUrlBase}/players/${playerId}/history?limit=50`,
+  fetch(`${faceitApiUrlBase}/players/${playerId}/history?limit=100`,
       reqParamHeaders)
   .then(response => response.json())
   .then(matchesResponse => {
