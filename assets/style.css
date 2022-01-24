@@ -62,20 +62,19 @@ html, body {
   transition: 60ms linear;
 
   position: absolute;
-  box-shadow: 0 0 5px 2px var(--BlackColor);
   opacity: 1;
 }
 
 .player.CT {
-  box-shadow: 0 0 2px 2px var(--CTColor);
+  box-shadow: 0 0 .1vh .1vh var(--CTColor);
 }
 
 .player.T {
-  box-shadow: 0 0 2px 2px var(--TColor);
+  box-shadow: 0 0 .1vh .1vh var(--TColor);
 }
 
 .player.flashed {
-  box-shadow: 0 0 10px 2px white;
+  box-shadow: 0 0 1vh .2vh white;
 }
 
 .player .dead {
