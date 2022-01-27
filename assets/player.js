@@ -424,8 +424,7 @@ function tickState(tick) {
 
       mapItem.style.left = player.X + "%";
       mapItem.style.top = player.Y + "%";
-      mapItem.style.background = `linear-gradient(0deg, var(--${player.Team}Color) ${player.Hp}%, transparent ${100
-      - player.Hp}%)`
+      mapItem.style.background = `linear-gradient(0deg, var(--${player.Team}Color) ${player.Hp}%, transparent 0%)`
       mapItem.classList.remove("toDelete")
       if (player.Alive) {
         mapItem.style.opacity = "1";
