@@ -308,3 +308,52 @@ html, body {
     box-shadow: 0 0 0.3vh 0.5vh darkorange;
   }
 }
+
+.playerListItem {
+  position: relative;
+  text-align: left;
+}
+
+.playerListHp {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.playerListHpValue {
+  background-color: var(--TColor);
+  height: 100%;
+  z-index: 1;
+}
+
+.playerListHpValue.T {
+  background-color: var(--TColor);
+  float: left;
+}
+
+.playerListHpValue.CT {
+  background-color: var(--CTColor);
+  float: right;
+}
+
+.playerListItemName, .playerListHpText {
+  color: white;
+  z-index: 5;
+  position: relative;
+  padding: 0 5%;
+  font-weight: bold;
+}
+
+.playerListHpText {
+  padding: 0;
+  text-align: center;
+}
+
+.layerListItemName.T {
+  text-align: left;
+}
+
+.playerListItemName.CT {
+  text-align: right;
+}

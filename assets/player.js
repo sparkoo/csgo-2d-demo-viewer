@@ -283,9 +283,21 @@ function updateTime(roundTime) {
 
 function handlePlayerListItemUpdate(player) {
   let playerListItem = document.getElementById(
-      `playerListItem${player.PlayerId}`)
+      `playerListItemName${player.PlayerId}`)
   if (playerListItem) {
-    playerListItem.innerHTML = `${player.Name} HP${player.Hp}`;
+    playerListItem.innerHTML = `${player.Name}`;
+  }
+
+  let playerHpBar = document.getElementById(
+      `playerListHpValue${player.PlayerId}`)
+  if (playerHpBar) {
+    playerHpBar.style.width = `${player.Hp}%`
+  }
+
+  let playerHpText = document.getElementById(
+      `playerListHpText${player.PlayerId}`)
+  if (playerHpText) {
+    playerHpText.innerHTML = player.Hp
   }
 }
 
@@ -294,9 +306,46 @@ function handleAddPlayer(msg) {
   removePlayer(msg.PlayerId)
 
   // add player to the list
-  listItem = document.createElement("li");
+  let listItem = document.createElement("div");
   listItem.id = `playerListItem${msg.PlayerId}`;
-  listItem.innerHTML = `${msg.Name}`;
+  listItem.classList.add("playerListItem")
+  listItem.classList.add("w3-row")
+
+  let playerHpBar = document.createElement("div")
+  playerHpBar.classList.add("playerListHp")
+  playerHpBar.classList.add("w3-dark-grey")
+  let playerHpBarValue = document.createElement("div")
+  playerHpBarValue.id = `playerListHpValue${msg.PlayerId}`
+  playerHpBarValue.classList.add("playerListHpValue")
+  playerHpBarValue.classList.add(msg.Team)
+  playerHpBarValue.style.width = `${msg.Hp}%`
+  playerHpBar.appendChild(playerHpBarValue)
+
+  let playerListName = document.createElement("div")
+  playerListName.id = `playerListItemName${msg.PlayerId}`
+  playerListName.classList.add("playerListItemName")
+  playerListName.classList.add("w3-col")
+  playerListName.classList.add("l10")
+  playerListName.classList.add(msg.Team)
+  playerListName.innerHTML = msg.Name
+
+  let playerListHpText = document.createElement("div")
+  playerListHpText.id = `playerListHpText${msg.PlayerId}`
+  playerListHpText.classList.add("playerListHpText")
+  playerListHpText.classList.add("w3-col")
+  playerListHpText.classList.add("l2")
+  playerListHpText.classList.add(msg.Team)
+  playerListHpText.innerHTML = msg.Hp
+
+  listItem.appendChild(playerHpBar)
+
+  if (msg.Team === "T") {
+    listItem.appendChild(playerListName)
+    listItem.appendChild(playerListHpText)
+  } else {
+    listItem.appendChild(playerListHpText)
+    listItem.appendChild(playerListName)
+  }
 
   document.getElementById(msg.Team + "List").appendChild(listItem);
 
