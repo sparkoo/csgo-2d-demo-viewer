@@ -21,6 +21,7 @@ var WeaponModels = map[string]string{
 	"models/weapons/v_knife_push.mdl":                   "knife",
 	"models/weapons/v_knife_falchion_advanced.mdl":      "knife",
 	"models/weapons/v_knife_cord.mdl":                   "knife",
+	"models/weapons/v_knife_survival_bowie.mdl":         "knife",
 	"models/weapons/v_knife_skeleton.mdl":               "knife",
 	"models/weapons/v_knife_bayonet.mdl":                "knife",
 	"models/weapons/v_knife_outdoor.mdl":                "knife",
