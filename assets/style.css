@@ -357,3 +357,20 @@ html, body {
 .playerListItemName.CT {
   text-align: right;
 }
+
+.playerListWeapons {
+  min-height: 5vh;
+  padding: 1vh 0;
+  border-bottom: 1px solid var(--LightColor);
+}
+
+.playerListWeapons > div {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: brightness(.5);
+}
+
+.playerListWeapons > div.active {
+  filter: brightness(1);
+}

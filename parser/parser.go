@@ -115,6 +115,9 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		handler(msg, parser.GameState())
 	})
 
+	parser.RegisterEventHandler(func(e events.BombEventIf) {
+	})
+
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		//log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 
@@ -268,6 +271,8 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 	if w := p.ActiveWeapon(); w != nil {
 		weapon = convertWeapon(w.OriginalString)
 	}
+	// TODO: do something more clever, we need to find primary, secondary, grenades separately
+	// Grenades have priority left to right flash > he > smoke > molotov/inc > decoy
 	weapons := make([]string, 0)
 	for _, w := range p.Weapons() {
 		weapons = append(weapons, WeaponModels[w.OriginalString])
@@ -288,7 +293,6 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		Helmet:   p.HasHelmet(),
 		Defuse:   p.HasDefuseKit(),
 		Money:    p.Money(),
-		Weapons:  weapons,
 	}
 }
 
