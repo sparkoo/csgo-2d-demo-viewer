@@ -305,9 +305,17 @@ function handleAddPlayer(msg) {
   // first remove the player to avoid duplicates
   removePlayer(msg.PlayerId)
 
+  let listItem = createPlayerListItem(msg)
+  document.getElementById(msg.Team + "List").appendChild(listItem);
+
+  let mapItem = createMapPlayer(msg)
+  document.getElementById("map").appendChild(mapItemPlayer);
+}
+
+function createPlayerListItem(player) {
   // add player to the list
   let listItem = document.createElement("div");
-  listItem.id = `playerListItem${msg.PlayerId}`;
+  listItem.id = `playerListItem${player.PlayerId}`;
   listItem.classList.add("playerListItem")
   listItem.classList.add("w3-row")
 
@@ -315,31 +323,31 @@ function handleAddPlayer(msg) {
   playerHpBar.classList.add("playerListHp")
   playerHpBar.classList.add("w3-dark-grey")
   let playerHpBarValue = document.createElement("div")
-  playerHpBarValue.id = `playerListHpValue${msg.PlayerId}`
+  playerHpBarValue.id = `playerListHpValue${player.PlayerId}`
   playerHpBarValue.classList.add("playerListHpValue")
-  playerHpBarValue.classList.add(msg.Team)
-  playerHpBarValue.style.width = `${msg.Hp}%`
+  playerHpBarValue.classList.add(player.Team)
+  playerHpBarValue.style.width = `${player.Hp}%`
   playerHpBar.appendChild(playerHpBarValue)
 
   let playerListName = document.createElement("div")
-  playerListName.id = `playerListItemName${msg.PlayerId}`
+  playerListName.id = `playerListItemName${player.PlayerId}`
   playerListName.classList.add("playerListItemName")
   playerListName.classList.add("w3-col")
   playerListName.classList.add("l10")
-  playerListName.classList.add(msg.Team)
-  playerListName.innerHTML = msg.Name
+  playerListName.classList.add(player.Team)
+  playerListName.innerHTML = player.Name
 
   let playerListHpText = document.createElement("div")
-  playerListHpText.id = `playerListHpText${msg.PlayerId}`
+  playerListHpText.id = `playerListHpText${player.PlayerId}`
   playerListHpText.classList.add("playerListHpText")
   playerListHpText.classList.add("w3-col")
   playerListHpText.classList.add("l2")
-  playerListHpText.classList.add(msg.Team)
-  playerListHpText.innerHTML = msg.Hp
+  playerListHpText.classList.add(player.Team)
+  playerListHpText.innerHTML = player.Hp
 
   listItem.appendChild(playerHpBar)
 
-  if (msg.Team === "T") {
+  if (player.Team === "T") {
     listItem.appendChild(playerListName)
     listItem.appendChild(playerListHpText)
   } else {
@@ -347,37 +355,40 @@ function handleAddPlayer(msg) {
     listItem.appendChild(playerListName)
   }
 
-  document.getElementById(msg.Team + "List").appendChild(listItem);
+  return listItem
+}
 
+function createMapPlayer(player) {
   // add player to the map
   let mapItemPlayer = document.createElement("div");
-  mapItemPlayer.className = `player ${msg.Team} deletable`;
-  mapItemPlayer.id = `playerMap${msg.PlayerId}`;
-  mapItemPlayer.style.left = msg.X + "%";
-  mapItemPlayer.style.top = msg.Y + "%";
+  mapItemPlayer.className = `player ${player.Team} deletable`;
+  mapItemPlayer.id = `playerMap${player.PlayerId}`;
+  mapItemPlayer.style.left = player.X + "%";
+  mapItemPlayer.style.top = player.Y + "%";
 
   let playerArrowContainer = document.createElement("div");
-  playerArrowContainer.id = `playerContainer${msg.PlayerId}`;
-  playerArrowContainer.className = `playerArrowContainer ${msg.Team}`;
+  playerArrowContainer.id = `playerContainer${player.PlayerId}`;
+  playerArrowContainer.className = `playerArrowContainer ${player.Team}`;
 
   let playerArrow = document.createElement("div");
-  playerArrow.id = `playerArrow${msg.PlayerId}`;
-  playerArrow.className = `playerArrow ${msg.Team}`;
+  playerArrow.id = `playerArrow${player.PlayerId}`;
+  playerArrow.className = `playerArrow ${player.Team}`;
 
   let playerNameTag = document.createElement("div");
-  playerNameTag.id = `playerNameTag${msg.PlayerId}`
-  playerNameTag.innerHTML = msg.Name
+  playerNameTag.id = `playerNameTag${player.PlayerId}`
+  playerNameTag.innerHTML = player.Name
   playerNameTag.className = "playerNameTag"
 
   let playerWeapon = document.createElement("div")
-  playerWeapon.id = `playerMapWeapon${msg.PlayerId}`
-  playerWeapon.className = `playerMapWeapon ${msg.Weapon}`
+  playerWeapon.id = `playerMapWeapon${player.PlayerId}`
+  playerWeapon.className = `playerMapWeapon ${player.Weapon}`
 
   playerArrowContainer.appendChild(playerArrow);
   mapItemPlayer.appendChild(playerArrowContainer);
   mapItemPlayer.appendChild(playerNameTag);
   mapItemPlayer.appendChild(playerWeapon);
-  document.getElementById("map").appendChild(mapItemPlayer);
+
+  return mapItemPlayer
 }
 
 function handleInitMessage(msg) {
