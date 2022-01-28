@@ -361,7 +361,7 @@ html, body {
 .playerListWeapons {
   min-height: 5vh;
   padding: 1vh 0;
-  border-bottom: 1px solid var(--LightColor);
+  background-color: #222;
 }
 
 .playerListWeapons > div {
@@ -373,4 +373,8 @@ html, body {
 
 .playerListWeapons > div.active {
   filter: brightness(1);
+}
+
+.playerListItemContainer {
+  border: 1px solid var(--BlackColor);
 }

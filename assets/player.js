@@ -283,7 +283,7 @@ function updateTime(roundTime) {
 
 function handlePlayerListItemUpdate(player) {
   if (!document.getElementById(
-      `playerListItemName${player.PlayerId}`)) {
+      `playerListItem${player.PlayerId}`)) {
     // nothing to update yet
     return
   }
@@ -334,7 +334,7 @@ function createPlayerListItem(player) {
   // add player to the list
   let listItem = document.createElement("div");
   listItem.id = `playerListItem${player.PlayerId}`;
-  listItem.classList.add("w3-row")
+  listItem.className = "playerListItemContainer w3-row"
 
   let playerListItemFirstRow = document.createElement("div")
   playerListItemFirstRow.className = "playerListItem w3-row"
