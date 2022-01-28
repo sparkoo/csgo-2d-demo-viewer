@@ -11,6 +11,7 @@ import (
 	"io"
 	"log"
 	"math"
+	"sort"
 	"time"
 )
 
@@ -266,18 +267,7 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 
 func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 	x, y := translatePosition(p.LastAlivePosition, mapCS)
-
-	var weapon string
-	if w := p.ActiveWeapon(); w != nil {
-		weapon = convertWeapon(w.OriginalString)
-	}
-	// TODO: do something more clever, we need to find primary, secondary, grenades separately
-	// Grenades have priority left to right flash > he > smoke > molotov/inc > decoy
-	weapons := make([]string, 0)
-	for _, w := range p.Weapons() {
-		weapons = append(weapons, WeaponModels[w.OriginalString])
-	}
-	return message.Player{
+	player := message.Player{
 		PlayerId: p.UserID,
 		Name:     p.Name,
 		Team:     team(p.Team),
@@ -286,7 +276,6 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		Z:        p.Position().Z,
 		Rotation: -(p.ViewDirectionX() - 90.0),
 		Alive:    p.IsAlive(),
-		Weapon:   weapon,
 		Flashed:  p.IsBlinded(),
 		Hp:       p.Health(),
 		Armor:    p.Armor(),
@@ -294,6 +283,28 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		Defuse:   p.HasDefuseKit(),
 		Money:    p.Money(),
 	}
+
+	if w := p.ActiveWeapon(); w != nil {
+		player.Weapon = convertWeapon(w.OriginalString)
+	}
+
+	//TODO: Grenades should have priority left to right flash > he > smoke > molotov/inc > decoy
+	for _, w := range p.Weapons() {
+		weaponString := convertWeapon(w.OriginalString)
+		switch w.Class() {
+		case common.EqClassSMG, common.EqClassHeavy, common.EqClassRifle:
+			player.Primary = weaponString
+		case common.EqClassPistols:
+			player.Secondary = weaponString
+		case common.EqClassGrenade:
+			player.Grenades = append(player.Grenades, weaponString)
+		}
+	}
+	sort.Slice(player.Grenades, func(i, j int) bool {
+		return player.Grenades[i] < player.Grenades[j]
+	})
+
+	return player
 }
 
 func translatePosition(position r3.Vector, mapCS *metadata.Map) (float64, float64) {

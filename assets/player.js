@@ -282,22 +282,40 @@ function updateTime(roundTime) {
 }
 
 function handlePlayerListItemUpdate(player) {
-  let playerListItem = document.getElementById(
-      `playerListItemName${player.PlayerId}`)
-  if (playerListItem) {
-    playerListItem.innerHTML = `${player.Name}`;
+  if (!document.getElementById(
+      `playerListItemName${player.PlayerId}`)) {
+    // nothing to update yet
+    return
   }
+  document.getElementById(
+      `playerListItemName${player.PlayerId}`).innerHTML = `${player.Name}`
+  document.getElementById(
+      `playerListHpValue${player.PlayerId}`).style.width = `${player.Hp}%`
+  document.getElementById(
+      `playerListHpText${player.PlayerId}`).innerHTML = player.Hp
 
-  let playerHpBar = document.getElementById(
-      `playerListHpValue${player.PlayerId}`)
-  if (playerHpBar) {
-    playerHpBar.style.width = `${player.Hp}%`
-  }
+  document.getElementById(
+      `playerListPrimary${player.PlayerId}`).className = `w3-col l4
+      ${player.Primary} ${player.Primary === player.Weapon ? "active" : ""}`
 
-  let playerHpText = document.getElementById(
-      `playerListHpText${player.PlayerId}`)
-  if (playerHpText) {
-    playerHpText.innerHTML = player.Hp
+  document.getElementById(
+      `playerListSecondary${player.PlayerId}`).className = `w3-col l2
+      ${player.Secondary} ${player.Secondary === player.Weapon ? "active" : ""}`
+
+  document.getElementById(
+      `playerListKnife${player.PlayerId}`).className = `w3-col l2 knife ${player.Weapon
+  === "knife" ? "active" : ""}`
+
+  for (let gi = 0; gi < 4; gi++) {
+    if (player.Grenades && gi < player.Grenades.length) {
+      document.getElementById(
+          `playerListG${gi
+          + 1}${player.PlayerId}`).className = `w3-col l1 ${player.Grenades[gi]} ${player.Weapon
+      === player.Grenades[gi] ? "active" : ""}`
+    } else {
+      document.getElementById(
+          `playerListG${gi + 1}${player.PlayerId}`).className = `w3-col l1`
+    }
   }
 }
 
@@ -309,15 +327,17 @@ function handleAddPlayer(msg) {
   document.getElementById(msg.Team + "List").appendChild(listItem);
 
   let mapItem = createMapPlayer(msg)
-  document.getElementById("map").appendChild(mapItemPlayer);
+  document.getElementById("map").appendChild(mapItem);
 }
 
 function createPlayerListItem(player) {
   // add player to the list
   let listItem = document.createElement("div");
   listItem.id = `playerListItem${player.PlayerId}`;
-  listItem.classList.add("playerListItem")
   listItem.classList.add("w3-row")
+
+  let playerListItemFirstRow = document.createElement("div")
+  playerListItemFirstRow.className = "playerListItem w3-row"
 
   let playerHpBar = document.createElement("div")
   playerHpBar.classList.add("playerListHp")
@@ -345,15 +365,57 @@ function createPlayerListItem(player) {
   playerListHpText.classList.add(player.Team)
   playerListHpText.innerHTML = player.Hp
 
-  listItem.appendChild(playerHpBar)
+  playerListItemFirstRow.appendChild(playerHpBar)
 
   if (player.Team === "T") {
-    listItem.appendChild(playerListName)
-    listItem.appendChild(playerListHpText)
+    playerListItemFirstRow.append(playerListName, playerListHpText)
   } else {
-    listItem.appendChild(playerListHpText)
-    listItem.appendChild(playerListName)
+    playerListItemFirstRow.append(playerListHpText, playerListName)
   }
+
+  let playerListItemSecondRow = document.createElement("div")
+  playerListItemSecondRow.className = "w3-row playerListWeapons"
+
+  let playerListPrimaryWeapon = document.createElement("div")
+  playerListPrimaryWeapon.id = `playerListPrimary${player.PlayerId}`
+  playerListPrimaryWeapon.className = "w3-col l4"
+  playerListPrimaryWeapon.innerHTML = "&nbsp;"
+
+  let playerListSecondaryWeapon = document.createElement("div")
+  playerListSecondaryWeapon.id = `playerListSecondary${player.PlayerId}`
+  playerListSecondaryWeapon.className = "w3-col l2"
+  playerListSecondaryWeapon.innerHTML = "&nbsp;"
+
+  let playerListKnifeWeapon = document.createElement("div")
+  playerListKnifeWeapon.id = `playerListKnife${player.PlayerId}`
+  playerListKnifeWeapon.className = "w3-col l2 knife"
+  playerListKnifeWeapon.innerHTML = "&nbsp;"
+
+  let playerListG1Weapon = document.createElement("div")
+  playerListG1Weapon.id = `playerListG1${player.PlayerId}`
+  playerListG1Weapon.className = "w3-col l1"
+  playerListG1Weapon.innerHTML = "&nbsp;"
+
+  let playerListG2Weapon = document.createElement("div")
+  playerListG2Weapon.id = `playerListG2${player.PlayerId}`
+  playerListG2Weapon.className = "w3-col l1"
+  playerListG2Weapon.innerHTML = "&nbsp;"
+
+  let playerListG3Weapon = document.createElement("div")
+  playerListG3Weapon.id = `playerListG3${player.PlayerId}`
+  playerListG3Weapon.className = "w3-col l1"
+  playerListG3Weapon.innerHTML = "&nbsp;"
+
+  let playerListG4Weapon = document.createElement("div")
+  playerListG4Weapon.id = `playerListG4${player.PlayerId}`
+  playerListG4Weapon.className = "w3-col l1"
+  playerListG4Weapon.innerHTML = "&nbsp;"
+
+  playerListItemSecondRow.append(playerListPrimaryWeapon,
+      playerListSecondaryWeapon, playerListKnifeWeapon, playerListG1Weapon,
+      playerListG2Weapon, playerListG3Weapon, playerListG4Weapon)
+
+  listItem.append(playerListItemFirstRow, playerListItemSecondRow)
 
   return listItem
 }
