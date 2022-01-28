@@ -297,7 +297,9 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		case common.EqClassPistols:
 			player.Secondary = weaponString
 		case common.EqClassGrenade:
-			player.Grenades = append(player.Grenades, weaponString)
+			for gi := 0; gi < w.AmmoInMagazine()+w.AmmoReserve(); gi++ {
+				player.Grenades = append(player.Grenades, weaponString)
+			}
 		}
 	}
 	sort.Slice(player.Grenades, func(i, j int) bool {
