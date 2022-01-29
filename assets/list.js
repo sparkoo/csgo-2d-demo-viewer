@@ -122,7 +122,7 @@ class MatchRow extends React.Component {
         updatedState.demoLink = ""
         this.setState(updatedState)
       }
-    })
+    }).catch(error => console.log("no demo", error))
   }
 
   render() {
@@ -215,7 +215,9 @@ function listMatches(nickname) {
         userId = player.player_id
         fetchMatches(player.player_id)
       })
-      .catch(reason => console.log("failed", reason))
+      .catch(reason => ReactDOM.render(
+          <span>Failed to parse faceit api response '{reason.message}'</span>,
+          document.getElementById("searchNote")))
     } else {
       ReactDOM.render(
           <span>player '{nickname}' does not exist on faceit ...</span>,
@@ -223,7 +225,13 @@ function listMatches(nickname) {
       )
     }
   })
-  .catch(reason => console.log("failed", reason))
+  .catch(reason => {
+    ReactDOM.render(
+        <div className="w3-panel w3-red">
+          <p>Failed request to Faceit API: '{reason.message}'</p>
+        </div>,
+        document.getElementById("searchNote"))
+  })
 }
 
 function fetchMatches(playerId) {
