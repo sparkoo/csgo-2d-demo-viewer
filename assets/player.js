@@ -288,6 +288,8 @@ function handlePlayerListItemUpdate(player) {
     return
   }
   document.getElementById(
+      `playerListItem${player.PlayerId}`).classList.remove("toDelete")
+  document.getElementById(
       `playerListItemName${player.PlayerId}`).innerHTML = `${player.Name}`
   document.getElementById(
       `playerListHpValue${player.PlayerId}`).style.width = `${player.Hp}%`
@@ -343,7 +345,7 @@ function createPlayerListItem(player) {
   // add player to the list
   let listItem = document.createElement("div");
   listItem.id = `playerListItem${player.PlayerId}`;
-  listItem.className = "playerListItemContainer w3-row"
+  listItem.className = "playerListItemContainer w3-row deletable"
 
   let playerListItemFirstRow = document.createElement("div")
   playerListItemFirstRow.className = "playerListItem w3-row"
