@@ -377,3 +377,16 @@ html, body {
 .playerListItemContainer {
   border: 1px solid var(--BlackColor);
 }
+
+.defuse {
+  background-image: url("/assets/icons/csgo/defuse.svg");
+  filter: brightness(1.5) !important;
+}
+
+.c4 {
+  filter: brightness(.7) !important;
+}
+
+.c4.active {
+  filter: brightness(1.5) !important;
+}

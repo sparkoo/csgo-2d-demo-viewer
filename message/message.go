@@ -132,6 +132,7 @@ type Player struct {
 	Armor     int
 	Helmet    bool
 	Defuse    bool
+	Bomb      bool
 	Money     int
 	Primary   string
 	Secondary string

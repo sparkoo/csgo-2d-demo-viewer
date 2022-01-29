@@ -300,6 +300,17 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 			for gi := 0; gi < w.AmmoInMagazine()+w.AmmoReserve(); gi++ {
 				player.Grenades = append(player.Grenades, weaponString)
 			}
+		case common.EqClassEquipment:
+			switch w.Type {
+			case common.EqBomb:
+				player.Bomb = true
+			case common.EqKnife:
+			case common.EqZeus:
+			default:
+				log.Printf("what is this ? '%+v'", w)
+			}
+		case common.EqClassUnknown:
+			log.Printf("what is that???")
 		}
 	}
 	sort.Slice(player.Grenades, func(i, j int) bool {
