@@ -295,6 +295,18 @@ function handlePlayerListItemUpdate(player) {
       `playerListHpValue${player.PlayerId}`).style.width = `${player.Hp}%`
   document.getElementById(
       `playerListHpText${player.PlayerId}`).innerHTML = player.Hp
+  let vestHelm = document.getElementById(`playerListItemVesthelm${player.PlayerId}`)
+  if (player.Armor > 0) {
+    if (player.Helmet) {
+      vestHelm.classList.remove("vest")
+      vestHelm.classList.add("vesthelm")
+    } else {
+      vestHelm.classList.remove("vesthelm")
+      vestHelm.classList.add("vest")
+    }
+  } else {
+    vestHelm.classList.remove("vest", "vesthelm")
+  }
 
   let bombDef = document.getElementById(`playerListBombDef${player.PlayerId}`)
   if (player.Defuse) {
@@ -364,9 +376,14 @@ function createPlayerListItem(player) {
   playerListName.id = `playerListItemName${player.PlayerId}`
   playerListName.classList.add("playerListItemName")
   playerListName.classList.add("w3-col")
-  playerListName.classList.add("l10")
+  playerListName.classList.add("l9")
   playerListName.classList.add(player.Team)
   playerListName.innerHTML = player.Name
+
+  let playerListVesthelm = document.createElement("div")
+  playerListVesthelm.id = `playerListItemVesthelm${player.PlayerId}`
+  playerListVesthelm.className = `w3-col l1 bckg playerListVest ${player.Team}`
+  playerListVesthelm.innerHTML = "&nbsp;"
 
   let playerListHpText = document.createElement("div")
   playerListHpText.id = `playerListHpText${player.PlayerId}`
@@ -379,9 +396,9 @@ function createPlayerListItem(player) {
   playerListItemFirstRow.appendChild(playerHpBar)
 
   if (player.Team === "T") {
-    playerListItemFirstRow.append(playerListName, playerListHpText)
+    playerListItemFirstRow.append(playerListName, playerListVesthelm, playerListHpText)
   } else {
-    playerListItemFirstRow.append(playerListHpText, playerListName)
+    playerListItemFirstRow.append(playerListHpText, playerListVesthelm, playerListName)
   }
 
   let playerListItemSecondRow = document.createElement("div")
