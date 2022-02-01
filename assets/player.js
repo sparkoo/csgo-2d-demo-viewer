@@ -323,7 +323,7 @@ function handlePlayerListItemUpdate(player) {
       ${player.Primary} ${player.Primary === player.Weapon ? "active" : ""}`
   document.getElementById(`playerListPrimaryAmmo${player.PlayerId}`).innerHTML =
       `${player.Primary ?
-          player.PrimaryAmmoMagazine / player.PrimaryAmmoReserve : ""}`
+          player.PrimaryAmmoMagazine + "/" + player.PrimaryAmmoReserve : "&nbsp;"}`
 
   document.getElementById(
       `playerListSecondary${player.PlayerId}`).className = `w3-col l2
@@ -331,7 +331,7 @@ function handlePlayerListItemUpdate(player) {
   document.getElementById(
       `playerListSecondaryAmmo${player.PlayerId}`).innerHTML =
       `${player.Secondary ?
-          player.SecondaryAmmoMagazine / player.SecondaryAmmoReserve : ""}`
+          player.SecondaryAmmoMagazine + "/" + player.SecondaryAmmoReserve : "&nbsp;"}`
 
   document.getElementById(
       `playerListKnife${player.PlayerId}`).className = `w3-col l2 knife ${player.Weapon
@@ -462,22 +462,23 @@ function createPlayerListItem(player) {
       playerListG2Weapon, playerListG3Weapon, playerListG4Weapon)
 
   let playerListItemThirdRow = document.createElement("div")
-  playerListItemSecondRow.className = "w3-row"
+  playerListItemThirdRow.className = "w3-row"
 
   let playerListSpacer = document.createElement("div")
   playerListSpacer.className = "w3-col l1"
+  playerListSpacer.innerHTML = "&nbsp;"
 
   let primaryAmmo = document.createElement("div")
   primaryAmmo.id = `playerListPrimaryAmmo${player.PlayerId}`
-  primaryAmmo.className = "w3-col l3 playerListPrimaryAmmo"
+  primaryAmmo.className = "w3-col l3 playerListPrimaryAmmo w3-small"
 
   let secondaryAmmo = document.createElement("div")
   secondaryAmmo.id = `playerListSecondaryAmmo${player.PlayerId}`
-  secondaryAmmo.className = "w3-col l2 playerListSecondaryAmmo"
+  secondaryAmmo.className = "w3-col l2 playerListSecondaryAmmo w3-small"
 
   let money = document.createElement("div")
   money.id = `playerListMoney${player.PlayerId}`
-  money.className = "w3-col l6 playerListMoney"
+  money.className = "w3-col l6 playerListMoney w3-right-align playerListItemName"
 
   playerListItemThirdRow.append(playerListSpacer, primaryAmmo, secondaryAmmo,
       money)
