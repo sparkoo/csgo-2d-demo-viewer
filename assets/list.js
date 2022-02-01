@@ -87,7 +87,7 @@ class MatchRow extends React.Component {
 
             this.setState(updatedState)
 
-            this.updateMatchDemoLink()
+            // this.updateMatchDemoLink()
           } else {
             console.log(
                 `removing match ${this.props.match.match_id} because details rounds is ${detail.rounds.length} and teams is ${detail.teams.length}`)
