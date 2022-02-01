@@ -293,8 +293,15 @@ function handlePlayerListItemUpdate(player) {
       `playerListItemName${player.PlayerId}`).innerHTML = `${player.Name}`
   document.getElementById(
       `playerListHpValue${player.PlayerId}`).style.width = `${player.Hp}%`
-  document.getElementById(
-      `playerListHpText${player.PlayerId}`).innerHTML = player.Hp
+
+  let hp = document.getElementById(
+      `playerListHpText${player.PlayerId}`)
+  hp.innerHTML = player.Alive ? player.Hp : "&nbsp;"
+  if (player.Alive) {
+    hp.classList.remove("dead")
+  } else {
+    hp.classList.add("dead")
+  }
   let vestHelm = document.getElementById(
       `playerListItemVesthelm${player.PlayerId}`)
   if (player.Armor > 0) {
@@ -337,7 +344,7 @@ function handlePlayerListItemUpdate(player) {
 
   document.getElementById(
       `playerListKnife${player.PlayerId}`).className = `w3-col l2 ${player.Alive
-      ? "knife" : "dead"} ${player.Weapon
+      ? "knife" : ""} ${player.Weapon
   === "knife" ? "active" : ""}`
 
   for (let gi = 0; gi < 4; gi++) {
@@ -401,10 +408,8 @@ function createPlayerListItem(player) {
 
   let playerListHpText = document.createElement("div")
   playerListHpText.id = `playerListHpText${player.PlayerId}`
-  playerListHpText.classList.add("playerListHpText")
-  playerListHpText.classList.add("w3-col")
-  playerListHpText.classList.add("l2")
-  playerListHpText.classList.add(player.Team)
+  playerListHpText.classList.add("playerListHpText", "w3-col", "l2", "bckg",
+      player.Team)
   playerListHpText.innerHTML = player.Hp
 
   playerListItemFirstRow.appendChild(playerHpBar)
