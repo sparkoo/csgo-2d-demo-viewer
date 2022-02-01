@@ -392,6 +392,10 @@ html, body {
   filter: brightness(1.5) !important;
 }
 
+.dead {
+  background-image: url("/assets/icons/csgo/dead.svg");
+}
+
 .vest {
   background-image: url("/assets/icons/csgo/vest.svg");
   background-size: 50%;

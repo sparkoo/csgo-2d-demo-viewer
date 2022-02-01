@@ -323,7 +323,8 @@ function handlePlayerListItemUpdate(player) {
       ${player.Primary} ${player.Primary === player.Weapon ? "active" : ""}`
   document.getElementById(`playerListPrimaryAmmo${player.PlayerId}`).innerHTML =
       `${player.Primary ?
-          player.PrimaryAmmoMagazine + "/" + player.PrimaryAmmoReserve : "&nbsp;"}`
+          player.PrimaryAmmoMagazine + "/" + player.PrimaryAmmoReserve
+          : "&nbsp;"}`
 
   document.getElementById(
       `playerListSecondary${player.PlayerId}`).className = `w3-col l2
@@ -331,10 +332,12 @@ function handlePlayerListItemUpdate(player) {
   document.getElementById(
       `playerListSecondaryAmmo${player.PlayerId}`).innerHTML =
       `${player.Secondary ?
-          player.SecondaryAmmoMagazine + "/" + player.SecondaryAmmoReserve : "&nbsp;"}`
+          player.SecondaryAmmoMagazine + "/" + player.SecondaryAmmoReserve
+          : "&nbsp;"}`
 
   document.getElementById(
-      `playerListKnife${player.PlayerId}`).className = `w3-col l2 knife ${player.Weapon
+      `playerListKnife${player.PlayerId}`).className = `w3-col l2 ${player.Alive
+      ? "knife" : "dead"} ${player.Weapon
   === "knife" ? "active" : ""}`
 
   for (let gi = 0; gi < 4; gi++) {
@@ -368,7 +371,7 @@ function createPlayerListItem(player) {
   // add player to the list
   let listItem = document.createElement("div");
   listItem.id = `playerListItem${player.PlayerId}`;
-  listItem.className = "playerListItemContainer w3-row deletable"
+  listItem.className = "playerListItemContainer w3-row deletable w3-border-bottom"
 
   let playerListItemFirstRow = document.createElement("div")
   playerListItemFirstRow.className = "playerListItem w3-row"
