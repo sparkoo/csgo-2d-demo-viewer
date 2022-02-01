@@ -295,7 +295,8 @@ function handlePlayerListItemUpdate(player) {
       `playerListHpValue${player.PlayerId}`).style.width = `${player.Hp}%`
   document.getElementById(
       `playerListHpText${player.PlayerId}`).innerHTML = player.Hp
-  let vestHelm = document.getElementById(`playerListItemVesthelm${player.PlayerId}`)
+  let vestHelm = document.getElementById(
+      `playerListItemVesthelm${player.PlayerId}`)
   if (player.Armor > 0) {
     if (player.Helmet) {
       vestHelm.classList.remove("vest")
@@ -320,10 +321,17 @@ function handlePlayerListItemUpdate(player) {
   document.getElementById(
       `playerListPrimary${player.PlayerId}`).className = `w3-col l3
       ${player.Primary} ${player.Primary === player.Weapon ? "active" : ""}`
+  document.getElementById(`playerListPrimaryAmmo${player.PlayerId}`).innerHTML =
+      `${player.Primary ?
+          player.PrimaryAmmoMagazine / player.PrimaryAmmoReserve : ""}`
 
   document.getElementById(
       `playerListSecondary${player.PlayerId}`).className = `w3-col l2
       ${player.Secondary} ${player.Secondary === player.Weapon ? "active" : ""}`
+  document.getElementById(
+      `playerListSecondaryAmmo${player.PlayerId}`).innerHTML =
+      `${player.Secondary ?
+          player.SecondaryAmmoMagazine / player.SecondaryAmmoReserve : ""}`
 
   document.getElementById(
       `playerListKnife${player.PlayerId}`).className = `w3-col l2 knife ${player.Weapon
@@ -340,6 +348,9 @@ function handlePlayerListItemUpdate(player) {
           `playerListG${gi + 1}${player.PlayerId}`).className = `w3-col l1`
     }
   }
+
+  document.getElementById(
+      `playerListMoney${player.PlayerId}`).innerHTML = `${player.Money}$`
 }
 
 function handleAddPlayer(msg) {
@@ -396,9 +407,11 @@ function createPlayerListItem(player) {
   playerListItemFirstRow.appendChild(playerHpBar)
 
   if (player.Team === "T") {
-    playerListItemFirstRow.append(playerListName, playerListVesthelm, playerListHpText)
+    playerListItemFirstRow.append(playerListName, playerListVesthelm,
+        playerListHpText)
   } else {
-    playerListItemFirstRow.append(playerListHpText, playerListVesthelm, playerListName)
+    playerListItemFirstRow.append(playerListHpText, playerListVesthelm,
+        playerListName)
   }
 
   let playerListItemSecondRow = document.createElement("div")
@@ -448,7 +461,29 @@ function createPlayerListItem(player) {
       playerListSecondaryWeapon, playerListKnifeWeapon, playerListG1Weapon,
       playerListG2Weapon, playerListG3Weapon, playerListG4Weapon)
 
-  listItem.append(playerListItemFirstRow, playerListItemSecondRow)
+  let playerListItemThirdRow = document.createElement("div")
+  playerListItemSecondRow.className = "w3-row"
+
+  let playerListSpacer = document.createElement("div")
+  playerListSpacer.className = "w3-col l1"
+
+  let primaryAmmo = document.createElement("div")
+  primaryAmmo.id = `playerListPrimaryAmmo${player.PlayerId}`
+  primaryAmmo.className = "w3-col l3 playerListPrimaryAmmo"
+
+  let secondaryAmmo = document.createElement("div")
+  secondaryAmmo.id = `playerListSecondaryAmmo${player.PlayerId}`
+  secondaryAmmo.className = "w3-col l2 playerListSecondaryAmmo"
+
+  let money = document.createElement("div")
+  money.id = `playerListMoney${player.PlayerId}`
+  money.className = "w3-col l6 playerListMoney"
+
+  playerListItemThirdRow.append(playerListSpacer, primaryAmmo, secondaryAmmo,
+      money)
+
+  listItem.append(playerListItemFirstRow, playerListItemSecondRow,
+      playerListItemThirdRow)
 
   return listItem
 }

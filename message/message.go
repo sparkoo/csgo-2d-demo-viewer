@@ -118,25 +118,29 @@ type RemovePlayer struct {
 }
 
 type Player struct {
-	PlayerId  int
-	Name      string
-	Team      string
-	X         float64
-	Y         float64
-	Z         float64
-	Rotation  float32
-	Alive     bool
-	Weapon    string
-	Flashed   bool
-	Hp        int
-	Armor     int
-	Helmet    bool
-	Defuse    bool
-	Bomb      bool
-	Money     int
-	Primary   string
-	Secondary string
-	Grenades  []string
+	PlayerId              int
+	Name                  string
+	Team                  string
+	X                     float64
+	Y                     float64
+	Z                     float64
+	Rotation              float32
+	Alive                 bool
+	Weapon                string
+	Flashed               bool
+	Hp                    int
+	Armor                 int
+	Helmet                bool
+	Defuse                bool
+	Bomb                  bool
+	Money                 int
+	Primary               string
+	PrimaryAmmoMagazine   int
+	PrimaryAmmoReserve    int
+	Secondary             string
+	SecondaryAmmoMagazine int
+	SecondaryAmmoReserve  int
+	Grenades              []string
 }
 
 type Grenade struct {

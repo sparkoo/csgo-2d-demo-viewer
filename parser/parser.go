@@ -294,8 +294,12 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		switch w.Class() {
 		case common.EqClassSMG, common.EqClassHeavy, common.EqClassRifle:
 			player.Primary = weaponString
+			player.PrimaryAmmoMagazine = w.AmmoInMagazine()
+			player.PrimaryAmmoReserve = w.AmmoReserve()
 		case common.EqClassPistols:
 			player.Secondary = weaponString
+			player.SecondaryAmmoMagazine = w.AmmoInMagazine()
+			player.SecondaryAmmoReserve = w.AmmoReserve()
 		case common.EqClassGrenade:
 			for gi := 0; gi < w.AmmoInMagazine()+w.AmmoReserve(); gi++ {
 				player.Grenades = append(player.Grenades, weaponString)
