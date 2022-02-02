@@ -30,8 +30,8 @@ socket.onerror = function (error) {
 };
 
 window.onkeydown = (ev) => {
-  ev.preventDefault()
   if (ev.code === "Space") {
+    ev.preventDefault()
     togglePlay()
   }
 }
