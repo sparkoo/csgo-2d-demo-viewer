@@ -125,15 +125,39 @@ class MatchRow extends React.Component {
     }).catch(error => console.log("no demo", error))
   }
 
+  downloadDemo(matchId) {
+    fetch(`${faceitApiUrlBase}/matches/${matchId}`, reqParamHeaders)
+    .then(response => {
+      if (response.ok) {
+        response.json()
+        .then(detail => {
+          if (detail.demo_url.length === 1) {
+            var element = document.createElement('a');
+            element.setAttribute('href', detail.demo_url[0]);
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+          } else {
+            renderError(`not expected to get ${detail.demo_url.length} demos`)
+          }
+        })
+      } else {
+        renderError(`response not ok, code: '${response.status}'`)
+      }
+    }).catch(error =>
+        renderError(`no demo for match '${matchId}'. error: ${error.message}`))
+
+  }
+
   render() {
     let demoDownloadLink;
     if (this.state.demoLink.length > 0) {
-      demoDownloadLink = <a href={this.state.demoLink}
-                            className={"material-icons w3-hover-text-amber "
-                                + (this.state.demoLink === "#" ? "rotate"
-                                    : "")}>{(this.state.demoLink === "#"
-          ? "loop"
-          : "file_download")}</a>
+      demoDownloadLink = <a href={"#"}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              this.downloadDemo(this.props.match.match_id)
+                            }}
+                            className={"material-icons w3-hover-text-amber"}>{"file_download"}</a>
     }
 
     return <tr className="w3-hover-gray w3-medium">
@@ -226,12 +250,16 @@ function listMatches(nickname) {
     }
   })
   .catch(reason => {
-    ReactDOM.render(
-        <div className="w3-panel w3-red">
-          <p>Failed request to Faceit API: '{reason.message}'</p>
-        </div>,
-        document.getElementById("searchNote"))
+    renderError(`"Failed request to Faceit API: '${reason.message}'`)
   })
+}
+
+function renderError(message) {
+  ReactDOM.render(
+      <div className="w3-panel w3-red">
+        <p>{message}</p>
+      </div>,
+      document.getElementById("searchNote"))
 }
 
 function fetchMatches(playerId) {
