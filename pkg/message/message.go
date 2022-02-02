@@ -23,25 +23,18 @@ const (
 )
 
 type Message struct {
-	MsgType       messageType `json:"msgType"`
-	Tick          int         `json:"tick"`
-	*TeamUpdate   `json:"teamUpdate,omitempty"`
-	*TickState    `json:"tickState,omitempty"`
-	*AddPlayer    `json:"addPlayer,omitempty"`
-	*RemovePlayer `json:"removePlayer,omitempty"`
-	*Init         `json:"init,omitempty"`
-	*Round        `json:"round,omitempty"`
-	*Progress     `json:"progress,omitempty"`
-	*RoundTime    `json:"roundTime,omitempty"`
-	*Shot         `json:"shot,omitempty"`
-	*Kill         `json:"kill,omitempty"`
-	*Demo         `json:"demo,omitempty"`
-	*Error        `json:"error,omitempty"`
-	GrenadeEvent  *Grenade `json:"grenadeEvent,omitempty"`
-}
-
-type Error struct {
-	Message string `json:"message"`
+	MsgType      messageType `json:"msgType"`
+	Tick         int         `json:"tick"`
+	*TeamUpdate  `json:"teamUpdate,omitempty"`
+	*TickState   `json:"tickState,omitempty"`
+	*Init        `json:"init,omitempty"`
+	*Round       `json:"round,omitempty"`
+	*Progress    `json:"progress,omitempty"`
+	*RoundTime   `json:"roundTime,omitempty"`
+	*Shot        `json:"shot,omitempty"`
+	*Kill        `json:"kill,omitempty"`
+	*Demo        `json:"demo,omitempty"`
+	GrenadeEvent *Grenade `json:"grenadeEvent,omitempty"`
 }
 
 type Demo struct {
@@ -107,14 +100,6 @@ type Shot struct {
 	X        float64
 	Y        float64
 	Rotation float32
-}
-
-type AddPlayer struct {
-	*Player
-}
-
-type RemovePlayer struct {
-	PlayerId int
 }
 
 type Player struct {

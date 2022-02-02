@@ -6,6 +6,7 @@ require (
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551
 	github.com/gorilla/websocket v1.4.2
 	github.com/markus-wa/demoinfocs-golang/v2 v2.12.0
+	google.golang.org/protobuf v1.27.1
 )
 
 require (

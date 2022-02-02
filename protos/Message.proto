@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package csgo;
+
+option go_package = "/message";
+
+message MessagePb {
+  enum MessageType {
+    Zero = 0;
+    TickStateUpdate = 1;
+    AddPlayerType = 2;
+    InitType = 4;
+    DemoEndType = 5;
+    RoundType = 6;
+    ProgressType = 7;
+    TimeUpdateType = 8;
+    ShotType = 9;
+    EmptyType = 10;
+    KillType = 11;
+    PlayRequestType = 12;
+    ErrorType = 13;
+    GrenadeEventType = 14;
+  }
+  MessageType msgType = 1;
+  int32 tick = 2;
+  optional TeamUpdatePb teamUpdate = 3;
+  optional TickStatePb tickState = 4;
+  optional InitPb init = 5;
+  optional RoundPb round = 6;
+  optional ProgressPb progress = 7;
+  optional RoundTimePb roundTime = 8;
+  optional ShotPb shot = 9;
+  optional KillPb kill = 10;
+  optional DemoPb demo = 11;
+  optional GrenadePb grenadeEvent = 12;
+}
+
+message PlayerPb {
+  int32 PlayerId = 1;
+  string Name = 2;
+  string Team = 3;
+  double X = 4;
+  double Y = 5;
+  double Z = 6;
+  float Rotation = 7;
+  bool Alive = 8;
+  string Weapon = 9;
+  bool Flashed = 10;
+  int32 Hp = 11;
+  int32 Armor = 12;
+  bool Helmet = 13;
+  bool Defuse = 14;
+  bool Bomb = 15;
+  int32 Money = 16;
+  string Primary = 17;
+  int32 PrimaryAmmoMagazine = 18;
+  int32 PrimaryAmmoReserve = 19;
+  string Secondary = 20;
+  int32 SecondaryAmmoMagazine = 21;
+  int32 SecondaryAmmoReserve = 22;
+  repeated string Grenades = 23;
+}
+
+message TeamUpdatePb {
+  string TName = 1;
+  int32 TScore = 2;
+  string CTName = 3;
+  int32 CTScore = 4;
+}
+
+message TickStatePb {
+  repeated PlayerPb Players = 1;
+  repeated GrenadePb Nades = 2;
+}
+
+message InitPb {
+  string mapName = 1;
+  string TName = 2;
+  string CTName = 3;
+}
+
+message KillPb {
+  int32 VictimId = 1;
+}
+
+message ShotPb {
+  int32 PlayerId = 1;
+  double X = 2;
+  double Y = 3;
+  float Rotation = 4;
+}
+
+message GrenadePb {
+  int32 id = 1;
+  string kind = 2;
+  double x = 3;
+  double y = 4;
+  double z = 5;
+  string action = 6;
+}
+
+message RoundPb {
+  int32 RoundNo = 1;
+  int32 RoundTookSeconds = 2;
+  int32 StartTick = 3;
+  int32 FreezetimeEndTick = 4;
+  int32 EndTick = 5;
+  repeated MessagePb Ticks = 6;
+  TeamUpdatePb TeamState = 7;
+  string Winner = 8;
+}
+
+message ProgressPb {
+  int32 Progress = 1;
+  string Message = 2;
+}
+
+message RoundTimePb {
+  string RoundTime = 1;
+  int32 FreezeTime = 2;
+}
+
+message DemoPb {
+  string MatchId = 1;
+}
