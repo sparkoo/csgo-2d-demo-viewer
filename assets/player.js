@@ -29,6 +29,13 @@ socket.onerror = function (error) {
   console.log(`[error] ${error.message}`);
 };
 
+window.onkeydown = (ev) => {
+  ev.preventDefault()
+  if (ev.code === "Space") {
+    togglePlay()
+  }
+}
+
 let messages = []
 let playing = true
 let currentTickI = 0
