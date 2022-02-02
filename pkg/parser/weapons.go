@@ -8,8 +8,8 @@ import (
 var WeaponModels = map[string]string{
 	"models/weapons/v_rif_m4a1_s.mdl":                   "m4a1s",
 	"models/weapons/w_rif_m4a1_s_dropped.mdl":           "m4a1s",
-	"models/weapons/v_rif_m4a1.mdl":                     "m4a1",
-	"models/weapons/w_rif_m4a1_dropped.mdl":             "m4a1",
+	"models/weapons/v_rif_m4a1.mdl":                     "m4a4",
+	"models/weapons/w_rif_m4a1_dropped.mdl":             "m4a4",
 	"models/weapons/v_rif_ak47.mdl":                     "ak47",
 	"models/weapons/w_rif_ak47_dropped.mdl":             "ak47",
 	"models/weapons/v_snip_awp.mdl":                     "awp",
@@ -86,12 +86,36 @@ var WeaponModels = map[string]string{
 }
 
 var WeaponsEqType = map[common.EquipmentType]string{
+	common.EqKnife: "knife",
+
+	// pistols
+	common.EqUSP:    "usp-s",
+	common.EqGlock:  "glock",
+	common.EqDeagle: "deagle",
+
+	// smg
+	common.EqMac10: "mac10",
+	common.EqUMP:   "ump45",
+
+	// rifles
+	common.EqAK47:  "ak47",
+	common.EqM4A4:  "m4a4",
+	common.EqM4A1:  "m4a1s",
+	common.EqAWP:   "awp",
+	common.EqFamas: "famas",
+	common.EqGalil: "galil",
+
+	// nades
 	common.EqDecoy:      "decoy",
 	common.EqMolotov:    "molotov",
 	common.EqIncendiary: "incendiary",
 	common.EqFlash:      "flash",
 	common.EqSmoke:      "smoke",
 	common.EqHE:         "he",
+
+	// eq
+	common.EqBomb:      "c4",
+	common.EqDefuseKit: "defuse",
 }
 
 func convertWeapon(originalName string) string {
