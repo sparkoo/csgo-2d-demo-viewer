@@ -1,7 +1,7 @@
 package main
 
 import (
-	"csgo/parser"
+	"csgo-2d-demo-player/pkg/parser"
 	"fmt"
 	"log"
 	"os"

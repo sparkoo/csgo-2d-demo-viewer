@@ -2,10 +2,10 @@ package main
 
 import (
 	"compress/gzip"
-	"csgo/conf"
-	"csgo/faceit"
-	"csgo/message"
-	"csgo/parser"
+	"csgo-2d-demo-player/conf"
+	"csgo-2d-demo-player/pkg/faceit"
+	"csgo-2d-demo-player/pkg/message"
+	"csgo-2d-demo-player/pkg/parser"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"

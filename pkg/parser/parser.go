@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"csgo/message"
+	"csgo-2d-demo-player/pkg/message"
 	"fmt"
 	"github.com/golang/geo/r3"
 	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
