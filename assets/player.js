@@ -16,6 +16,19 @@ socket.onopen = function (e) {
       }));
 };
 
+socket.onclose = function (event) {
+  if (event.wasClean) {
+    console.log(
+        `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+  } else {
+    console.log('[close] Connection died');
+  }
+};
+
+socket.onerror = function (error) {
+  console.log(`[error] ${error.message}`);
+};
+
 let messages = []
 let playing = true
 let currentTickI = 0
@@ -256,19 +269,6 @@ function playTick(tickMessages) {
     }
   })
 }
-
-socket.onclose = function (event) {
-  if (event.wasClean) {
-    console.log(
-        `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-  } else {
-    console.log('[close] Connection died');
-  }
-};
-
-socket.onerror = function (error) {
-  console.log(`[error] ${error.message}`);
-};
 
 function handleScoreUpdate(msg) {
   document.getElementById("TName").innerHTML = msg.TName
