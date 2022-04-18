@@ -18,7 +18,6 @@ class Map extends Component {
         this.setMapName(message.init.mapName)
         break;
     }
-    console.log("ha", message)
   }
 
   setMapName(name) {

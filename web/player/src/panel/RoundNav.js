@@ -10,7 +10,6 @@ class RoundNav extends Component {
     }
     this.messageBus = props.messageBus
     this.messageBus.listen([MSG_INIT_ROUNDS], function (msg) {
-
       let rounds = []
       msg.rounds.forEach(r => {
         rounds.push(
@@ -42,7 +41,7 @@ class RoundNav extends Component {
 
   render() {
     return (
-        <div className="w3-bar w3-small" id="roundNavBar">
+        <div className="w3-bar w3-small">
           {this.state.rounds}
         </div>
     );

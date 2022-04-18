@@ -1,4 +1,10 @@
-import {MSG_INIT_ROUNDS, MSG_PLAY} from "./constants";
+import {
+  MSG_INIT_ROUNDS,
+  MSG_PLAY,
+  MSG_PLAY_ROUND_INCREMENT,
+  MSG_PLAY_ROUND_PROGRESS,
+  MSG_PLAY_TOGGLE
+} from "./constants";
 
 const defaultInterval = 16
 
@@ -12,7 +18,7 @@ class Player {
     this.currentTickI = 0
     this.playingRoundI = 0
 
-    // this.player
+    this.player = {}
     this.interval = defaultInterval
 
     this.messageBus = messageBus
@@ -36,7 +42,17 @@ class Player {
       } else {
         switch (msg.msgType) {
           case MSG_PLAY:
-            console.log("I should play ", msg.round)
+            break
+          case MSG_PLAY_TOGGLE:
+            if (this.playing) {
+              this.stop()
+            } else {
+              this.play()
+            }
+            break
+          case MSG_PLAY_ROUND_INCREMENT:
+            break
+          case MSG_PLAY_TOGGLE:
             break
         }
       }
@@ -66,6 +82,47 @@ class Player {
       msgType: MSG_INIT_ROUNDS,
       rounds: this.rounds,
     })
+    this.play()
+  }
+
+  stop() {
+    this.playing = false
+    clearInterval(this.player)
+  }
+
+  play() {
+    this.playing = true;
+    let round = this.rounds[this.playingRoundI]
+    // handleScoreUpdate(round.TeamState)
+    // highlightActiveRound(playingRoundI)
+    clearInterval(this.player)
+    this.player = setInterval(function () {
+      if (this.currentTickI >= round.Ticks.length) {
+        if (this.playingRoundI >= this.rounds.length) {
+          this.stop()
+        } else {
+          this.playingRoundI++;
+          round = this.rounds[this.playingRoundI];
+          this.currentTickI = 0;
+          // handleScoreUpdate(round.TeamState)
+          // highlightActiveRound(playingRoundI)
+        }
+      }
+      if (!this.playing) {
+        clearInterval(this.player);
+      }
+      this.playTick(round.Ticks[this.currentTickI]);
+      this.messageBus.emit({
+        msgType: MSG_PLAY_ROUND_PROGRESS,
+        progress: this.currentTickI / round.Ticks.length
+      })
+
+      this.currentTickI++
+    }.bind(this), this.interval)
+  }
+
+  playTick(tickMessages) {
+    tickMessages.forEach(msg => this.messageBus.emit(msg))
   }
 }
 
