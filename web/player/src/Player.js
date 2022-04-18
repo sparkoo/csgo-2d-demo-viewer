@@ -2,7 +2,7 @@ import {
   MSG_INIT_ROUNDS,
   MSG_PLAY,
   MSG_PLAY_ROUND_INCREMENT,
-  MSG_PLAY_ROUND_PROGRESS,
+  MSG_PLAY_ROUND_PROGRESS, MSG_PLAY_ROUND_UPDATE,
   MSG_PLAY_TOGGLE
 } from "./constants";
 
@@ -42,6 +42,7 @@ class Player {
       } else {
         switch (msg.msgType) {
           case MSG_PLAY:
+            this.playRound(msg.round)
             break
           case MSG_PLAY_TOGGLE:
             if (this.playing) {
@@ -51,8 +52,6 @@ class Player {
             }
             break
           case MSG_PLAY_ROUND_INCREMENT:
-            break
-          case MSG_PLAY_TOGGLE:
             break
         }
       }
@@ -94,7 +93,7 @@ class Player {
     this.playing = true;
     let round = this.rounds[this.playingRoundI]
     // handleScoreUpdate(round.TeamState)
-    // highlightActiveRound(playingRoundI)
+    this.highlightActiveRound(this.playingRoundI)
     clearInterval(this.player)
     this.player = setInterval(function () {
       if (this.currentTickI >= round.Ticks.length) {
@@ -105,7 +104,7 @@ class Player {
           round = this.rounds[this.playingRoundI];
           this.currentTickI = 0;
           // handleScoreUpdate(round.TeamState)
-          // highlightActiveRound(playingRoundI)
+          this.highlightActiveRound(this.playingRoundI)
         }
       }
       if (!this.playing) {
@@ -121,8 +120,23 @@ class Player {
     }.bind(this), this.interval)
   }
 
+  highlightActiveRound(round) {
+    this.messageBus.emit({
+      msgType: MSG_PLAY_ROUND_UPDATE,
+      round: round,
+    })
+  }
+
   playTick(tickMessages) {
     tickMessages.forEach(msg => this.messageBus.emit(msg))
+  }
+
+  playRound(roundI) {
+    this.stop()
+    this.playingRoundI = roundI
+    this.currentTickI = 0
+    this.play()
+    this.highlightActiveRound(roundI)
   }
 }
 

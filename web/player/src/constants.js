@@ -4,3 +4,4 @@ export const MSG_PLAY_TOGGLE = 102
 export const MSG_PLAY_ROUND_INCREMENT = 103
 export const MSG_PLAY_SPEED = 104
 export const MSG_PLAY_ROUND_PROGRESS = 105
+export const MSG_PLAY_ROUND_UPDATE = 106
