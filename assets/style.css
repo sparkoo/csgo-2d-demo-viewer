@@ -1,37 +1,3 @@
-:root {
-  --TColor: #de9b35;
-  --CTColor: #5d79ae;
-  --BlackColor: #0c0f12;
-  --LightColor: #ccba7c;
-  --DarkColor: #413a27;
-}
-
-html, body {
-  height: 100%;
-  margin: 0 auto;
-  padding: 0;
-  font-family: "Roboto Light", sans-serif;
-}
-
-.grid-container {
-  display: grid;
-  grid-template-columns: 60% 40%;
-  grid-template-rows: auto;
-  background-color: var(--BlackColor);
-  color: var(--LightColor) !important;
-  margin: 0;
-  padding: 0;
-
-  height: 100%;
-}
-
-.grid-container > div {
-  text-align: center;
-  padding: 0;
-  font-size: 30px;
-  height: calc(100vh);
-}
-
 .map {
   background-color: black;
 }

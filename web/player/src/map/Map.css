@@ -1,0 +1,14 @@
+.map {
+  background-color: black;
+}
+
+.map-container {
+  position: relative;
+  height: 100%;
+  aspect-ratio: 1/1;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin: 0 auto;
+  z-index: 0;
+}

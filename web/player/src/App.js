@@ -1,58 +1,29 @@
-import logo from './logo.svg';
 import './App.css';
 import {Component} from "react";
 import Connect from "./Websocket";
+import Map from "./map/Map";
+import MessageBus from "./MessageBus";
+import InfoPanel from "./panel/InfoPanel";
 
 class App extends Component {
   constructor(props) {
     super(props);
-    Connect(this.onMessage)
-  }
-
-  onMessage(msg) {
-    // switch (msg.msgType) {
-    //   case 4:
-    //     handleInitMessage(msg.init);
-    //     break
-    //   case 5:
-    //     console.log("done loading, playing demo now");
-    //     progressDone();
-    //     handleInitMessage(msg.init);
-    //     initRounds();
-    //     play();
-    //     break;
-    //   case 6:
-    //     handleAddRound(msg.round)
-    //     // msg.round.Ticks.forEach(addTick);
-    //     break;
-    //   case 7:
-    //     updateLoadProgress(msg);
-    //     break;
-    //   case 13:
-    //     alert(msg.error.message);
-    //     break;
-    //   default:
-    //     addTick(msg);
-    // }
+    this.messageBus = new MessageBus()
+    this.messageBus.listen([13], function (msg) {
+      alert(msg.error.message)
+    })
+    Connect(this.messageBus)
   }
 
   render() {
     return (
-        <div className="App">
-          <header className="App-header">
-            <img src={logo} className="App-logo" alt="logo"/>
-            <p>
-              Eedit <code>src/App.js</code> and save to reload.
-            </p>
-            <a
-                className="App-link"
-                href="https://reactjs.org"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-              Learn React
-            </a>
-          </header>
+        <div className="grid-container">
+          <div className="grid-item map">
+            <Map messageBus={this.messageBus}/>
+          </div>
+          <div className="grid-item infoPanel">
+            <InfoPanel messageBus={this.messageBus}/>
+          </div>
         </div>);
   }
 }

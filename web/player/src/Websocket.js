@@ -1,4 +1,4 @@
-function Connect(onMessageHandler) {
+function Connect(messageBus) {
   console.log("initializing websocket connection")
 
   let websocketServerUrl = `wss://${window.location.host}/ws`
@@ -34,9 +34,9 @@ function Connect(onMessageHandler) {
   };
 
   socket.onmessage = function (event) {
-    console.log(`[message] Data received from server: ${event.data}`);
+    // console.log(`[message] Data received from server: ${event.data}`);
     let msg = JSON.parse(event.data)
-    onMessageHandler(msg)
+    messageBus.emit(msg)
   }
 }
 
