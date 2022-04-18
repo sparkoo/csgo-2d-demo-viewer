@@ -79,6 +79,13 @@ func server() {
 	mux.HandleFunc("/ws", func(writer http.ResponseWriter, request *http.Request) {
 		// Upgrade our raw HTTP connection to a websocket based one
 		upgrader := websocket.Upgrader{}
+		upgrader.CheckOrigin = func(r *http.Request) bool {
+			if r.Host == "localhost:8080" {
+				log.Println("Local development, allowing cross origin ...")
+				return true
+			}
+			return false
+		}
 		conn, err := upgrader.Upgrade(writer, request, nil)
 		if err != nil {
 			log.Print("Error during connection upgradation:", err)
@@ -121,6 +128,10 @@ func server() {
 }
 
 func playDemo(out chan []byte, matchId string) {
+	if matchId == "" {
+		sendError("no matchId", out)
+		return
+	}
 	demoFile, closers, err := obtainDemoFile(matchId)
 	if err != nil {
 		sendError(err.Error(), out)
@@ -150,6 +161,7 @@ func sendMessage(msg *message.Message, out chan []byte) {
 }
 
 func sendError(errorMessage string, out chan []byte) {
+	log.Printf("sending error to client: '%s'", errorMessage)
 	out <- []byte(fmt.Sprintf("{\"msgType\": %d, \"error\": {\"message\": \"%s\"}}", message.ErrorType, errorMessage))
 }
 
