@@ -4,11 +4,13 @@ import Connect from "./Websocket";
 import Map from "./map/Map";
 import MessageBus from "./MessageBus";
 import InfoPanel from "./panel/InfoPanel";
+import Player from "./Player";
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.messageBus = new MessageBus()
+    this.player = new Player(this.messageBus)
     this.messageBus.listen([13], function (msg) {
       alert(msg.error.message)
     })

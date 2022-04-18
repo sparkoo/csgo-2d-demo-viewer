@@ -6,6 +6,14 @@
   --DarkColor: #413a27;
 }
 
+.T {
+  color: var(--TColor);
+}
+
+.CT {
+  color: var(--CTColor);
+}
+
 html, body {
   height: 100%;
   margin: 0 auto;
