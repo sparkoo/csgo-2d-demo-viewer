@@ -208,6 +208,9 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 	for _, p := range tick.TeamCounterTerrorists().Members() {
 		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
 	}
+	sort.Slice(msgPlayers, func(i, j int) bool {
+		return msgPlayers[i].PlayerId < msgPlayers[j].PlayerId
+	})
 
 	nades := make([]message.Grenade, 0)
 	for _, g := range tick.GrenadeProjectiles() {

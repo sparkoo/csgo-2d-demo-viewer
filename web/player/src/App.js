@@ -1,7 +1,7 @@
 import './App.css';
 import {Component} from "react";
 import Connect from "./Websocket";
-import Map from "./map/Map";
+import Map2d from "./map/Map2d";
 import MessageBus from "./MessageBus";
 import InfoPanel from "./panel/InfoPanel";
 import Player from "./Player";
@@ -21,7 +21,7 @@ class App extends Component {
     return (
         <div className="grid-container">
           <div className="grid-item map">
-            <Map messageBus={this.messageBus}/>
+            <Map2d messageBus={this.messageBus}/>
           </div>
           <div className="grid-item infoPanel">
             <InfoPanel messageBus={this.messageBus}/>
