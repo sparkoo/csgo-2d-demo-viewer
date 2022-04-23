@@ -1,6 +1,6 @@
 import {
   MSG_INIT_ROUNDS,
-  MSG_PLAY,
+  MSG_PLAY, MSG_PLAY_CHANGE,
   MSG_PLAY_ROUND_INCREMENT,
   MSG_PLAY_ROUND_PROGRESS, MSG_PLAY_ROUND_UPDATE,
   MSG_PLAY_TOGGLE
@@ -36,8 +36,7 @@ class Player {
             this.handleAddRound(msg.round)
             break
           default:
-            console.log("unknown message received", msg)
-            alert("unknown message received");
+            console.log("unknown message", msg)
         }
       } else {
         switch (msg.msgType) {
@@ -52,6 +51,7 @@ class Player {
             }
             break
           case MSG_PLAY_ROUND_INCREMENT:
+            this.playRound(this.playingRoundI + msg.increment + 1)
             break
         }
       }
@@ -73,38 +73,42 @@ class Player {
 
     roundMsg.Ticks = roundTicks
     this.rounds.push(roundMsg)
-  }
-
-  loadingDone() {
-    this.loading = false
     this.messageBus.emit({
       msgType: MSG_INIT_ROUNDS,
       rounds: this.rounds,
     })
-    this.play()
+  }
+
+  loadingDone() {
+    this.loading = false
+    this.playRound(1)
+  }
+
+  switchPlaying(playing) {
+    this.playing = playing
+    this.messageBus.emit({
+      msgType: MSG_PLAY_CHANGE,
+      playing: playing,
+    })
   }
 
   stop() {
-    this.playing = false
+    this.switchPlaying(false)
     clearInterval(this.player)
   }
 
   play() {
-    this.playing = true;
+    this.switchPlaying(true)
     let round = this.rounds[this.playingRoundI]
     // handleScoreUpdate(round.TeamState)
-    this.highlightActiveRound(this.playingRoundI)
+    // this.highlightActiveRound(this.playingRoundI)
     clearInterval(this.player)
     this.player = setInterval(function () {
       if (this.currentTickI >= round.Ticks.length) {
         if (this.playingRoundI >= this.rounds.length) {
           this.stop()
         } else {
-          this.playingRoundI++;
-          round = this.rounds[this.playingRoundI];
-          this.currentTickI = 0;
-          // handleScoreUpdate(round.TeamState)
-          this.highlightActiveRound(this.playingRoundI)
+          this.playRound(this.playingRoundI + 1)
         }
       }
       if (!this.playing) {
@@ -131,12 +135,20 @@ class Player {
     tickMessages.forEach(msg => this.messageBus.emit(msg))
   }
 
-  playRound(roundI) {
+  playRound(round) {
+    let roundI = round - 1
+    if (roundI < 0) {
+      roundI = 0
+    } else if (roundI >= this.rounds.length) {
+      roundI = this.rounds.length - 1
+    }
+    round = roundI + 1
+
     this.stop()
     this.playingRoundI = roundI
     this.currentTickI = 0
     this.play()
-    this.highlightActiveRound(roundI)
+    this.highlightActiveRound(round)
   }
 }
 
