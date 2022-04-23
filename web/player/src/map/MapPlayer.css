@@ -1,10 +1,10 @@
 .player {
   /* scale size */
-  width: 1.5%;
-  height: 1.5%;
+  width: 1%;
+  height: 1%;
   /* and center it */
-  margin-left: -.75%;
-  margin-top: -.75%;
+  margin-left: -.5%;
+  margin-top: -.5%;
   /*make it round*/
   border-radius: 50%;
 
@@ -27,7 +27,7 @@
   box-shadow: 0 0 1vh .2vh white;
 }
 
-.player .dead {
+.player.dead {
   opacity: .5;
 }
 
@@ -59,4 +59,30 @@
 
 .player.CT, .playerArrow.CT {
   background-color: var(--CTColor);
+}
+
+.playerNameTag {
+  position: absolute;
+  transform: translate(-35%, -210%);
+  display: block;
+  /*border: 1px solid black;*/
+  border-radius: 2px;
+  background-color: var(--DarkColor);
+  white-space: nowrap;
+  padding: 0 2px;
+  opacity: .5;
+  z-index: -5;
+  font-size: 1vh;
+}
+
+.playerMapWeapon {
+  width: 200%;
+  height: 100%;
+  display: block;
+  transform: translate(-30%, -420%);
+  opacity: .4;
+  z-index: -4;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }

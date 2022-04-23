@@ -11,17 +11,25 @@ class MapPlayer extends Component {
       left: `${this.props.player.X}%`,
       top: `${this.props.player.Y}%`,
       background: `linear-gradient(0deg, var(--${this.props.player.Team}Color) ${this.props.player.Hp}%, transparent 0%)`,
-      opacity: "1",
     }
     const rotStyle = {
-      transform: `rotate(${this.props.player.Rotation}deg) translateY(-40%)`,
+      transform: `rotate(${this.props.player.Rotation}deg) translateY(-50%)`,
+    }
+    let playerClass = `player ${this.props.player.Team}`
+    let playerArrow
+    if (this.props.player.Alive) {
+      playerArrow = <div className={`playerArrowContainer ${this.props.player.Team}`}>
+        <div className={`playerArrow ${this.props.player.Team}`}
+             style={rotStyle}></div>
+      </div>
+    } else {
+      playerClass += " dead"
     }
     return (
-        <div className={`player ${this.props.player.Team}`} style={posStyle}>
-          <div className={`playerArrowContainer ${this.props.player.Team}`}>
-            <div className={`playerArrow ${this.props.player.Team}`}
-                 style={rotStyle}></div>
-          </div>
+        <div className={playerClass} style={posStyle}>
+          {playerArrow}
+          <div className="playerNameTag">{this.props.player.Name}</div>
+          <div className={`playerMapWeapon ${this.props.player.Weapon}`}></div>
         </div>
     );
   }
