@@ -2,7 +2,7 @@ import {
   MSG_INIT_ROUNDS,
   MSG_PLAY, MSG_PLAY_CHANGE,
   MSG_PLAY_ROUND_INCREMENT,
-  MSG_PLAY_ROUND_PROGRESS, MSG_PLAY_ROUND_UPDATE,
+  MSG_PLAY_ROUND_PROGRESS, MSG_PLAY_ROUND_UPDATE, MSG_PLAY_SPEED,
   MSG_PLAY_TOGGLE
 } from "./constants";
 
@@ -52,6 +52,12 @@ class Player {
             break
           case MSG_PLAY_ROUND_INCREMENT:
             this.playRound(this.playingRoundI + msg.increment + 1)
+            break
+          case MSG_PLAY_SPEED:
+            this.stop()
+            this.interval = defaultInterval / msg.speed
+            this.play()
+            console.log(this.interval)
             break
         }
       }
