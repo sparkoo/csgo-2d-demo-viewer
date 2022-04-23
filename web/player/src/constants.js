@@ -6,3 +6,4 @@ export const MSG_PLAY_SPEED = 104
 export const MSG_PLAY_ROUND_PROGRESS = 105
 export const MSG_PLAY_ROUND_UPDATE = 106
 export const MSG_PLAY_CHANGE = 107
+export const MSG_PROGRESS_MOVE = 108

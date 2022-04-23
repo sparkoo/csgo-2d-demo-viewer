@@ -3,7 +3,7 @@ import {
   MSG_PLAY, MSG_PLAY_CHANGE,
   MSG_PLAY_ROUND_INCREMENT,
   MSG_PLAY_ROUND_PROGRESS, MSG_PLAY_ROUND_UPDATE, MSG_PLAY_SPEED,
-  MSG_PLAY_TOGGLE
+  MSG_PLAY_TOGGLE, MSG_PROGRESS_MOVE
 } from "./constants";
 
 const defaultInterval = 16
@@ -41,7 +41,11 @@ class Player {
       } else {
         switch (msg.msgType) {
           case MSG_PLAY:
-            this.playRound(msg.round)
+            if (msg.round) {
+              this.playRound(msg.round)
+            } else {
+              this.play()
+            }
             break
           case MSG_PLAY_TOGGLE:
             if (this.playing) {
@@ -58,6 +62,12 @@ class Player {
             this.interval = defaultInterval / msg.speed
             this.play()
             console.log(this.interval)
+            break
+          case MSG_PROGRESS_MOVE:
+            this.stop()
+            let round = this.rounds[this.playingRoundI]
+            this.currentTickI = Math.round(round.Ticks.length * msg.progress)
+            this.playTick(round.Ticks[this.currentTickI]);
             break
         }
       }
