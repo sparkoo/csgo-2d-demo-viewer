@@ -1,0 +1,8 @@
+.playerShot {
+  transition: 100ms linear;
+  transform-origin: top;
+  width: 1px;
+  height: 5%;
+  background-color: gray;
+  position: absolute;
+}

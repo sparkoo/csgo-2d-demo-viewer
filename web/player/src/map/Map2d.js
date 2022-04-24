@@ -1,6 +1,8 @@
 import './Map.css';
 import {Component} from "react";
 import MapPlayer from "./MapPlayer";
+import MapShot from "./MapShot";
+import {MSG_PLAY_CHANGE} from "../constants";
 
 class Map2d extends Component {
   constructor(props) {
@@ -9,11 +11,17 @@ class Map2d extends Component {
       mapName: "de_dust2",
       players: {},
       playerComps: new Map(),
+      shots: [],
     }
-    this.playerComponents = new Map()
 
     props.messageBus.listen([4, 13], this.onMessage.bind(this))
     props.messageBus.listen([1], this.tickUpdate.bind(this))
+    props.messageBus.listen([9], this.handleShot.bind(this))
+    props.messageBus.listen([MSG_PLAY_CHANGE], function () {
+      this.setState({
+        shots: [],
+      })
+    }.bind(this))
   }
 
   tickUpdate(message) {
@@ -23,8 +31,10 @@ class Map2d extends Component {
     }
   }
 
-  updatePlayer(players) {
-
+  handleShot(msg) {
+    this.setState({
+      shots: [...this.state.shots, msg.shot]
+    })
   }
 
   onMessage(message) {
@@ -55,9 +65,13 @@ class Map2d extends Component {
             player={p}/>)
       })
     }
+    const shots = this.state.shots.map((s, i) => {
+      return <MapShot key={i} shot={s}/>
+    })
     return (
         <div className="map-container" id="map" style={style}>
           {c}
+          {shots}
         </div>
     )
   }
