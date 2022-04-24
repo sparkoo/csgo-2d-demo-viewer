@@ -1,4 +1,5 @@
 import {Component} from "react";
+import {MSG_TEAMSTATE_UPDATE} from "../constants";
 
 class Scoreboard extends Component {
   constructor(props) {
@@ -13,6 +14,13 @@ class Scoreboard extends Component {
       this.setState({
         TName: msg.init.TName,
         CTName: msg.init.CTName,
+      })
+    }.bind(this))
+
+    props.messageBus.listen([MSG_TEAMSTATE_UPDATE], function (msg) {
+      this.setState({
+        TScore: msg.teamState.TScore,
+        CTScore: msg.teamState.CTScore,
       })
     }.bind(this))
   }

@@ -1,6 +1,6 @@
 import {
   MSG_INIT_ROUNDS,
-  MSG_PLAY, MSG_PLAY_CHANGE,
+  MSG_PLAY, MSG_PLAY_CHANGE, MSG_TEAMSTATE_UPDATE,
   MSG_PLAY_ROUND_INCREMENT,
   MSG_PLAY_ROUND_PROGRESS, MSG_PLAY_ROUND_UPDATE, MSG_PLAY_SPEED,
   MSG_PLAY_TOGGLE, MSG_PROGRESS_MOVE
@@ -28,6 +28,7 @@ class Player {
           case 4:
           case 7:
           case 13:
+          case MSG_INIT_ROUNDS:
             break
           case 5:
             this.loadingDone()
@@ -124,7 +125,7 @@ class Player {
         if (this.playingRoundI >= this.rounds.length) {
           this.stop()
         } else {
-          this.playRound(this.playingRoundI + 1)
+          this.playRound(this.playingRoundI + 2)
         }
       }
       if (!this.playing) {
@@ -165,6 +166,14 @@ class Player {
     this.currentTickI = 0
     this.play()
     this.highlightActiveRound(round)
+    this.emitPlayRoundEvent()
+  }
+
+  emitPlayRoundEvent() {
+    this.messageBus.emit({
+      msgType: MSG_TEAMSTATE_UPDATE,
+      teamState: this.rounds[this.playingRoundI].TeamState,
+    })
   }
 }
 
