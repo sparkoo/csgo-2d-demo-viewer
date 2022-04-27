@@ -12,7 +12,7 @@ class MapPlayer extends Component {
     const rotStyle = {
       transform: `rotate(${this.props.player.Rotation}deg) translateY(-50%)`,
     }
-    let playerClass = `player ${this.props.player.Team}`
+    let playerClass = `player ${this.props.player.Team} ${this.props.player.Flashed ? "flashed" : ""}`
     let playerArrow
     if (this.props.player.Alive) {
       playerArrow = <div className={`playerArrowContainer ${this.props.player.Team}`}>
