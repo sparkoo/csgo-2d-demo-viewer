@@ -258,6 +258,10 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 		}
 	}
 
+	sort.Slice(nades, func(i, j int) bool {
+		return nades[i].Id < nades[j].Id
+	})
+
 	return &message.Message{
 		MsgType: message.TickStateUpdate,
 		Tick:    parser.CurrentFrame(),

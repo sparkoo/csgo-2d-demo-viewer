@@ -3,15 +3,16 @@ import {Component} from "react";
 import MapPlayer from "./MapPlayer";
 import MapShot from "./MapShot";
 import {MSG_PLAY_CHANGE} from "../constants";
+import MapNade from "./MapNade";
 
 class Map2d extends Component {
   constructor(props) {
     super(props);
     this.state = {
       mapName: "de_dust2",
-      players: {},
-      playerComps: new Map(),
+      players: [],
       shots: [],
+      nades: [],
     }
 
     props.messageBus.listen([4, 13], this.onMessage.bind(this))
@@ -25,9 +26,12 @@ class Map2d extends Component {
   }
 
   tickUpdate(message) {
-    // TODO: update list of player child components by passing state as child props, then try to just set state here
     if (message.tickState.Players) {
-      this.setState({players: message.tickState.Players})
+      console.log(message.tickState)
+      this.setState({
+        players: message.tickState.Players,
+        nades: message.tickState.Nades
+      })
     }
   }
 
@@ -57,10 +61,10 @@ class Map2d extends Component {
     const style = {
       backgroundImage: `url("https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/${this.state.mapName}.jpg")`,
     }
-    const c = []
+    const playerComponents = []
     if (this.state.players && this.state.players.length > 0) {
       this.state.players.forEach(p => {
-        c.push(<MapPlayer
+        playerComponents.push(<MapPlayer
             key={p.PlayerId}
             player={p}/>)
       })
@@ -68,9 +72,16 @@ class Map2d extends Component {
     const shots = this.state.shots.map((s, i) => {
       return <MapShot key={i} shot={s}/>
     })
+    const nadeComponents = []
+    if (this.state.nades && this.state.nades.length > 0) {
+      this.state.nades.forEach(n => {
+        nadeComponents.push(<MapNade key={n.id} nade={n}/>)
+      })
+    }
     return (
         <div className="map-container" id="map" style={style}>
-          {c}
+          {playerComponents}
+          {nadeComponents}
           {shots}
         </div>
     )

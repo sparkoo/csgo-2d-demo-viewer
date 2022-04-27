@@ -1,0 +1,107 @@
+
+.mapNade {
+  /* scale size */
+  width: 1%;
+  height: 1%;
+  /* and center it */
+  margin-left: -.5%;
+  margin-top: -.5%;
+  /*make it round*/
+  border-radius: 50%;
+
+  transition: 60ms linear;
+
+  position: absolute;
+  box-shadow: 0 0 1vh 0 var(--BlackColor);
+  opacity: .8;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.mapNade .he {
+  background-color: green;
+}
+
+.mapNade .smoke {
+  background-color: grey;
+}
+
+.mapNade .molotov, .mapNade .incendiary {
+  background-color: orangered;
+}
+
+.mapNade .decoy {
+  background-color: yellow;
+}
+
+.mapNade .flash {
+  background-color: lightblue;
+}
+
+.fire.explode {
+  box-shadow: 0 0 1vh 1vh orangered;
+  transition: box-shadow 0.2s linear;
+  background: orangered;
+  opacity: .8;
+}
+
+.flash.explode {
+  box-shadow: 0 0 1vh 2vh whitesmoke;
+  transition: box-shadow 0.05s linear;
+  background: whitesmoke;
+  opacity: .8;
+}
+
+.he.explode {
+  box-shadow: 0 0 2vh 2vh orangered;
+  transition: box-shadow 0.2s linear;
+  background: orangered;
+  opacity: .8;
+}
+
+.smoke.explode {
+  box-shadow: 0 0 1vh 3vh darkgray;
+  transition: box-shadow 0.2s linear;
+  background: darkgray;
+  opacity: .6;
+}
+
+.decoy.explode {
+  animation: decoyPop .5s linear infinite;
+}
+
+@keyframes decoyPop {
+  0% {
+    box-shadow: none;
+  }
+
+  10% {
+    box-shadow: 0 0 .5vh 1vh sandybrown;
+  }
+
+  20% {
+    box-shadow: none;
+  }
+}
+
+.fire.explode {
+  transition: box-shadow 0.2s linear;
+  background: darkorange;
+  opacity: .5;
+  width: .5%;
+  height: .5%;
+  margin-left: -.25%;
+  margin-top: -.25%;
+  animation: firing 1s linear infinite;
+}
+
+@keyframes firing {
+  0% {
+    box-shadow: 0 0 0.2vh 0.3vh darkorange;
+  }
+
+  50% {
+    box-shadow: 0 0 0.3vh 0.5vh darkorange;
+  }
+}
