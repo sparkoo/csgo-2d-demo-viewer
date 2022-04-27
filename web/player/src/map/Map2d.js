@@ -13,6 +13,7 @@ class Map2d extends Component {
       players: [],
       shots: [],
       nades: [],
+      nadeExplosions: [],
     }
 
     props.messageBus.listen([4, 13], this.onMessage.bind(this))
@@ -21,13 +22,14 @@ class Map2d extends Component {
     props.messageBus.listen([MSG_PLAY_CHANGE], function () {
       this.setState({
         shots: [],
+        nadeExplosions: [],
       })
     }.bind(this))
+    props.messageBus.listen([14], this.handleNadeExplosion.bind(this))
   }
 
   tickUpdate(message) {
     if (message.tickState.Players) {
-      console.log(message.tickState)
       this.setState({
         players: message.tickState.Players,
         nades: message.tickState.Nades
@@ -38,6 +40,12 @@ class Map2d extends Component {
   handleShot(msg) {
     this.setState({
       shots: [...this.state.shots, msg.shot]
+    })
+  }
+
+  handleNadeExplosion(msg) {
+    this.setState({
+      nadeExplosions: [...this.state.nadeExplosions, msg.grenadeEvent]
     })
   }
 
@@ -57,6 +65,22 @@ class Map2d extends Component {
     )
   }
 
+  removeNade(index) {
+    const newState = this.state.nadeExplosions
+    newState[index] = null
+    this.setState({
+      nadeExplosions: newState,
+    })
+  }
+
+  removeShot(index) {
+    const newState = this.state.shots
+    newState[index] = null
+    this.setState({
+      shots: newState,
+    })
+  }
+
   render() {
     const style = {
       backgroundImage: `url("https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/${this.state.mapName}.jpg")`,
@@ -70,7 +94,10 @@ class Map2d extends Component {
       })
     }
     const shots = this.state.shots.map((s, i) => {
-      return <MapShot key={i} shot={s}/>
+      if (s === null) {
+        return null
+      }
+      return <MapShot key={i} shot={s} removeCallback={this.removeShot.bind(this)} index={i}/>
     })
     const nadeComponents = []
     if (this.state.nades && this.state.nades.length > 0) {
@@ -78,11 +105,18 @@ class Map2d extends Component {
         nadeComponents.push(<MapNade key={n.id} nade={n}/>)
       })
     }
+    const nadeExplosions = this.state.nadeExplosions.map((n, i) => {
+      if (n === null) {
+        return null
+      }
+      return <MapNade key={n.id} nade={n} hide={true} removeCallback={this.removeNade.bind(this)} index={i}/>
+    })
     return (
         <div className="map-container" id="map" style={style}>
           {playerComponents}
           {nadeComponents}
           {shots}
+          {nadeExplosions}
         </div>
     )
   }

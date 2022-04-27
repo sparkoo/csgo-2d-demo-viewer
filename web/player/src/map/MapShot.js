@@ -6,7 +6,6 @@ class MapShot extends Component {
     super(props);
     this.state = {
       transformStyle: `rotate(${this.props.shot.Rotation}deg) translateY(-100%)`,
-      hiddent: false,
     }
   }
 
@@ -18,9 +17,7 @@ class MapShot extends Component {
     }.bind(this), 10)
 
     setTimeout(function () {
-      this.setState({
-        hidden: true,
-      })
+      this.props.removeCallback(this.props.index)
     }.bind(this), 100)
   }
 
@@ -31,7 +28,7 @@ class MapShot extends Component {
       transform: this.state.transformStyle,
     }
     return (
-        <div className={"playerShot"} style={style} hidden={this.state.hidden}>
+        <div className={"playerShot"} style={style}>
         </div>
     );
   }
