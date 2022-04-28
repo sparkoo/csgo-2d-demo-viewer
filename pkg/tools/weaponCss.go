@@ -9,7 +9,7 @@ import (
 
 func main() {
 	uniqueGuns := make(map[string]bool)
-	for _, v := range parser.WeaponModels {
+	for _, v := range parser.WeaponsEqType {
 		uniqueGuns[v] = true
 	}
 

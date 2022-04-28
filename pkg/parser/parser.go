@@ -292,12 +292,12 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 	}
 
 	if w := p.ActiveWeapon(); w != nil {
-		player.Weapon = convertWeapon(w.OriginalString)
+		player.Weapon = convertWeapon(w.Type)
 	}
 
 	//TODO: Grenades should have priority left to right flash > he > smoke > molotov/inc > decoy
 	for _, w := range p.Weapons() {
-		weaponString := convertWeapon(w.OriginalString)
+		weaponString := convertWeapon(w.Type)
 		switch w.Class() {
 		case common.EqClassSMG, common.EqClassHeavy, common.EqClassRifle:
 			player.Primary = weaponString

@@ -124,7 +124,7 @@ func server() {
 		}()
 	})
 	log.Println("Listening on ", config.Port, " ...")
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), mux))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", config.Port), mux))
 }
 
 func playDemo(out chan []byte, matchId string) {

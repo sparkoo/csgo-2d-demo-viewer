@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+// TODO: unused, remove later. keeping here for now to have model names
 var WeaponModels = map[string]string{
 	"models/weapons/v_rif_m4a1_s.mdl":                   "m4a1s",
 	"models/weapons/w_rif_m4a1_s_dropped.mdl":           "m4a1s",
@@ -91,13 +92,31 @@ var WeaponsEqType = map[common.EquipmentType]string{
 	common.EqKnife: "knife",
 
 	// pistols
-	common.EqUSP:    "usp-s",
-	common.EqGlock:  "glock",
-	common.EqDeagle: "deagle",
+	common.EqUSP:          "usp-s",
+	common.EqGlock:        "glock",
+	common.EqDeagle:       "deagle",
+	common.EqP250:         "p250",
+	common.EqP2000:        "hkp2000",
+	common.EqFiveSeven:    "fiveseven",
+	common.EqDualBerettas: "duals",
+	common.EqCZ:           "cz75",
+	common.EqTec9:         "tec9",
+
+	// heavy
+	common.EqMag7:     "mag7",
+	common.EqNova:     "nova",
+	common.EqM249:     "para",
+	common.EqXM1014:   "xm1014",
+	common.EqSawedOff: "sawedOff", // TODO: model image
 
 	// smg
 	common.EqMac10: "mac10",
 	common.EqUMP:   "ump45",
+	common.EqMP9:   "mp9",
+	common.EqMP7:   "mp7",
+	common.EqP90:   "p90",
+	common.EqBizon: "bizon",
+	common.EqMP5:   "mp5",
 
 	// rifles
 	common.EqAK47:  "ak47",
@@ -106,6 +125,9 @@ var WeaponsEqType = map[common.EquipmentType]string{
 	common.EqAWP:   "awp",
 	common.EqFamas: "famas",
 	common.EqGalil: "galil",
+	common.EqSSG08: "scout",
+	common.EqAUG:   "aug",
+	common.EqSG553: "sg556",
 
 	// nades
 	common.EqDecoy:      "decoy",
@@ -118,13 +140,14 @@ var WeaponsEqType = map[common.EquipmentType]string{
 	// eq
 	common.EqBomb:      "c4",
 	common.EqDefuseKit: "defuse",
+	common.EqZeus:      "taser",
 }
 
-func convertWeapon(originalName string) string {
-	if w, ok := WeaponModels[originalName]; ok {
+func convertWeapon(equipmentType common.EquipmentType) string {
+	if w, ok := WeaponsEqType[equipmentType]; ok {
 		return w
 	} else {
-		log.Printf("model not found '%s'", originalName)
+		log.Printf("model not found '%s'", equipmentType)
 		return "knife"
 	}
 }
