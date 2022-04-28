@@ -12,15 +12,15 @@ class MapPlayer extends Component {
     const rotStyle = {
       transform: `rotate(${this.props.player.Rotation}deg) translateY(-50%)`,
     }
-    let playerClass = `player ${this.props.player.Team} ${this.props.player.Flashed ? "flashed" : ""}`
+    const playerClass = `player
+      ${this.props.player.Team}
+      ${this.props.player.Flashed ? "flashed" : ""}
+      ${!this.props.player.Alive ? "dead" : ""}`
     let playerArrow
     if (this.props.player.Alive) {
       playerArrow = <div className={`playerArrowContainer ${this.props.player.Team}`}>
-        <div className={`playerArrow ${this.props.player.Team}`}
-             style={rotStyle}></div>
+        <div className={`playerArrow ${this.props.player.Team}`} style={rotStyle}></div>
       </div>
-    } else {
-      playerClass += " dead"
     }
     return (
         <div className={playerClass} style={posStyle}>
@@ -31,16 +31,5 @@ class MapPlayer extends Component {
     );
   }
 }
-
-/**
- * <div class="player T deletable" id="playerMap217"
- *            style="left: 55.5173%; top: 37.5477%; background: linear-gradient(0deg, var(--TColor) 92%, transparent 0%); opacity: 1;">
- *         <div id="playerContainer217" class="playerArrowContainer T">
- *           <div id="playerArrow217" class="playerArrow T" style="transform: rotate(16.2488deg) translateY(-40%);"></div>
- *         </div>
- *         <div id="playerNameTag217" class="playerNameTag">spr21</div>
- *         <div id="playerMapWeapon217" class="playerMapWeapon ak47"></div>
- *       </div>
- */
 
 export default MapPlayer
