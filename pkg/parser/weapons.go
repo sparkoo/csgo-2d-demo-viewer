@@ -119,15 +119,16 @@ var WeaponsEqType = map[common.EquipmentType]string{
 	common.EqMP5:   "mp5",
 
 	// rifles
-	common.EqAK47:  "ak47",
-	common.EqM4A4:  "m4a4",
-	common.EqM4A1:  "m4a1s",
-	common.EqAWP:   "awp",
-	common.EqFamas: "famas",
-	common.EqGalil: "galil",
-	common.EqSSG08: "scout",
-	common.EqAUG:   "aug",
-	common.EqSG553: "sg556",
+	common.EqAK47:   "ak47",
+	common.EqM4A4:   "m4a4",
+	common.EqM4A1:   "m4a1s",
+	common.EqAWP:    "awp",
+	common.EqFamas:  "famas",
+	common.EqGalil:  "galil",
+	common.EqSSG08:  "scout",
+	common.EqAUG:    "aug",
+	common.EqSG553:  "sg556",
+	common.EqScar20: "scar",
 
 	// nades
 	common.EqDecoy:      "decoy",
