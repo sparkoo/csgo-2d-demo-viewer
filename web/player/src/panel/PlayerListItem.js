@@ -47,6 +47,22 @@ class PlayerListItem extends Component {
             <div className={`w3-col l2 ${this.props.player.Alive ? "knife" : ""}`}>&nbsp;</div>
             {nades}
           </div>
+          <div className="w3-row">
+            <div className="w3-col l1">&nbsp;</div>
+            <div className="w3-col l3 playerListPrimaryAmmo w3-small">
+              {this.props.player.Primary ?
+                `${this.props.player.PrimaryAmmoMagazine}/${this.props.player.PrimaryAmmoReserve}`
+                : ""}
+              &nbsp;
+            </div>
+            <div className="w3-col l2 playerListSecondaryAmmo w3-small">
+              {this.props.player.Secondary ?
+                  `${this.props.player.SecondaryAmmoMagazine}/${this.props.player.SecondaryAmmoReserve}`
+                  : ""}
+              &nbsp;
+            </div>
+            <div className="w3-col l6 playerListMoney w3-right-align playerListItemName">{this.props.player.Money}$</div>
+          </div>
         </div>
     )
   }

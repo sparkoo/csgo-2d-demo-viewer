@@ -4,16 +4,24 @@ import {Component} from "react";
 class MapShot extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      transformStyle: `rotate(${this.props.shot.Rotation}deg) translateY(-100%)`,
+    if (this.props.shot) {
+      this.state = {
+        transformStyle: `rotate(${this.props.shot.Rotation}deg) translateY(-100%)`,
+      }
+    } else {
+      this.state = {
+        transformStyle: "",
+      }
     }
   }
 
   componentDidMount() {
     setTimeout(function () {
-      this.setState({
-        transformStyle: `rotate(${this.props.shot.Rotation}deg) translateY(-500%)`,
-      })
+      if (this.props.shot) {
+        this.setState({
+          transformStyle: `rotate(${this.props.shot.Rotation}deg) translateY(-500%)`,
+        })
+      }
     }.bind(this), 10)
 
     setTimeout(function () {
@@ -22,15 +30,19 @@ class MapShot extends Component {
   }
 
   render() {
-    const style = {
-      top: `${this.props.shot.Y}%`,
-      left: `${this.props.shot.X}%`,
-      transform: this.state.transformStyle,
+    if (this.props.shot) {
+      const style = {
+        top: `${this.props.shot.Y}%`,
+        left: `${this.props.shot.X}%`,
+        transform: this.state.transformStyle,
+      }
+      return (
+          <div className={"playerShot"} style={style}>
+          </div>
+      );
+    } else {
+      return null
     }
-    return (
-        <div className={"playerShot"} style={style}>
-        </div>
-    );
   }
 }
 
