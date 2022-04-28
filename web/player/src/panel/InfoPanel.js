@@ -4,6 +4,7 @@ import Scoreboard from "./Scoreboard";
 import RoundNav from "./RoundNav";
 import Controls from "./Controls";
 import Timer from "./Timer";
+import PlayerList from "./PlayerList";
 
 class InfoPanel extends Component {
   constructor(props) {
@@ -18,17 +19,8 @@ class InfoPanel extends Component {
       <RoundNav messageBus={this.messageBus}/>
       <Controls messageBus={this.messageBus}/>
       <Scoreboard messageBus={this.messageBus}/>
-      {/*<hr/>*/}
-      {/*<div className="w3-row">*/}
-      {/*  <div className="w3-col l6">*/}
-      {/*    <div className="T w3-medium" id="TList">*/}
-      {/*    </div>*/}
-      {/*  </div>*/}
-      {/*  <div className="w3-col l6">*/}
-      {/*    <div className="CT w3-medium" id="CTList">*/}
-      {/*    </div>*/}
-      {/*  </div>*/}
-      {/*</div>*/}
+      <hr/>
+      <PlayerList messageBus={this.messageBus}/>
     </div>
   }
 }

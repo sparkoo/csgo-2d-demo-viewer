@@ -39,3 +39,7 @@ html, body {
   font-size: 30px;
   height: calc(100vh);
 }
+
+.dead {
+  background-image: url("/assets/icons/csgo/dead.svg");
+}

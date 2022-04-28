@@ -1,0 +1,85 @@
+.playerListItem {
+  position: relative;
+  text-align: left;
+}
+
+.playerListHp {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.playerListHpValue {
+  background-color: var(--TColor);
+  height: 100%;
+  z-index: 1;
+}
+
+.playerListHpValue.T {
+  background-color: var(--TColor);
+  float: left;
+}
+
+.playerListHpValue.CT {
+  background-color: var(--CTColor);
+  float: right;
+}
+
+.playerListItemName, .playerListHpText, .playerListVest {
+  color: white;
+  z-index: 5;
+  position: relative;
+  font-weight: bold;
+}
+
+.playerListItemName {
+  padding: 0 5%;
+}
+
+.playerListHpText {
+  padding: 0;
+  text-align: center;
+}
+
+.layerListItemName.T {
+  text-align: left;
+}
+
+.playerListItemName.CT {
+  text-align: right;
+}
+
+.playerListWeapons {
+  padding: 5px 0;
+  background-color: #222;
+}
+
+.playerListWeapons > div {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: brightness(.5);
+}
+
+.playerListWeapons > div.active {
+  filter: brightness(1);
+}
+
+.playerListItemContainer {
+  border: 1px solid var(--BlackColor);
+}
+
+.bckg {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.c4 {
+  filter: brightness(.7) !important;
+}
+
+.c4.active {
+  filter: brightness(1.5) !important;
+}

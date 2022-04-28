@@ -164,3 +164,16 @@
   background-image: url("/assets/icons/csgo/decoy.svg");
 }
 
+.defuse {
+  background-image: url("/assets/icons/csgo/defuse.svg");
+  filter: brightness(1.5) !important;
+}
+
+.vest {
+  background-image: url("/assets/icons/csgo/vest.svg");
+  background-size: 50%;
+}
+
+.vesthelm {
+  background-image: url("/assets/icons/csgo/vesthelm.svg");
+}
