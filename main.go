@@ -51,30 +51,23 @@ func server() {
 		}
 	})
 
-	mux.HandleFunc("/test", func(writer http.ResponseWriter, request *http.Request) {
-		temp, err := template.ParseFiles("templates/test.html")
-		if err != nil {
-			http.Error(writer, err.Error(), 500)
-		}
+	//mux.HandleFunc("/test", func(writer http.ResponseWriter, request *http.Request) {
+	//	temp, err := template.ParseFiles("templates/test.html")
+	//	if err != nil {
+	//		http.Error(writer, err.Error(), 500)
+	//	}
+	//
+	//	if temp.Execute(writer, nil) != nil {
+	//		http.Error(writer, err.Error(), 500)
+	//	}
+	//})
 
-		if temp.Execute(writer, nil) != nil {
-			http.Error(writer, err.Error(), 500)
-		}
-	})
+	playerFileServer := http.FileServer(http.Dir("web/player/build"))
+	mux.Handle("/player/",
+		http.StripPrefix("/player", playerFileServer))
 
-	mux.HandleFunc("/player", func(writer http.ResponseWriter, request *http.Request) {
-		temp, err := template.ParseFiles("templates/player.html")
-		if err != nil {
-			http.Error(writer, err.Error(), 500)
-		}
-
-		if temp.Execute(writer, nil) != nil {
-			http.Error(writer, err.Error(), 500)
-		}
-	})
-
-	fileserver := http.FileServer(http.Dir("./assets"))
-	mux.Handle("/assets/", http.StripPrefix("/assets", fileserver))
+	assetsFileServer := http.FileServer(http.Dir("./assets"))
+	mux.Handle("/assets/", http.StripPrefix("/assets", assetsFileServer))
 
 	mux.HandleFunc("/ws", func(writer http.ResponseWriter, request *http.Request) {
 		// Upgrade our raw HTTP connection to a websocket based one
@@ -124,7 +117,7 @@ func server() {
 		}()
 	})
 	log.Println("Listening on ", config.Port, " ...")
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", config.Port), mux))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), mux))
 }
 
 func playDemo(out chan []byte, matchId string) {

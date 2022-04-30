@@ -1,4 +1,4 @@
-FROM quay.io/eclipse/che-golang-1.17:ae494ed as builder
+FROM golang:1.17 as builderGo
 
 USER root
 
@@ -15,10 +15,28 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build \
   -asmflags all=-trimpath=/ \
   main.go
 
+FROM node:lts-slim as builderNpm
+
+USER root
+
+WORKDIR /csgo-2d-demo-player
+
+COPY web/player/package.json .
+COPY web/player/package-lock.json .
+
+RUN npm install
+
+COPY web/player/public public
+COPY web/player/src src
+
+RUN npm run build
+
+
 FROM debian:buster-slim
-COPY --from=builder /csgo-2d-demo-player/_output/main /csgo-2d-demo-player/
-COPY --from=builder /csgo-2d-demo-player/templates/ /csgo-2d-demo-player/templates/
-COPY --from=builder /csgo-2d-demo-player/assets/ /csgo-2d-demo-player/assets/
+COPY --from=builderGo /csgo-2d-demo-player/_output/main /csgo-2d-demo-player/
+COPY --from=builderGo /csgo-2d-demo-player/templates/ /csgo-2d-demo-player/templates/
+COPY --from=builderGo /csgo-2d-demo-player/assets/ /csgo-2d-demo-player/assets/
+COPY --from=builderNpm /csgo-2d-demo-player/build/ /csgo-2d-demo-player/web/player/build/
 
 WORKDIR /csgo-2d-demo-player
 
