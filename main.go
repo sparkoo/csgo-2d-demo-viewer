@@ -72,12 +72,10 @@ func server() {
 	mux.HandleFunc("/ws", func(writer http.ResponseWriter, request *http.Request) {
 		// Upgrade our raw HTTP connection to a websocket based one
 		upgrader := websocket.Upgrader{}
-		upgrader.CheckOrigin = func(r *http.Request) bool {
-			if r.Host == "localhost:8080" {
-				log.Println("Local development, allowing cross origin ...")
+		if request.Host == "localhost:8080" {
+			upgrader.CheckOrigin = func(r *http.Request) bool {
 				return true
 			}
-			return false
 		}
 		conn, err := upgrader.Upgrade(writer, request, nil)
 		if err != nil {
