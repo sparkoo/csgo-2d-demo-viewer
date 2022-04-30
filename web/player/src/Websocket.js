@@ -30,7 +30,8 @@ function Connect(messageBus) {
   };
 
   socket.onerror = function (error) {
-    console.log(`[error] ${error.message}`);
+    console.log(`[websocket error] ${error.message}`);
+    alert(`websocket error. check console or write sparko`)
   };
 
   socket.onmessage = function (event) {
