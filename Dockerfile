@@ -1,7 +1,6 @@
-FROM golang:1.17 as builderGo
+FROM golang:1.18 as builderGo
 
 USER root
-
 WORKDIR /csgo-2d-demo-player
 
 COPY go.mod .
@@ -15,20 +14,18 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build \
   -asmflags all=-trimpath=/ \
   main.go
 
+
 FROM node:lts-slim as builderNpm
 
 USER root
-
 WORKDIR /csgo-2d-demo-player
 
 COPY web/player/package.json .
 COPY web/player/package-lock.json .
-
 RUN npm install
 
 COPY web/player/public public
 COPY web/player/src src
-
 RUN npm run build
 
 
@@ -41,4 +38,3 @@ COPY --from=builderNpm /csgo-2d-demo-player/build/ /csgo-2d-demo-player/web/play
 WORKDIR /csgo-2d-demo-player
 
 CMD /csgo-2d-demo-player/main
-# ENTRYPOINT ["/csgo-2d-demo-player/main"]
