@@ -59,10 +59,10 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		switch ge.(type) {
 		case events.FlashExplode, events.HeExplode:
 			roundMessage.Add(&message.Message{
-				MsgType: message.GrenadeEventType,
-				Tick:    parser.CurrentFrame(),
+				MsgType: message.Message_GrenadeEventType,
+				Tick:    int32(parser.CurrentFrame()),
 				GrenadeEvent: &message.Grenade{
-					Id:     ge.Base().GrenadeEntityID,
+					Id:     int32(ge.Base().GrenadeEntityID),
 					Kind:   WeaponsEqType[ge.Base().Grenade.Type],
 					X:      x,
 					Y:      y,
@@ -79,10 +79,10 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		if c := e.Weapon.Class(); c == common.EqClassPistols || c == common.EqClassSMG || c == common.EqClassHeavy || c == common.EqClassRifle {
 			x, y := translatePosition(e.Shooter.Position(), &mapCS)
 			roundMessage.Add(&message.Message{
-				MsgType: message.ShotType,
-				Tick:    parser.CurrentFrame(),
+				MsgType: message.Message_ShotType,
+				Tick:    int32(parser.CurrentFrame()),
 				Shot: &message.Shot{
-					PlayerId: e.Shooter.UserID,
+					PlayerId: int32(e.Shooter.UserID),
 					X:        x,
 					Y:        y,
 					Rotation: -(e.Shooter.ViewDirectionX() - 90.0),
@@ -93,9 +93,9 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 
 	parser.RegisterEventHandler(func(e events.Kill) {
 		roundMessage.Add(&message.Message{
-			MsgType: message.KillType,
-			Tick:    parser.CurrentFrame(),
-			Kill:    &message.Kill{VictimId: e.Victim.UserID},
+			MsgType: message.Message_KillType,
+			Tick:    int32(parser.CurrentFrame()),
+			Kill:    &message.Kill{VictimId: int32(e.Victim.UserID)},
 		})
 	})
 	parser.RegisterEventHandler(func(e events.RoundEnd) {
@@ -104,12 +104,12 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	})
 	parser.RegisterEventHandler(func(e events.RoundEndOfficial) {
 		//log.Printf("round end offic '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
-		roundMessage.RoundTookSeconds = int((parser.CurrentTime() - currentRoundTimer.lastRoundStart).Seconds())
-		roundMessage.RoundNo = parser.GameState().TotalRoundsPlayed()
-		roundMessage.EndTick = parser.CurrentFrame()
+		roundMessage.RoundTookSeconds = int32((parser.CurrentTime() - currentRoundTimer.lastRoundStart).Seconds())
+		roundMessage.RoundNo = int32(parser.GameState().TotalRoundsPlayed())
+		roundMessage.EndTick = int32(parser.CurrentFrame())
 		msg := &message.Message{
-			MsgType: message.RoundType,
-			Tick:    parser.CurrentFrame(),
+			MsgType: message.Message_RoundType,
+			Tick:    int32(parser.CurrentFrame()),
 			Round:   roundMessage,
 		}
 		//log.Printf("sending round '%+v', messages '%v', roundNo '%v'   T [%v : %v] CT", msg, len(msg.Round.Ticks), msg.RoundNo, msg.TeamState.TScore, msg.TeamState.CTScore)
@@ -129,8 +129,8 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		if !gameStarted {
 			mapCS = metadata.MapNameToMap[parser.Header().MapName]
 			handler(&message.Message{
-				MsgType: message.InitType,
-				Tick:    parser.CurrentFrame(),
+				MsgType: message.Message_InitType,
+				Tick:    int32(parser.CurrentFrame()),
 				Init: &message.Init{
 					MapName: mapCS.Name,
 					CTName:  parser.GameState().TeamCounterTerrorists().ClanName(),
@@ -140,7 +140,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			gameStarted = true
 		}
 
-		roundMessage.FreezetimeEndTick = parser.CurrentFrame()
+		roundMessage.FreezetimeEndTick = int32(parser.CurrentFrame())
 	})
 
 	for {
@@ -151,8 +151,8 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		if !more {
 			log.Printf("ende")
 			handler(&message.Message{
-				MsgType: message.DemoEndType,
-				Tick:    parser.CurrentFrame(),
+				MsgType: message.Message_DemoEndType,
+				Tick:    int32(parser.CurrentFrame()),
 				Init: &message.Init{
 					MapName: mapCS.Name,
 					CTName:  parser.GameState().TeamCounterTerrorists().ClanName(),
@@ -165,10 +165,10 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		}
 
 		if parser.CurrentFrame()%1024 == 0 {
-			progressWholePercent := int(math.Round(float64(parser.Progress()) * 100))
+			progressWholePercent := int32(math.Round(float64(parser.Progress()) * 100))
 			handler(&message.Message{
-				MsgType: message.ProgressType,
-				Tick:    parser.CurrentFrame(),
+				MsgType: message.Message_ProgressType,
+				Tick:    int32(parser.CurrentFrame()),
 				Progress: &message.Progress{
 					Progress: progressWholePercent,
 					Message:  "Loading match ...",
@@ -180,8 +180,8 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			roundTime := parser.CurrentTime() - currentRoundTimer.lastRoundStart
 			minutes := int(roundTime.Minutes())
 			roundMessage.Add(&message.Message{
-				MsgType: message.TimeUpdateType,
-				Tick:    parser.CurrentFrame(),
+				MsgType: message.Message_TimeUpdateType,
+				Tick:    int32(parser.CurrentFrame()),
 				RoundTime: &message.RoundTime{
 					RoundTime: fmt.Sprintf("%d:%02d", minutes, int(roundTime.Seconds())-(60*minutes)),
 				},
@@ -190,8 +190,8 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 
 		if parser.CurrentFrame()%4 != 0 {
 			roundMessage.Add(&message.Message{
-				MsgType: message.EmptyType,
-				Tick:    parser.CurrentFrame(),
+				MsgType: message.Message_EmptyType,
+				Tick:    int32(parser.CurrentFrame()),
 			})
 			continue
 		}
@@ -201,7 +201,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 }
 
 func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.Parser) *message.Message {
-	msgPlayers := make([]message.Player, 0)
+	msgPlayers := make([]*message.Player, 0)
 	for _, p := range tick.TeamTerrorists().Members() {
 		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
 	}
@@ -212,7 +212,7 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 		return msgPlayers[i].PlayerId < msgPlayers[j].PlayerId
 	})
 
-	nades := make([]message.Grenade, 0)
+	nades := make([]*message.Grenade, 0)
 	for _, g := range tick.GrenadeProjectiles() {
 		var action string
 		if g.WeaponInstance.Type == common.EqHE {
@@ -233,8 +233,8 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 			}
 		}
 		x, y := translatePosition(g.Position(), mapCS)
-		nades = append(nades, message.Grenade{
-			Id:     g.Entity.ID(),
+		nades = append(nades, &message.Grenade{
+			Id:     int32(g.Entity.ID()),
 			Kind:   WeaponsEqType[g.WeaponInstance.Type],
 			X:      x,
 			Y:      y,
@@ -247,8 +247,8 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 		for _, fire := range inferno.Fires().Active().ConvexHull3D().Vertices {
 			x, y := translatePosition(fire, mapCS)
 			dist := int(fire.Distance(zeroVector) * 100_000)
-			nades = append(nades, message.Grenade{
-				Id:     inferno.Entity.ID() + dist,
+			nades = append(nades, &message.Grenade{
+				Id:     int32(inferno.Entity.ID() + dist),
 				Kind:   "fire",
 				X:      x,
 				Y:      y,
@@ -263,8 +263,8 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 	})
 
 	return &message.Message{
-		MsgType: message.TickStateUpdate,
-		Tick:    parser.CurrentFrame(),
+		MsgType: message.Message_TickStateUpdate,
+		Tick:    int32(parser.CurrentFrame()),
 		TickState: &message.TickState{
 			Players: msgPlayers,
 			Nades:   nades,
@@ -272,10 +272,10 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 	}
 }
 
-func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
+func transformPlayer(p *common.Player, mapCS *metadata.Map) *message.Player {
 	x, y := translatePosition(p.LastAlivePosition, mapCS)
-	player := message.Player{
-		PlayerId: p.UserID,
+	player := &message.Player{
+		PlayerId: int32(p.UserID),
 		Name:     p.Name,
 		Team:     team(p.Team),
 		X:        x,
@@ -284,11 +284,11 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		Rotation: -(p.ViewDirectionX() - 90.0),
 		Alive:    p.IsAlive(),
 		Flashed:  p.IsBlinded(),
-		Hp:       p.Health(),
-		Armor:    p.Armor(),
+		Hp:       int32(p.Health()),
+		Armor:    int32(p.Armor()),
 		Helmet:   p.HasHelmet(),
 		Defuse:   p.HasDefuseKit(),
-		Money:    p.Money(),
+		Money:    int32(p.Money()),
 	}
 
 	if w := p.ActiveWeapon(); w != nil {
@@ -301,12 +301,12 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) message.Player {
 		switch w.Class() {
 		case common.EqClassSMG, common.EqClassHeavy, common.EqClassRifle:
 			player.Primary = weaponString
-			player.PrimaryAmmoMagazine = w.AmmoInMagazine()
-			player.PrimaryAmmoReserve = w.AmmoReserve()
+			player.PrimaryAmmoMagazine = int32(w.AmmoInMagazine())
+			player.PrimaryAmmoReserve = int32(w.AmmoReserve())
 		case common.EqClassPistols:
 			player.Secondary = weaponString
-			player.SecondaryAmmoMagazine = w.AmmoInMagazine()
-			player.SecondaryAmmoReserve = w.AmmoReserve()
+			player.SecondaryAmmoMagazine = int32(w.AmmoInMagazine())
+			player.SecondaryAmmoReserve = int32(w.AmmoReserve())
 		case common.EqClassGrenade:
 			for gi := 0; gi < w.AmmoInMagazine()+w.AmmoReserve(); gi++ {
 				player.Grenades = append(player.Grenades, weaponString)

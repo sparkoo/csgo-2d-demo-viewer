@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"google.golang.org/protobuf/proto"
 	"html/template"
 	"io"
 	"log"
@@ -31,7 +32,7 @@ func handleMessages(in chan []byte, out chan []byte) {
 			log.Print("failed unmarshal websocket message", err)
 		}
 		switch messageObj.MsgType {
-		case message.PlayRequestType:
+		case message.Message_PlayRequestType:
 			go playDemo(out, messageObj.Demo.MatchId)
 		}
 	}
@@ -92,7 +93,7 @@ func server() {
 			defer conn.Close()
 
 			for msg := range out {
-				err = conn.WriteMessage(websocket.TextMessage, msg)
+				err = conn.WriteMessage(websocket.BinaryMessage, msg)
 				if err != nil {
 					log.Println("Error during message writing:", err)
 					break
@@ -144,16 +145,16 @@ func playDemo(out chan []byte, matchId string) {
 }
 
 func sendMessage(msg *message.Message, out chan []byte) {
-	payload, jsonErr := json.Marshal(msg)
-	if jsonErr != nil {
-		sendError(jsonErr.Error(), out)
+	payload, protoErr := proto.Marshal(msg)
+	if protoErr != nil {
+		sendError(protoErr.Error(), out)
 	}
 	out <- payload
 }
 
 func sendError(errorMessage string, out chan []byte) {
 	log.Printf("sending error to client: '%s'", errorMessage)
-	out <- []byte(fmt.Sprintf("{\"msgType\": %d, \"error\": {\"message\": \"%s\"}}", message.ErrorType, errorMessage))
+	out <- []byte(fmt.Sprintf("{\"msgType\": %d, \"error\": {\"message\": \"%s\"}}", message.Message_ErrorType, errorMessage))
 }
 
 func obtainDemoFile(matchId string) (io.Reader, []io.Closer, error) {

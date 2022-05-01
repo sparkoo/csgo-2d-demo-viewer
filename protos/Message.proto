@@ -4,7 +4,7 @@ package csgo;
 
 option go_package = "/message";
 
-message MessagePb {
+message Message {
   enum MessageType {
     Zero = 0;
     TickStateUpdate = 1;
@@ -23,19 +23,19 @@ message MessagePb {
   }
   MessageType msgType = 1;
   int32 tick = 2;
-  optional TeamUpdatePb teamUpdate = 3;
-  optional TickStatePb tickState = 4;
-  optional InitPb init = 5;
-  optional RoundPb round = 6;
-  optional ProgressPb progress = 7;
-  optional RoundTimePb roundTime = 8;
-  optional ShotPb shot = 9;
-  optional KillPb kill = 10;
-  optional DemoPb demo = 11;
-  optional GrenadePb grenadeEvent = 12;
+  optional TeamUpdate teamUpdate = 3;
+  optional TickState tickState = 4;
+  optional Init init = 5;
+  optional Round round = 6;
+  optional Progress progress = 7;
+  optional RoundTime roundTime = 8;
+  optional Shot shot = 9;
+  optional Kill kill = 10;
+  optional Demo demo = 11;
+  optional Grenade grenadeEvent = 12;
 }
 
-message PlayerPb {
+message Player {
   int32 PlayerId = 1;
   string Name = 2;
   string Team = 3;
@@ -61,36 +61,36 @@ message PlayerPb {
   repeated string Grenades = 23;
 }
 
-message TeamUpdatePb {
+message TeamUpdate {
   string TName = 1;
   int32 TScore = 2;
   string CTName = 3;
   int32 CTScore = 4;
 }
 
-message TickStatePb {
-  repeated PlayerPb Players = 1;
-  repeated GrenadePb Nades = 2;
+message TickState {
+  repeated Player Players = 1;
+  repeated Grenade Nades = 2;
 }
 
-message InitPb {
+message Init {
   string mapName = 1;
   string TName = 2;
   string CTName = 3;
 }
 
-message KillPb {
+message Kill {
   int32 VictimId = 1;
 }
 
-message ShotPb {
+message Shot {
   int32 PlayerId = 1;
   double X = 2;
   double Y = 3;
   float Rotation = 4;
 }
 
-message GrenadePb {
+message Grenade {
   int32 id = 1;
   string kind = 2;
   double x = 3;
@@ -99,27 +99,27 @@ message GrenadePb {
   string action = 6;
 }
 
-message RoundPb {
+message Round {
   int32 RoundNo = 1;
   int32 RoundTookSeconds = 2;
   int32 StartTick = 3;
   int32 FreezetimeEndTick = 4;
   int32 EndTick = 5;
-  repeated MessagePb Ticks = 6;
-  TeamUpdatePb TeamState = 7;
+  repeated Message Ticks = 6;
+  TeamUpdate TeamState = 7;
   string Winner = 8;
 }
 
-message ProgressPb {
+message Progress {
   int32 Progress = 1;
   string Message = 2;
 }
 
-message RoundTimePb {
+message RoundTime {
   string RoundTime = 1;
   int32 FreezeTime = 2;
 }
 
-message DemoPb {
+message Demo {
   string MatchId = 1;
 }
