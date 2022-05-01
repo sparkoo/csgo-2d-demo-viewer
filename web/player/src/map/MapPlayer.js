@@ -18,13 +18,13 @@ class MapPlayer extends Component {
       ${!this.props.player.Alive ? "dead" : ""}`
     let playerArrow
     if (this.props.player.Alive) {
-      playerArrow = <div className={`playerArrowContainer ${this.props.player.Team}`}>
-        <div className={`playerArrow ${this.props.player.Team}`} style={rotStyle}></div>
-      </div>
+      playerArrow = <div className={`playerArrow ${this.props.player.Team}`} style={rotStyle}></div>
     }
     return (
         <div className={playerClass} style={posStyle}>
-          {playerArrow}
+          <div className={`playerArrowContainer ${this.props.player.Team}`}>
+            {playerArrow}
+          </div>
           <div className="playerNameTag">{this.props.player.Name}</div>
           <div className={`playerMapWeapon ${this.props.player.Weapon}`}></div>
         </div>
