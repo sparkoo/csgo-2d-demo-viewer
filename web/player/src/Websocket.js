@@ -1,3 +1,5 @@
+var proto = require("./protos/Message_pb")
+
 function Connect(messageBus) {
   console.log("initializing websocket connection")
 
@@ -35,9 +37,12 @@ function Connect(messageBus) {
   };
 
   socket.onmessage = function (event) {
+    console.log(event)
+    const msg = proto.Message.deserializeBinary(new Uint8Array(event.data)).toObject()
+    console.log(msg)
     // console.log(`[message] Data received from server: ${event.data}`);
-    let msg = JSON.parse(event.data)
-    messageBus.emit(msg)
+    // let msg = JSON.parse(event.data)
+    // messageBus.emit(msg)
   }
 }
 
