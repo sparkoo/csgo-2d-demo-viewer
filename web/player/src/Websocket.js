@@ -31,7 +31,7 @@ function Connect(messageBus) {
 
   socket.onerror = function (error) {
     console.log(`[websocket error] ${error.message}`);
-    alert(`websocket error. check console or write sparko`)
+    alert(`websocket error. check console or ping sparko`)
   };
 
   socket.onmessage = function (event) {

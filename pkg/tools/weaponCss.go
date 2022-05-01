@@ -13,7 +13,7 @@ func main() {
 		uniqueGuns[v] = true
 	}
 
-	if f, err := os.OpenFile("assets/weapons.css", os.O_CREATE, 0644); err == nil {
+	if f, err := os.OpenFile("weapons.css_tmp", os.O_CREATE, 0644); err == nil {
 		defer f.Close()
 
 		_, writeWarningErr := f.WriteString("/* THIS FILE IS GENERATED, PLEASE DO NOT CHANGE !!! */\n\n")
@@ -21,7 +21,7 @@ func main() {
 			log.Fatalln(writeWarningErr)
 		}
 		for g, _ := range uniqueGuns {
-			_, writeLineErr := f.WriteString(fmt.Sprintf(".%s {\n  background-image: url(\"/assets/icons/csgo/%s.svg\");\n}\n\n", g, g))
+			_, writeLineErr := f.WriteString(fmt.Sprintf(".%s {\n  background-image: url(\"assets/icons/csgo/%s.svg\");\n}\n\n", g, g))
 			if writeLineErr != nil {
 				log.Fatalln(writeLineErr)
 			}
