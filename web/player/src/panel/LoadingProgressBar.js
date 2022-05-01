@@ -22,6 +22,8 @@ class LoadingProgressBar extends Component {
             message: msg.progress.Message,
           })
           break
+        default:
+          console.log("unknown message [LoadingProgressBar.js]", msg)
       }
     }.bind(this));
   }

@@ -70,6 +70,8 @@ class Player {
             this.currentTickI = Math.round(round.Ticks.length * msg.progress)
             this.playTick(round.Ticks[this.currentTickI]);
             break
+          default:
+            console.log("unknown message [Player.js]", msg)
         }
       }
     }.bind(this))

@@ -2,9 +2,6 @@ import {Component} from "react";
 import "./PlayerListItem.css"
 
 class PlayerListItem extends Component {
-  constructor(props) {
-    super(props)
-  }
 
   render() {
     // console.log(this.props.player)
@@ -36,7 +33,8 @@ class PlayerListItem extends Component {
             </div>
             <div className={`playerListItemName w3-col l9 ${this.props.player.Team}`}>{this.props.player.Name}</div>
             <div className={`w3-col l1 bckg playerListVest ${this.props.player.Team} ${armor}`}>&nbsp;</div>
-            <div className={`playerListHpText w3-col l2 ${this.props.player.Team} ${this.props.player.Alive ? "" : "dead"}`}>
+            <div className={`playerListHpText w3-col l2 ${this.props.player.Team} ${this.props.player.Alive ? ""
+                : "dead"}`}>
               {this.props.player.Alive ? this.props.player.Hp : ""}&nbsp;
             </div>
           </div>
@@ -51,8 +49,8 @@ class PlayerListItem extends Component {
             <div className="w3-col l1">&nbsp;</div>
             <div className="w3-col l3 playerListPrimaryAmmo w3-small">
               {this.props.player.Primary ?
-                `${this.props.player.PrimaryAmmoMagazine}/${this.props.player.PrimaryAmmoReserve}`
-                : ""}
+                  `${this.props.player.PrimaryAmmoMagazine}/${this.props.player.PrimaryAmmoReserve}`
+                  : ""}
               &nbsp;
             </div>
             <div className="w3-col l2 playerListSecondaryAmmo w3-small">
@@ -61,7 +59,8 @@ class PlayerListItem extends Component {
                   : ""}
               &nbsp;
             </div>
-            <div className="w3-col l6 playerListMoney w3-right-align playerListItemName">{this.props.player.Money}$</div>
+            <div className="w3-col l6 playerListMoney w3-right-align playerListItemName">{this.props.player.Money}$
+            </div>
           </div>
         </div>
     )

@@ -1,5 +1,5 @@
 import {Component} from "react";
-import {MSG_PLAY, MSG_PLAY_ROUND_PROGRESS, MSG_PLAY_TOGGLE, MSG_PROGRESS_MOVE} from "../constants";
+import {MSG_PLAY, MSG_PLAY_ROUND_PROGRESS, MSG_PROGRESS_MOVE} from "../constants";
 
 class Timer extends Component {
   constructor(props) {

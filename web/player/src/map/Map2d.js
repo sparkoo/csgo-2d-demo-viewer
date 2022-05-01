@@ -55,6 +55,8 @@ class Map2d extends Component {
         console.log(message.init.mapName)
         this.setMapName(message.init.mapName)
         break;
+      default:
+        console.log("unknown message [Map2d.js]", message)
     }
   }
 

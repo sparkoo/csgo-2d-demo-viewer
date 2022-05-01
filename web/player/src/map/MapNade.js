@@ -2,10 +2,6 @@ import "./MapNade.css"
 import {Component} from "react";
 
 class MapNade extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     if (this.props.hide) {
       setTimeout(function () {
