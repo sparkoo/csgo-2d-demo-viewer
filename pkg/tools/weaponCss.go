@@ -13,7 +13,7 @@ func main() {
 		uniqueGuns[v] = true
 	}
 
-	if f, err := os.OpenFile("weapons.css_tmp", os.O_CREATE, 0644); err == nil {
+	if f, err := os.OpenFile("weapons.css_tmp", os.O_CREATE|os.O_WRONLY, 0644); err == nil {
 		defer f.Close()
 
 		_, writeWarningErr := f.WriteString("/* THIS FILE IS GENERATED, PLEASE DO NOT CHANGE !!! */\n\n")

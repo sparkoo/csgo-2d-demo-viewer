@@ -6,7 +6,7 @@ class MapShot extends Component {
     super(props);
     if (this.props.shot) {
       this.state = {
-        transformStyle: `rotate(${this.props.shot.Rotation}deg) translateY(-100%)`,
+        transformStyle: `rotate(${this.props.shot.rotation}deg) translateY(-100%)`,
       }
     } else {
       this.state = {
@@ -19,7 +19,7 @@ class MapShot extends Component {
     setTimeout(function () {
       if (this.props.shot) {
         this.setState({
-          transformStyle: `rotate(${this.props.shot.Rotation}deg) translateY(-500%)`,
+          transformStyle: `rotate(${this.props.shot.rotation}deg) translateY(-500%)`,
         })
       }
     }.bind(this), 10)
@@ -32,8 +32,8 @@ class MapShot extends Component {
   render() {
     if (this.props.shot) {
       const style = {
-        top: `${this.props.shot.Y}%`,
-        left: `${this.props.shot.X}%`,
+        top: `${this.props.shot.y}%`,
+        left: `${this.props.shot.x}%`,
         transform: this.state.transformStyle,
       }
       return (
