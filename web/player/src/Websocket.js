@@ -9,13 +9,14 @@ function Connect(messageBus) {
   }
 
   let socket = new WebSocket(websocketServerUrl)
+  socket.binaryType = 'arraybuffer';
 
   socket.onopen = function (e) {
     console.log("[open] Connection established");
     const urlParams = new URLSearchParams(window.location.search);
     socket.send(JSON.stringify(
         {
-          "msgType": 12,
+          "msgtype": 12,
           "demo": {
             "matchId": urlParams.get("matchId")
           }
@@ -37,9 +38,16 @@ function Connect(messageBus) {
   };
 
   socket.onmessage = function (event) {
-    console.log(event)
-    const msg = proto.Message.deserializeBinary(new Uint8Array(event.data)).toObject()
-    console.log(msg)
+    if(event.data instanceof ArrayBuffer) {
+      const msg = proto.Message.deserializeBinary(new Uint8Array(event.data)).toObject()
+      messageBus.emit(msg)
+    } else {
+      // text frame
+      // console.log(event.data);
+      console.log("[message] text data received from server, this is weird. We're using protobufs ?!?!?", event.data);
+      messageBus.emit(JSON.parse(event.data))
+    }
+
     // console.log(`[message] Data received from server: ${event.data}`);
     // let msg = JSON.parse(event.data)
     // messageBus.emit(msg)

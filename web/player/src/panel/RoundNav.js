@@ -12,12 +12,12 @@ class RoundNav extends Component {
     this.messageBus.listen([MSG_INIT_ROUNDS], function (msg) {
       let rounds = []
       msg.rounds.forEach(r => {
-        rounds.push(<Round key={`round${r.RoundNo}`} winner={r.Winner} roundNo={r.RoundNo}
+        rounds.push(<Round key={`round${r.roundno}`} winner={r.winner} roundNo={r.roundno}
                            messageBus={this.messageBus}/>)
-        if (r.RoundNo <= 30 && r.RoundNo % 15 === 0) {
-          rounds.push(<br key={`break${r.RoundNo}`}/>)
-        } else if (r.RoundNo > 30 && r.RoundNo % 6 === 0) {
-          rounds.push(<br key={`break${r.RoundNo}`}/>)
+        if (r.roundno <= 30 && r.roundno % 15 === 0) {
+          rounds.push(<br key={`break${r.roundno}`}/>)
+        } else if (r.roundno > 30 && r.roundno % 6 === 0) {
+          rounds.push(<br key={`break${r.roundno}`}/>)
         }
       })
       this.setState({
@@ -25,13 +25,6 @@ class RoundNav extends Component {
           }
       )
     }.bind(this))
-  }
-
-  playRound(round) {
-    this.messageBus.emit({
-      msgType: MSG_PLAY,
-      round: round,
-    })
   }
 
   render() {
@@ -61,7 +54,7 @@ class Round extends Component {
 
   playRound(round) {
     this.messageBus.emit({
-      msgType: MSG_PLAY,
+      msgtype: MSG_PLAY,
       round: round,
     })
   }

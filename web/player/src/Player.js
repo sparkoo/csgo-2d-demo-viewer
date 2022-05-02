@@ -24,7 +24,7 @@ class Player {
     this.messageBus = messageBus
     this.messageBus.listen([], function (msg) {
       if (this.loading) {
-        switch (msg.msgType) {
+        switch (msg.msgtype) {
           case 4:
           case 7:
           case 13:
@@ -40,7 +40,7 @@ class Player {
             console.log("unknown message", msg)
         }
       } else {
-        switch (msg.msgType) {
+        switch (msg.msgtype) {
           case MSG_PLAY:
             if (msg.round) {
               this.playRound(msg.round)
@@ -67,11 +67,11 @@ class Player {
           case MSG_PROGRESS_MOVE:
             this.stop()
             let round = this.rounds[this.playingRoundI]
-            this.currentTickI = Math.round(round.Ticks.length * msg.progress)
-            this.playTick(round.Ticks[this.currentTickI]);
+            this.currentTickI = Math.round(round.ticksList.length * msg.progress)
+            this.playTick(round.ticksList[this.currentTickI]);
             break
           default:
-            console.log("unknown message [Player.js]", msg)
+            // console.log("unknown message [Player.js]", msg)
         }
       }
     }.bind(this))
@@ -80,8 +80,8 @@ class Player {
   handleAddRound(roundMsg) {
     let roundTicks = []
     let tickMessages = []
-    let currentTick = roundMsg.Ticks[0].tick
-    roundMsg.Ticks.forEach(function (tick) {
+    let currentTick = roundMsg.ticksList[0].tick
+    roundMsg.ticksList.forEach(function (tick) {
       if (tick.tick !== currentTick) {
         roundTicks.push(tickMessages)
         tickMessages = []
@@ -90,10 +90,10 @@ class Player {
       tickMessages.push(tick)
     })
 
-    roundMsg.Ticks = roundTicks
+    roundMsg.ticksList = roundTicks
     this.rounds.push(roundMsg)
     this.messageBus.emit({
-      msgType: MSG_INIT_ROUNDS,
+      msgtype: MSG_INIT_ROUNDS,
       rounds: this.rounds,
     })
   }
@@ -106,7 +106,7 @@ class Player {
   switchPlaying(playing) {
     this.playing = playing
     this.messageBus.emit({
-      msgType: MSG_PLAY_CHANGE,
+      msgtype: MSG_PLAY_CHANGE,
       playing: playing,
     })
   }
@@ -123,7 +123,7 @@ class Player {
     // this.highlightActiveRound(this.playingRoundI)
     clearInterval(this.player)
     this.player = setInterval(function () {
-      if (this.currentTickI >= round.Ticks.length) {
+      if (this.currentTickI >= round.ticksList.length) {
         if (this.playingRoundI >= this.rounds.length) {
           this.stop()
         } else {
@@ -133,10 +133,10 @@ class Player {
       if (!this.playing) {
         clearInterval(this.player);
       }
-      this.playTick(round.Ticks[this.currentTickI]);
+      this.playTick(round.ticksList[this.currentTickI]);
       this.messageBus.emit({
-        msgType: MSG_PLAY_ROUND_PROGRESS,
-        progress: this.currentTickI / round.Ticks.length
+        msgtype: MSG_PLAY_ROUND_PROGRESS,
+        progress: this.currentTickI / round.ticksList.length
       })
 
       this.currentTickI++
@@ -145,7 +145,7 @@ class Player {
 
   highlightActiveRound(round) {
     this.messageBus.emit({
-      msgType: MSG_PLAY_ROUND_UPDATE,
+      msgtype: MSG_PLAY_ROUND_UPDATE,
       round: round,
     })
   }
@@ -173,8 +173,8 @@ class Player {
 
   emitPlayRoundEvent() {
     this.messageBus.emit({
-      msgType: MSG_TEAMSTATE_UPDATE,
-      teamState: this.rounds[this.playingRoundI].TeamState,
+      msgtype: MSG_TEAMSTATE_UPDATE,
+      teamstate: this.rounds[this.playingRoundI].teamstate,
     })
   }
 }

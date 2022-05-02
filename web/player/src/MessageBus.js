@@ -4,21 +4,21 @@ class MessageBus {
     this.listenersAll = []
   }
 
-  listen(msgTypes, callback) {
-    msgTypes.forEach(msgType => {
-      if (!this.listeners[msgType]) {
-        this.listeners[msgType] = []
+  listen(msgtypes, callback) {
+    msgtypes.forEach(msgtype => {
+      if (!this.listeners[msgtype]) {
+        this.listeners[msgtype] = []
       }
-      this.listeners[msgType].push(callback)
+      this.listeners[msgtype].push(callback)
     })
-    if (msgTypes.length === 0) {
+    if (msgtypes.length === 0) {
       this.listenersAll.push(callback)
     }
   }
 
   emit(message) {
-    if (this.listeners[message.msgType]) {
-      this.listeners[message.msgType].forEach(c => c(message))
+    if (this.listeners[message.msgtype]) {
+      this.listeners[message.msgtype].forEach(c => c(message))
     }
     this.listenersAll.forEach(c => c(message))
   }

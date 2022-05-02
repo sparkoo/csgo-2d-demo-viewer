@@ -13,18 +13,17 @@ class Scoreboard extends Component {
     props.messageBus.listen([4, 5], function (msg) {
       console.log(msg)
       this.setState({
-        TName: msg.init.TName,
-        CTName: msg.init.CTName,
+        TName: msg.init.tname,
+        CTName: msg.init.ctname,
       })
     }.bind(this))
 
     props.messageBus.listen([MSG_TEAMSTATE_UPDATE], function (msg) {
-      console.log(msg)
       this.setState({
-        TName: msg.teamState.TName,
-        TScore: msg.teamState.TScore,
-        CTName: msg.teamState.CTName,
-        CTScore: msg.teamState.CTScore,
+        TName: msg.teamstate.tname,
+        TScore: msg.teamstate.tscore,
+        CTName: msg.teamstate.ctname,
+        CTScore: msg.teamstate.ctscore,
       })
     }.bind(this))
   }

@@ -29,10 +29,10 @@ class Map2d extends Component {
   }
 
   tickUpdate(message) {
-    if (message.tickState.Players) {
+    if (message.tickstate.playersList) {
       this.setState({
-        players: message.tickState.Players,
-        nades: message.tickState.Nades
+        players: message.tickstate.playersList,
+        nades: message.tickstate.nadesList
       })
     }
   }
@@ -45,15 +45,15 @@ class Map2d extends Component {
 
   handleNadeExplosion(msg) {
     this.setState({
-      nadeExplosions: [...this.state.nadeExplosions, msg.grenadeEvent]
+      nadeExplosions: [...this.state.nadeExplosions, msg.grenadeevent]
     })
   }
 
   onMessage(message) {
-    switch (message.msgType) {
+    switch (message.msgtype) {
       case 4:
-        console.log(message.init.mapName)
-        this.setMapName(message.init.mapName)
+        console.log(message.init.mapname)
+        this.setMapName(message.init.mapname)
         break;
       default:
         console.log("unknown message [Map2d.js]", message)
@@ -91,7 +91,7 @@ class Map2d extends Component {
     if (this.state.players && this.state.players.length > 0) {
       this.state.players.forEach(p => {
         playerComponents.push(<MapPlayer
-            key={p.PlayerId}
+            key={p.playerid}
             player={p}/>)
       })
     }

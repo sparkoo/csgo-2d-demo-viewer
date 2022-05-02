@@ -17,20 +17,20 @@ class Controls extends Component {
 
   togglePlay() {
     this.messageBus.emit({
-      msgType: MSG_PLAY_TOGGLE,
+      msgtype: MSG_PLAY_TOGGLE,
     })
   }
 
   playRoundIncrement(inc) {
     this.messageBus.emit({
-      msgType: MSG_PLAY_ROUND_INCREMENT,
+      msgtype: MSG_PLAY_ROUND_INCREMENT,
       increment: inc,
     })
   }
 
   playSpeed(speed) {
     this.messageBus.emit({
-      msgType: MSG_PLAY_SPEED,
+      msgtype: MSG_PLAY_SPEED,
       speed: speed,
     })
   }

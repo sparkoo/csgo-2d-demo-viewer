@@ -12,7 +12,7 @@ class Timer extends Component {
     this.messageBus.listen([8], msg => {
       this.setState(
           {
-            time: msg.roundTime.RoundTime,
+            time: msg.roundtime.roundtime,
           }
       )
     })
@@ -37,14 +37,14 @@ class Timer extends Component {
 
   mouseUp(e) {
     this.messageBus.emit({
-      msgType: MSG_PLAY,
+      msgtype: MSG_PLAY,
     })
   }
 
   mouseLeave(e) {
     if (e.buttons === 1) {
       this.messageBus.emit({
-        msgType: MSG_PLAY,
+        msgtype: MSG_PLAY,
       })
     }
   }
@@ -59,7 +59,7 @@ class Timer extends Component {
       progress: progress,
     })
     this.messageBus.emit({
-      msgType: MSG_PROGRESS_MOVE,
+      msgtype: MSG_PROGRESS_MOVE,
       progress: progress,
     })
   }

@@ -13,7 +13,7 @@ class PlayerList extends Component {
 
   update(msg) {
     this.setState({
-      players: msg.tickState.Players,
+      players: msg.tickstate.playersList,
     })
   }
 
@@ -21,7 +21,7 @@ class PlayerList extends Component {
     const players = {"T": [], "CT": []}
     if (this.state.players && this.state.players.length > 0) {
       this.state.players.forEach(p => {
-        players[p.Team].push(<PlayerListItem key={p.PlayerId} player={p} />)
+        players[p.team].push(<PlayerListItem key={p.playerid} player={p} />)
       })
     }
     return <div className="w3-row">

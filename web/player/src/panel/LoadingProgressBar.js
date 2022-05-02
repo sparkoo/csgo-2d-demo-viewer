@@ -9,7 +9,7 @@ class LoadingProgressBar extends Component {
       message: "",
     }
     props.messageBus.listen([5, 7], function (msg) {
-      switch (msg.msgType) {
+      switch (msg.msgtype) {
         case 5:
           this.setState({
             hidden: true,
@@ -18,8 +18,8 @@ class LoadingProgressBar extends Component {
         case 7:
           this.setState({
             hidden: false,
-            progress: msg.progress.Progress,
-            message: msg.progress.Message,
+            progress: msg.progress.progress,
+            message: msg.progress.message,
           })
           break
         default:
