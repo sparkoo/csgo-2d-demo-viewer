@@ -60,10 +60,9 @@ class Round extends Component {
   }
 
   render() {
-    return <a href="#"
-              className={`w3-button roundNav ${this.props.winner} ${this.state.active ? "active" : ""}`}
-              onClick={_ => this.playRound(this.props.roundNo)}>
+    return <button className={`w3-button roundNav ${this.props.winner} ${this.state.active ? "active" : ""}`}
+                   onClick={_ => this.playRound(this.props.roundNo)}>
       {this.props.roundNo}
-    </a>
+    </button>
   }
 }
