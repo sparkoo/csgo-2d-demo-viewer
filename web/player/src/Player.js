@@ -124,7 +124,7 @@ class Player {
     clearInterval(this.player)
     this.player = setInterval(function () {
       if (this.currentTickI >= round.ticksList.length) {
-        if (this.playingRoundI >= this.rounds.length) {
+        if (this.playingRoundI + 1 >= this.rounds.length) {
           this.stop()
         } else {
           this.playRound(this.playingRoundI + 2)
@@ -132,6 +132,7 @@ class Player {
       }
       if (!this.playing) {
         clearInterval(this.player);
+        return
       }
       this.playTick(round.ticksList[this.currentTickI]);
       this.messageBus.emit({
