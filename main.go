@@ -90,7 +90,11 @@ func server() {
 
 		// out routine
 		go func() {
-			defer conn.Close()
+			defer func() {
+				if closeErr := conn.Close(); closeErr != nil {
+					log.Printf("failed to close connection [out] '%s'", closeErr.Error())
+				}
+			}()
 
 			for msg := range out {
 				err = conn.WriteMessage(websocket.BinaryMessage, msg)
@@ -103,15 +107,19 @@ func server() {
 
 		// in routine
 		go func() {
-			defer conn.Close()
+			defer func() {
+				if closeErr := conn.Close(); closeErr != nil {
+					log.Printf("failed to close connection [in] '%s'", closeErr.Error())
+				}
+			}()
 
 			for {
-				_, message, err := conn.ReadMessage()
+				_, msg, err := conn.ReadMessage()
 				if err != nil {
 					log.Println("Error during message reading:", err)
 					break
 				}
-				in <- message
+				in <- msg
 			}
 		}()
 	})

@@ -49,6 +49,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		return err
 	}
 
+	readyForNewRound := false
 	roundMessage := message.NewRound(parser.CurrentFrame())
 	currentRoundTimer := RoundTimer{
 		lastRoundStart: parser.CurrentTime(),
@@ -72,8 +73,6 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			})
 		}
 	})
-
-	parser.RegisterEventHandler(func(e events.WeaponFire) {})
 
 	parser.RegisterEventHandler(func(e events.WeaponFire) {
 		if c := e.Weapon.Class(); c == common.EqClassPistols || c == common.EqClassSMG || c == common.EqClassHeavy || c == common.EqClassRifle {
@@ -112,8 +111,26 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			Tick:    int32(parser.CurrentFrame()),
 			Round:   roundMessage,
 		}
-		//log.Printf("sending round '%+v', messages '%v', roundNo '%v'   T [%v : %v] CT", msg, len(msg.Round.Ticks), msg.RoundNo, msg.TeamState.TScore, msg.TeamState.CTScore)
+		//log.Printf("sending round, messages '%v', roundNo '%v'   T [%v : %v] CT", len(msg.Round.Ticks), msg.Round.RoundNo, msg.Round.TeamState.TScore, msg.Round.TeamState.CTScore)
 		handler(msg, parser.GameState())
+	})
+	parser.RegisterEventHandler(func(e events.GamePhaseChanged) {
+		if e.NewGamePhase == common.GamePhaseGameEnded {
+			//log.Printf("sending last round ? tick '%v' time '%v', winner '%v'", parser.CurrentFrame(), parser.CurrentTime(), roundMessage.Winner)
+			roundMessage.RoundTookSeconds = int32((parser.CurrentTime() - currentRoundTimer.lastRoundStart).Seconds())
+			roundMessage.RoundNo = int32(parser.GameState().TotalRoundsPlayed() + 1)
+			roundMessage.EndTick = int32(parser.CurrentFrame())
+			msg := &message.Message{
+				MsgType: message.Message_RoundType,
+				Tick:    int32(parser.CurrentFrame()),
+				Round:   roundMessage,
+			}
+			//log.Printf("sending round, messages '%v', roundNo '%v'   T [%v : %v] CT", len(msg.Round.Ticks), msg.Round.RoundNo, msg.Round.TeamState.TScore, msg.Round.TeamState.CTScore)
+			handler(msg, parser.GameState())
+		}
+	})
+	parser.RegisterEventHandler(func(e events.RoundStart) {
+		readyForNewRound = true
 	})
 
 	parser.RegisterEventHandler(func(e events.BombEventIf) {
@@ -122,9 +139,13 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		//log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 
-		roundMessage = message.NewRound(parser.CurrentFrame())
-		currentRoundTimer.lastRoundStart = parser.CurrentTime()
-		roundMessage.TeamState = message.CreateTeamUpdateMessage(parser.GameState())
+		if readyForNewRound {
+			readyForNewRound = false
+			roundMessage = message.NewRound(parser.CurrentFrame())
+			currentRoundTimer.lastRoundStart = parser.CurrentTime()
+			roundMessage.TeamState = message.CreateTeamUpdateMessage(parser.GameState())
+			roundMessage.FreezetimeEndTick = int32(parser.CurrentFrame())
+		}
 
 		if !gameStarted {
 			mapCS = metadata.MapNameToMap[parser.Header().MapName]
@@ -139,8 +160,6 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			}, parser.GameState())
 			gameStarted = true
 		}
-
-		roundMessage.FreezetimeEndTick = int32(parser.CurrentFrame())
 	})
 
 	for {
