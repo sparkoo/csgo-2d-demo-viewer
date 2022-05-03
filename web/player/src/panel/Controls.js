@@ -1,3 +1,4 @@
+import "./Controls.css"
 import {Component} from "react";
 import {MSG_PLAY_CHANGE, MSG_PLAY_ROUND_INCREMENT, MSG_PLAY_SPEED, MSG_PLAY_TOGGLE} from "../constants";
 
@@ -40,12 +41,12 @@ class Controls extends Component {
 
     return (
         <div className="w3-row">
-          <div className="w3-col l4"><br/></div>
+          <div className="w3-col l4">&nbsp;</div>
           <div className="w3-col l4">
             <button className="w3-button w3-ripple w3-dark-gray material-icons"
                     onClick={_ => this.playRoundIncrement(-1)}>&#xe045;
             </button>
-            <button id="playToggleButton" className="w3-button w3-ripple w3-dark-gray material-icons"
+            <button className="w3-button w3-ripple w3-dark-gray material-icons"
                     onClick={_ => this.togglePlay()}>{playButton}
             </button>
             <button className="w3-button w3-ripple w3-dark-gray material-icons"
