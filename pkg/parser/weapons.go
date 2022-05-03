@@ -108,6 +108,7 @@ var WeaponsEqType = map[common.EquipmentType]string{
 	common.EqM249:     "para",
 	common.EqXM1014:   "xm1014",
 	common.EqSawedOff: "sawedOff", // TODO: model image
+	common.EqNegev:    "negev",
 
 	// smg
 	common.EqMac10: "mac10",
