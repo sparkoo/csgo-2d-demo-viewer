@@ -7,7 +7,7 @@ class MapBomb extends Component {
       left: `${this.props.bomb.x}%`,
       top: `${this.props.bomb.y}%`,
     }
-    console.log(this.props.bomb.state)
+    // console.log(this.props.bomb.state)
     return (
         <div className={"mapBomb"} style={style}>
           &nbsp;
