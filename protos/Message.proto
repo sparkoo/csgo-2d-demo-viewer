@@ -71,6 +71,7 @@ message TeamUpdate {
 message TickState {
   repeated Player Players = 1;
   repeated Grenade Nades = 2;
+  Bomb Bomb = 3;
 }
 
 message Init {
@@ -97,6 +98,21 @@ message Grenade {
   double y = 4;
   double z = 5;
   string action = 6;
+}
+
+message Bomb {
+  enum BombState {
+    Zero = 0;
+    Defusing = 1;
+    Defused = 2;
+    Explode = 3;
+    Planting = 4;
+    Planted = 5;
+  }
+  double x = 1;
+  double y = 2;
+  double z = 3;
+  BombState state = 4;
 }
 
 message Round {
