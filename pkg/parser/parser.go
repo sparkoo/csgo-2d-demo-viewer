@@ -154,8 +154,12 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			bomb.State = message.Bomb_Planting
 		case events.BombPlanted:
 			bomb.State = message.Bomb_Planted
+		case events.BombPlantAborted:
+			bomb.State = message.Bomb_Zero
+		default:
+			log.Printf("bomb state ? '%+v'", e)
 		}
-		//log.Printf("bomb state changed '%+v'", bomb.State)
+		log.Printf("bomb state changed '%+v', time '%v', tick '%v'", bomb.State, parser.CurrentTime(), parser.CurrentFrame())
 	})
 
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
@@ -229,6 +233,29 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			})
 		}
 
+		bombPos := parser.GameState().Bomb().Position()
+		oldBombPos := r3.Vector{
+			X: bomb.X,
+			Y: bomb.Y,
+			Z: bomb.Z,
+		}
+
+		bombPos2d := bombPos
+		bombPos2d.Z = 0
+
+		oldBombPos2d := oldBombPos
+		oldBombPos2d.Z = 0
+
+		//TODO: move to function
+		if bombPos2d.Distance(oldBombPos2d) > 5 && bomb.State != message.Bomb_Zero {
+			log.Printf("old state %v, time %v, tick '%+v'", bomb.State, parser.CurrentTime(), parser.CurrentFrame())
+			log.Printf("old [%+v] new [%+v]; distance3 '%v' distance2 '%v'", oldBombPos, bombPos, bombPos.Distance(oldBombPos), bombPos2d.Distance(oldBombPos2d))
+			bomb.State = message.Bomb_Zero
+		}
+		bomb.X = bombPos.X
+		bomb.Y = bombPos.Y
+		bomb.Z = bombPos.Z
+
 		if parser.CurrentFrame()%4 != 0 {
 			roundMessage.Add(&message.Message{
 				MsgType: message.Message_EmptyType,
@@ -236,17 +263,6 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			})
 			continue
 		}
-
-		// TODO: trying to reset bomb state to zero when detected bomb movement.
-		// However, this does not work, because it looks like bomb moves a bit when planted.
-		bombX, bombY := translatePosition(parser.GameState().Bomb().Position(), &mapCS)
-		if bomb.X != bombX || bomb.Y != bombY {
-			bomb.State = message.Bomb_Zero
-			//log.Printf("back to zero (%v != %v || %v != %v)", bomb.X, bombX, bomb.Y, bombY)
-		}
-		bomb.X = bombX
-		bomb.Y = bombY
-		bomb.Z = parser.GameState().Bomb().Position().Z
 
 		roundMessage.Add(createTickStateMessage(parser.GameState(), &mapCS, parser, proto.Clone(bomb).(*message.Bomb)))
 	}
@@ -313,6 +329,8 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 	sort.Slice(nades, func(i, j int) bool {
 		return nades[i].Id < nades[j].Id
 	})
+
+	bomb.X, bomb.Y = translatePosition(r3.Vector{X: bomb.X, Y: bomb.Y, Z: bomb.Z}, mapCS)
 
 	return &message.Message{
 		MsgType: message.Message_TickStateUpdate,
