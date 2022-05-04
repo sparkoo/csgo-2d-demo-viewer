@@ -4,6 +4,7 @@ import MapPlayer from "./MapPlayer";
 import MapShot from "./MapShot";
 import {MSG_PLAY_CHANGE} from "../constants";
 import MapNade from "./MapNade";
+import MapBomb from "./MapBomb";
 
 class Map2d extends Component {
   constructor(props) {
@@ -14,6 +15,7 @@ class Map2d extends Component {
       shots: [],
       nades: [],
       nadeExplosions: [],
+      bomb: {x: -100, y: -100},
     }
 
     props.messageBus.listen([4, 13], this.onMessage.bind(this))
@@ -32,7 +34,8 @@ class Map2d extends Component {
     if (message.tickstate.playersList) {
       this.setState({
         players: message.tickstate.playersList,
-        nades: message.tickstate.nadesList
+        nades: message.tickstate.nadesList,
+        bomb: message.tickstate.bomb,
       })
     }
   }
@@ -119,6 +122,7 @@ class Map2d extends Component {
           {nadeComponents}
           {shots}
           {nadeExplosions}
+          <MapBomb bomb={this.state.bomb}/>
         </div>
     )
   }

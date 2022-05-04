@@ -20,6 +20,7 @@ class MapPlayer extends Component {
     if (this.props.player.alive) {
       playerArrow = <div className={`playerArrow ${this.props.player.team}`} style={rotStyle}></div>
     }
+
     return (
         <div className={playerClass} style={posStyle}>
           <div className={`playerArrowContainer ${this.props.player.team}`}>

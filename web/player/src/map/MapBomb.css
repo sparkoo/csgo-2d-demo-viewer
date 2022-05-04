@@ -1,0 +1,16 @@
+.mapBomb {
+  /* scale size */
+  width: .5%;
+  height: .5%;
+  /* and center it */
+  margin-left: -.25%;
+  margin-top: -.25%;
+  /*make it round*/
+  /*border-radius: 50%;*/
+
+  transition: 60ms linear;
+
+  position: absolute;
+  opacity: 1;
+  background-color: red;
+}
