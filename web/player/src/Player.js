@@ -62,7 +62,7 @@ class Player {
             this.stop()
             this.interval = defaultInterval / msg.speed
             this.play()
-            console.log(this.interval)
+            // console.log(this.interval)
             break
           case MSG_PROGRESS_MOVE:
             this.stop()

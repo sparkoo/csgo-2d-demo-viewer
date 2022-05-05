@@ -8,7 +8,6 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
-	"google.golang.org/protobuf/proto"
 	"io"
 	"log"
 	"math"
@@ -55,12 +54,8 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	currentRoundTimer := RoundTimer{
 		lastRoundStart: parser.CurrentTime(),
 	}
-	bomb := &message.Bomb{
-		X:     0,
-		Y:     0,
-		Z:     0,
-		State: message.Bomb_Zero,
-	}
+
+	bombH := newBombHandler(parser)
 
 	parser.RegisterEventHandler(func(ge events.GrenadeEventIf) {
 		x, y := translatePosition(ge.Base().Position, &mapCS)
@@ -140,27 +135,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		readyForNewRound = true
 	})
 
-	parser.RegisterEventHandler(func(e events.BombEventIf) {
-		switch e.(type) {
-		case events.BombDefuseStart:
-			bomb.State = message.Bomb_Defusing
-		case events.BombDefuseAborted:
-			bomb.State = message.Bomb_Planted
-		case events.BombDefused:
-			bomb.State = message.Bomb_Defused
-		case events.BombExplode:
-			bomb.State = message.Bomb_Explode
-		case events.BombPlantBegin:
-			bomb.State = message.Bomb_Planting
-		case events.BombPlanted:
-			bomb.State = message.Bomb_Planted
-		case events.BombPlantAborted:
-			bomb.State = message.Bomb_Zero
-		default:
-			log.Printf("bomb state ? '%+v'", e)
-		}
-		log.Printf("bomb state changed '%+v', time '%v', tick '%v'", bomb.State, parser.CurrentTime(), parser.CurrentFrame())
-	})
+	bombH.registerEvents()
 
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		//log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
@@ -233,28 +208,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			})
 		}
 
-		bombPos := parser.GameState().Bomb().Position()
-		oldBombPos := r3.Vector{
-			X: bomb.X,
-			Y: bomb.Y,
-			Z: bomb.Z,
-		}
-
-		bombPos2d := bombPos
-		bombPos2d.Z = 0
-
-		oldBombPos2d := oldBombPos
-		oldBombPos2d.Z = 0
-
-		//TODO: move to function
-		if bombPos2d.Distance(oldBombPos2d) > 5 && bomb.State != message.Bomb_Zero {
-			log.Printf("old state %v, time %v, tick '%+v'", bomb.State, parser.CurrentTime(), parser.CurrentFrame())
-			log.Printf("old [%+v] new [%+v]; distance3 '%v' distance2 '%v'", oldBombPos, bombPos, bombPos.Distance(oldBombPos), bombPos2d.Distance(oldBombPos2d))
-			bomb.State = message.Bomb_Zero
-		}
-		bomb.X = bombPos.X
-		bomb.Y = bombPos.Y
-		bomb.Z = bombPos.Z
+		bombH.tick()
 
 		if parser.CurrentFrame()%4 != 0 {
 			roundMessage.Add(&message.Message{
@@ -264,11 +218,11 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			continue
 		}
 
-		roundMessage.Add(createTickStateMessage(parser.GameState(), &mapCS, parser, proto.Clone(bomb).(*message.Bomb)))
+		roundMessage.Add(createTickStateMessage(parser.GameState(), &mapCS, parser, bombH))
 	}
 }
 
-func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.Parser, bomb *message.Bomb) *message.Message {
+func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.Parser, bombH *bombHandler) *message.Message {
 	msgPlayers := make([]*message.Player, 0)
 	for _, p := range tick.TeamTerrorists().Members() {
 		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
@@ -330,15 +284,13 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 		return nades[i].Id < nades[j].Id
 	})
 
-	bomb.X, bomb.Y = translatePosition(r3.Vector{X: bomb.X, Y: bomb.Y, Z: bomb.Z}, mapCS)
-
 	return &message.Message{
 		MsgType: message.Message_TickStateUpdate,
 		Tick:    int32(parser.CurrentFrame()),
 		TickState: &message.TickState{
 			Players: msgPlayers,
 			Nades:   nades,
-			Bomb:    bomb,
+			Bomb:    bombH.message(mapCS),
 		},
 	}
 }

@@ -6,11 +6,87 @@
   margin-left: -.25%;
   margin-top: -.25%;
   /*make it round*/
-  /*border-radius: 50%;*/
+  border-radius: 50%;
 
   transition: 60ms linear;
 
   position: absolute;
   opacity: 1;
-  background-color: red;
+  background-color: orangered;
+}
+
+@keyframes planting {
+  0%, 50% {
+    background-color: orangered;
+  }
+  51%, 100% {
+    background-color: darkorange;
+  }
+}
+
+.mapBomb.planting {
+  animation: planting 500ms infinite;
+}
+
+@keyframes planted {
+  0%, 25% {
+    box-shadow: 0 0 1vh 1vh darkorange;
+  }
+  26%, 100% {
+    box-shadow: none;
+  }
+}
+
+.mapBomb.planted {
+  animation: planted 500ms infinite;
+}
+
+@keyframes defusing {
+  0%, 75% {
+    box-shadow: none;
+  }
+  76%, 100% {
+    box-shadow: 0 0 1vh 1vh darkorange;
+  }
+}
+
+.mapBomb.defusing {
+  animation: planted 500ms infinite;
+  background-color: deepskyblue;
+}
+
+@keyframes defused {
+  0% {
+    box-shadow: 0 0 1vh 1vh deepskyblue;
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+.mapBomb.defused {
+  animation: defused 2000ms;
+  background-color: deepskyblue;
+}
+
+@keyframes explode {
+  0% {
+    box-shadow: none;
+  }
+
+  10%, 15% {
+    box-shadow: 0 0 5vh 10vh darkorange;
+  }
+
+  95% {
+    box-shadow: 0 0 10vh 10vh darkorange;
+  }
+
+  100% {
+    box-shadow: none;
+  }
+}
+
+.mapBomb.explode {
+  animation: explode 5000ms linear;
 }
