@@ -11,7 +11,7 @@ class Scoreboard extends Component {
       CTScore: 0,
     }
     props.messageBus.listen([4, 5], function (msg) {
-      console.log(msg)
+      // console.log(msg)
       this.setState({
         TName: msg.init.tname,
         CTName: msg.init.ctname,
