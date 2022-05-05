@@ -42,6 +42,9 @@ html, body {
 
 .dead {
   background-image: url("assets/icons/csgo/dead.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
 }
 
 .defuse {
