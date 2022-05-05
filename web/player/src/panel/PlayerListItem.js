@@ -33,16 +33,27 @@ class PlayerListItem extends Component {
             </div>
             <div className={`playerListItemName w3-col l9 ${this.props.player.team}`}>{this.props.player.name}</div>
             <div className={`w3-col l1 bckg playerListVest ${this.props.player.team} ${armor}`}>&nbsp;</div>
-            <div className={`playerListHpText w3-col l2 ${this.props.player.team} ${this.props.player.alive ? ""
-                : "dead"}`}>
+            <div
+                className={`playerListHpText w3-col l2
+                ${this.props.player.team}
+                ${this.props.player.alive ? "" : "dead"}`}>
               {this.props.player.alive ? this.props.player.hp : ""}&nbsp;
             </div>
           </div>
           <div className="w3-row playerListWeapons">
             <div className={`w3-col l1 ${this.props.player.defuse ? "defuse" : ""}`}>&nbsp;</div>
-            <div className={`w3-col l3 ${this.props.player.primary}`}>&nbsp;</div>
-            <div className={`w3-col l2 ${this.props.player.secondary}`}>&nbsp;</div>
-            <div className={`w3-col l2 ${this.props.player.alive ? "knife" : ""}`}>&nbsp;</div>
+            <div
+                className={`w3-col l3
+                ${this.props.player.primary}
+                ${this.props.player.weapon === this.props.player.primary ? "active" : ""}`}>&nbsp;</div>
+            <div
+                className={`w3-col l2
+                ${this.props.player.secondary}
+                ${this.props.player.weapon === this.props.player.secondary ? "active" : ""}`}>&nbsp;</div>
+            <div
+                className={`w3-col l2
+                ${this.props.player.alive ? "knife" : ""}
+                ${this.props.player.weapon === "knife" ? "active" : ""}`}>&nbsp;</div>
             {nades}
           </div>
           <div className="w3-row">
