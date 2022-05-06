@@ -41,7 +41,11 @@ class PlayerListItem extends Component {
             </div>
           </div>
           <div className="w3-row playerListWeapons">
-            <div className={`w3-col l1 ${this.props.player.defuse ? "defuse" : ""}`}>&nbsp;</div>
+            <div
+                className={`w3-col l1
+                ${this.props.player.defuse ? "defuse" : ""}
+                ${this.props.player.bomb ? "c4" : ""}
+                ${this.props.player.weapon === "c4" ? "active" : ""}`}>&nbsp;</div>
             <div
                 className={`w3-col l3
                 ${this.props.player.primary}
