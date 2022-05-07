@@ -5,6 +5,7 @@ import MapShot from "./MapShot";
 import {MSG_PLAY_CHANGE} from "../constants";
 import MapNade from "./MapNade";
 import MapBomb from "./MapBomb";
+import KillFeed from "./KillFeed";
 
 class Map2d extends Component {
   constructor(props) {
@@ -118,6 +119,7 @@ class Map2d extends Component {
     })
     return (
         <div className="map-container" id="map" style={style}>
+          <KillFeed/>
           {playerComponents}
           {nadeComponents}
           {shots}

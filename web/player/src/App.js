@@ -5,6 +5,7 @@ import Map2d from "./map/Map2d";
 import MessageBus from "./MessageBus";
 import InfoPanel from "./panel/InfoPanel";
 import Player from "./Player";
+import KillFeed from "./map/KillFeed";
 
 class App extends Component {
   constructor(props) {
