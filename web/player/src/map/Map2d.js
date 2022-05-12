@@ -119,7 +119,7 @@ class Map2d extends Component {
     })
     return (
         <div className="map-container" id="map" style={style}>
-          <KillFeed/>
+          <KillFeed messageBus={this.props.messageBus}/>
           {playerComponents}
           {nadeComponents}
           {shots}

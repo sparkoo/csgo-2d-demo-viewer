@@ -1,0 +1,31 @@
+.killfeed {
+  width: 100%;
+  font-size: 12px;
+  font-weight: bold;
+  padding-right: 20px;
+  padding-top: 10px;
+}
+
+.killfeedRow {
+  background-color: var(--DarkColor);
+  padding: 1px 10px;
+  border-radius: 5px;
+  opacity: 0.75;
+  display: inline-block;
+  float: right;
+  clear: right;
+  margin: 2px 0;
+}
+
+.killfeedIcon {
+  background-size: auto 50%;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  margin: 0 10px;
+}
+
+.killfeedIcon img {
+  height: 10px;
+}
+

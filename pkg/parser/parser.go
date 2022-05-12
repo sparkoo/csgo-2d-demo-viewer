@@ -94,9 +94,15 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 
 	parser.RegisterEventHandler(func(e events.Kill) {
 		roundMessage.Add(&message.Message{
-			MsgType: message.Message_KillType,
+			MsgType: message.Message_FragType,
 			Tick:    int32(parser.CurrentFrame()),
-			Kill:    &message.Kill{VictimId: int32(e.Victim.UserID)},
+			Frag: &message.Frag{
+				VictimName: e.Victim.Name,
+				VictimTeam: team(e.Victim.Team),
+				KillerName: e.Killer.Name,
+				KillerTeam: team(e.Killer.Team),
+				Weapon:     convertWeapon(e.Weapon.Type),
+			},
 		})
 	})
 	parser.RegisterEventHandler(func(e events.RoundEnd) {

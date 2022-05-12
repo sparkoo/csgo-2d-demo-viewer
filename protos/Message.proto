@@ -16,7 +16,7 @@ message Message {
     TimeUpdateType = 8;
     ShotType = 9;
     EmptyType = 10;
-    KillType = 11;
+    FragType = 11;
     PlayRequestType = 12;
     ErrorType = 13;
     GrenadeEventType = 14;
@@ -30,7 +30,7 @@ message Message {
   optional Progress progress = 7;
   optional RoundTime roundTime = 8;
   optional Shot shot = 9;
-  optional Kill kill = 10;
+  optional Frag frag = 10;
   optional Demo demo = 11;
   optional Grenade grenadeEvent = 12;
 }
@@ -80,8 +80,12 @@ message Init {
   string CTName = 3;
 }
 
-message Kill {
-  int32 VictimId = 1;
+message Frag {
+  string VictimName = 1;
+  string VictimTeam = 2;
+  string KillerName = 3;
+  string KillerTeam = 4;
+  string Weapon = 5;
 }
 
 message Shot {

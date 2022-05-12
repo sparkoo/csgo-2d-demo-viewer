@@ -1,68 +1,67 @@
 import "./KillFeed.css"
+import "../protos/Message_pb"
 import {Component} from "react";
+import {MSG_PLAY_CHANGE} from "../constants";
 
 class KillFeed extends Component {
   constructor(props) {
     super(props);
+    props.messageBus.listen([11], this.fragMessage.bind(this))
+    props.messageBus.listen([MSG_PLAY_CHANGE], function () {
+      this.setState({
+        frags: [],
+      })
+    }.bind(this))
+    this.state = {
+      frags: [],
+    }
+  }
+
+  fragMessage(msg) {
+    this.setState({
+      frags: [...this.state.frags, msg.frag]
+    })
+  }
+
+  removeFrag(index) {
+    const newState = this.state.frags
+    newState[index] = null
+    this.setState({
+      frags: newState,
+    })
   }
 
   render() {
-    const style = {
-      width: "100%",
-      "font-size": "12px",
-      "font-weight": "bold",
-      "text-stroke": "2px black",
-      "padding-right": "20px",
-      "padding-top": "10px",
-    }
-    const iconStyle = {
-      "background-size": "auto 50%",
-      "background-repeat": "no-repeat",
-      "background-position": "center",
-      display: "inline-block",
-      margin: "0 10px",
-    }
-    const rowStyle = {
-      "background-color": "var(--DarkColor)",
-      "padding": "1px 10px",
-      // "border": "2px solid #800000",
-      "border-radius": "5px",
-      "opacity": "0.75",
-      display: "inline-block",
-      float: "right",
-      clear: "right",
-      margin: "2px 0",
-    }
-    const imgStyle = {
-      "margin": "0 2px",
-    }
+    const fragComps = this.state.frags.map((f, i) => {
+      if (f === null) {
+        return null
+      }
+      return <Kill key={i} frag={f} removeCallback={this.removeFrag.bind(this)} index={i}/>
+    })
 
-    return <div style={style} className={"w3-right-align"}>
-      <div style={rowStyle} className={"bla"}>
-        <span className={"CT"}>blabol</span>
-        <span style={iconStyle}>
-          <img src={"player/assets/icons/csgo/awp.svg"} height={"10px"} style={imgStyle}/>
-          <img src={"player/assets/icons/csgo/he.svg"} height={"10px"} style={imgStyle}/>
-        </span>
-        <span className={"T"}>fafan</span>
-      </div>
-      <div style={rowStyle} className={"bla"}>
-        <span className={"CT"}>blabol</span>
-        <span style={iconStyle}><img src={"player/assets/icons/csgo/he.svg"} height={"10px"}/></span>
-        <span className={"T"}>fafan</span>
-      </div>
-      <div style={rowStyle} className={"bla"}>
-        <span className={"CT"}>blabol</span>
-        <span style={iconStyle}><img src={"player/assets/icons/csgo/awp.svg"} height={"10px"}/></span>
-        <span className={"T"}>fafan</span>
-      </div>
-      <div style={rowStyle} className={"bla"}>
-        <span className={"CT"}>blabol</span>
-        <span style={iconStyle}><img src={"player/assets/icons/csgo/awp.svg"} height={"10px"}/></span>
-        <span className={"T"}>fafan</span>
-      </div>
+    return <div className={"w3-right-align killfeed"}>
+      {fragComps}
     </div>
   }
 }
 
 export default KillFeed
+
+class Kill extends Component {
+  componentDidMount() {
+    setTimeout(function () {
+      this.props.removeCallback(this.props.index)
+    }.bind(this), 3000)
+  }
+
+  render() {
+    return <div className={"killfeedRow"}>
+      <span className={this.props.frag.killerteam}>{this.props.frag.killername}</span>
+      <span className={"killfeedIcon"}>
+        <img src={`player/assets/icons/csgo/${this.props.frag.weapon}.svg`}
+             alt={this.props.frag.weapon}/>
+      </span>
+      <span className={this.props.frag.victimteam}>{this.props.frag.victimname}</span>
+    </div>
+  }
+}
