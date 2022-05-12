@@ -58,7 +58,7 @@ class Kill extends Component {
     return <div className={"killfeedRow"}>
       <span className={this.props.frag.killerteam}>{this.props.frag.killername}</span>
       <span className={"killfeedIcon"}>
-        <img src={`player/assets/icons/csgo/${this.props.frag.weapon}.svg`}
+        <img src={`assets/icons/csgo/${this.props.frag.weapon}.svg`}
              alt={this.props.frag.weapon}/>
       </span>
       <span className={this.props.frag.victimteam}>{this.props.frag.victimname}</span>
