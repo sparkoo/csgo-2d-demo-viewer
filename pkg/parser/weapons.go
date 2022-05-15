@@ -89,6 +89,7 @@ var WeaponModels = map[string]string{
 }
 
 var WeaponsEqType = map[common.EquipmentType]string{
+	common.EqWorld: "world",
 	common.EqKnife: "knife",
 
 	// pistols

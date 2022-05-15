@@ -8,11 +8,6 @@ import (
 )
 
 func main() {
-	uniqueGuns := make(map[string]bool)
-	for _, v := range parser.WeaponsEqType {
-		uniqueGuns[v] = true
-	}
-
 	if f, err := os.OpenFile("weapons.css_tmp", os.O_CREATE|os.O_WRONLY, 0644); err == nil {
 		defer f.Close()
 
@@ -20,13 +15,17 @@ func main() {
 		if writeWarningErr != nil {
 			log.Fatalln(writeWarningErr)
 		}
-		for g, _ := range uniqueGuns {
-			_, writeLineErr := f.WriteString(fmt.Sprintf(".%s {\n  background-image: url(\"assets/icons/csgo/%s.svg\");\n}\n\n", g, g))
+		for _, g := range parser.WeaponsEqType {
+			filename := fmt.Sprintf("%s.svg", g)
+			if g == "world" {
+				filename = fmt.Sprintf("%s.png", g)
+			}
+			_, writeLineErr := f.WriteString(fmt.Sprintf(".%s {\n  background-image: url(\"assets/icons/csgo/%s\");\n}\n\n", g, filename))
 			if writeLineErr != nil {
 				log.Fatalln(writeLineErr)
 			}
 		}
-		log.Printf("Generated styles for '%d' guns.", len(uniqueGuns))
+		log.Printf("Generated styles for '%d' guns.", len(parser.WeaponsEqType))
 	} else {
 		log.Fatalln(err)
 	}

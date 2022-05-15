@@ -29,3 +29,7 @@
 .killfeedIcon.he, .killfeedIcon.molotov, .killfeedIcon.smoke, .killfeedIcon.world {
   width: 10px;
 }
+
+.killfeedIcon.world {
+  width: 20px;
+}
