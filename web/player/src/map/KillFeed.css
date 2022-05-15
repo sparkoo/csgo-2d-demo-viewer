@@ -18,14 +18,14 @@
 }
 
 .killfeedIcon {
-  background-size: auto 50%;
+  background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
   display: inline-block;
   margin: 0 10px;
+  width: 40px;
 }
 
-.killfeedIcon img {
-  height: 10px;
+.killfeedIcon.he, .killfeedIcon.molotov, .killfeedIcon.smoke, .killfeedIcon.world {
+  width: 10px;
 }
-

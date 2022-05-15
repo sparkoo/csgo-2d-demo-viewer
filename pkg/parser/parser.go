@@ -93,16 +93,23 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	})
 
 	parser.RegisterEventHandler(func(e events.Kill) {
+		//log.Printf("'%+v'", e)
+		frag := &message.Frag{
+			Weapon: convertWeapon(e.Weapon.Type),
+		}
+		if e.Victim != nil {
+			frag.VictimName = e.Victim.Name
+			frag.VictimTeam = team(e.Victim.Team)
+		}
+		if e.Killer != nil {
+			frag.KillerName = e.Killer.Name
+			frag.KillerTeam = team(e.Killer.Team)
+		}
+
 		roundMessage.Add(&message.Message{
 			MsgType: message.Message_FragType,
 			Tick:    int32(parser.CurrentFrame()),
-			Frag: &message.Frag{
-				VictimName: e.Victim.Name,
-				VictimTeam: team(e.Victim.Team),
-				KillerName: e.Killer.Name,
-				KillerTeam: team(e.Killer.Team),
-				Weapon:     convertWeapon(e.Weapon.Type),
-			},
+			Frag:    frag,
 		})
 	})
 	parser.RegisterEventHandler(func(e events.RoundEnd) {

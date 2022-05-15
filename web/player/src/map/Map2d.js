@@ -112,10 +112,10 @@ class Map2d extends Component {
       })
     }
     const nadeExplosions = this.state.nadeExplosions.map((n, i) => {
-      if (n === null) {
-        return null
+      if (n != null && n.id) {
+        return <MapNade key={n.id} nade={n} hide={true} removeCallback={this.removeNade.bind(this)} index={i}/>
       }
-      return <MapNade key={n.id} nade={n} hide={true} removeCallback={this.removeNade.bind(this)} index={i}/>
+      return null
     })
     return (
         <div className="map-container" id="map" style={style}>
