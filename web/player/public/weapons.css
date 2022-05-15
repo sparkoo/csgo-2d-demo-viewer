@@ -16,6 +16,10 @@
   background-image: url("assets/icons/csgo/c4.svg");
 }
 
+.killfeedIcon.c4 {
+  background-image: url("assets/icons/csgo/c4_exp.svg");
+}
+
 .taser {
   background-image: url("assets/icons/csgo/taser.svg");
 }

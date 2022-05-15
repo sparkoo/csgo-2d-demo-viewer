@@ -75,10 +75,10 @@
   background-position: center;
 }
 
-.c4 {
+.playerListWeapons .c4 {
   filter: brightness(.7) !important;
 }
 
-.c4.active {
+.playerListWeapons .c4.active {
   filter: brightness(1.5) !important;
 }
