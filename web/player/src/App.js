@@ -5,6 +5,7 @@ import Map2d from "./map/Map2d";
 import MessageBus from "./MessageBus";
 import InfoPanel from "./panel/InfoPanel";
 import Player from "./Player";
+import ErrorBoundary from "./Error";
 
 class App extends Component {
   constructor(props) {
@@ -19,14 +20,16 @@ class App extends Component {
 
   render() {
     return (
-        <div className="grid-container">
-          <div className="grid-item map">
-            <Map2d messageBus={this.messageBus}/>
+        <ErrorBoundary>
+          <div className="grid-container">
+            <div className="grid-item map">
+              <Map2d messageBus={this.messageBus}/>
+            </div>
+            <div className="grid-item infoPanel">
+              <InfoPanel messageBus={this.messageBus}/>
+            </div>
           </div>
-          <div className="grid-item infoPanel">
-            <InfoPanel messageBus={this.messageBus}/>
-          </div>
-        </div>);
+        </ErrorBoundary>);
   }
 }
 
