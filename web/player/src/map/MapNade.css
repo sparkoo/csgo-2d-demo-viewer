@@ -61,10 +61,14 @@
 }
 
 .smoke.explode {
-  box-shadow: 0 0 1vh 3vh darkgray;
   transition: box-shadow 0.2s linear;
   background: darkgray;
   opacity: .6;
+  box-shadow: 0 0 1vh 1vh darkgray;
+  width: 5%;
+  height: 5%;
+  margin-left: -2.5%;
+  margin-top: -2.5%;
 }
 
 .decoy.explode {
