@@ -381,7 +381,7 @@ func team(team common.Team) string {
 	case common.TeamTerrorists:
 		return "T"
 	default:
-		log.Fatalf("I don't know the team '%v'. Should not get here.", team)
+		log.Printf("I don't know the team '%v'. Should not get here, but apparently it sometimes happen that spectators wins the round.", team)
 	}
 	return ""
 }
