@@ -2,3 +2,5 @@
 *.iml
 *.DS_Store
 assets/icons/shapes
+.vscode/
+*.exe
