@@ -3,16 +3,17 @@ package parser
 import (
 	"csgo-2d-demo-player/pkg/message"
 	"fmt"
-	"github.com/golang/geo/r3"
-	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 	"io"
 	"log"
 	"math"
 	"sort"
 	"time"
+
+	"github.com/golang/geo/r3"
+	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 )
 
 var zeroVector = r3.Vector{
@@ -93,7 +94,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	})
 
 	parser.RegisterEventHandler(func(e events.Kill) {
-		//log.Printf("'%+v'", e)
+		// log.Printf("r: '%d', '%+v'", parser.GameState().TotalRoundsPlayed(), e)
 		frag := &message.Frag{
 			Weapon: convertWeapon(e.Weapon.Type),
 		}
