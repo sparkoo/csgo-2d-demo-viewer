@@ -24,7 +24,7 @@ var config *conf.Conf
 func main() {
 	config = &conf.Conf{}
 	arg.MustParse(config)
-	// log.Printf("using config %+v", config)
+	log.Printf("using config %+v", config)
 	server()
 }
 
