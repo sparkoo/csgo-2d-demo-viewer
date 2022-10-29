@@ -12,8 +12,6 @@ import (
 	"time"
 )
 
-//TODO: remove apikey and set it with argument or env
-const apikey = "cf0eea4f-fff3-4615-a6f7-d6117591870a"
 const faceitApiUrlBase = "https://open.faceit.com/data/v4"
 
 type MatchDemo struct {
@@ -22,14 +20,14 @@ type MatchDemo struct {
 
 var NoDemoError = errors.New("no demo found for this match")
 
-func DemoStream(matchId string) (io.ReadCloser, error) {
-	demoUrl, urlErr := getDemoUrl(matchId)
+func DemoStream(matchId string, apiKey string) (io.ReadCloser, error) {
+	demoUrl, urlErr := getDemoUrl(matchId, apiKey)
 	if urlErr != nil {
 		return nil, urlErr
 	}
 
 	log.Printf("Reading file '%s'", demoUrl)
-	req, reqErr := createRequest(demoUrl, false)
+	req, reqErr := createRequest(demoUrl, apiKey)
 	if reqErr != nil {
 		return nil, reqErr
 	}
@@ -40,10 +38,10 @@ func DemoStream(matchId string) (io.ReadCloser, error) {
 	return reader, nil
 }
 
-func getDemoUrl(matchId string) (string, error) {
+func getDemoUrl(matchId string, apiKey string) (string, error) {
 	url := fmt.Sprintf("%s/matches/%s", faceitApiUrlBase, matchId)
 	log.Printf("requesting url '%s'", url)
-	req, reqErr := createRequest(url, true)
+	req, reqErr := createRequest(url, apiKey)
 	if reqErr != nil {
 		return "", reqErr
 	}
@@ -67,13 +65,13 @@ func getDemoUrl(matchId string) (string, error) {
 	return demo.DemoUrl[0], nil
 }
 
-func createRequest(url string, auth bool) (*http.Request, error) {
+func createRequest(url string, apiKey string) (*http.Request, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	if auth {
-		req.Header.Set("Authorization", "Bearer "+apikey)
+	if apiKey != "" {
+		req.Header.Set("Authorization", "Bearer "+apiKey)
 	}
 
 	return req, nil

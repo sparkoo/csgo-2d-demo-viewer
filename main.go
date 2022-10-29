@@ -8,19 +8,23 @@ import (
 	"csgo-2d-demo-player/pkg/parser"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/websocket"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	"google.golang.org/protobuf/proto"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/alexflint/go-arg"
+	"github.com/gorilla/websocket"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"google.golang.org/protobuf/proto"
 )
 
 var config *conf.Conf
 
 func main() {
-	config = conf.ParseArgs()
+	config = &conf.Conf{}
+	arg.MustParse(config)
+	// log.Printf("using config %+v", config)
 	server()
 }
 
@@ -168,7 +172,7 @@ func sendError(errorMessage string, out chan []byte) {
 func obtainDemoFile(matchId string) (io.Reader, []io.Closer, error) {
 	closers := make([]io.Closer, 0)
 
-	demoFileReader, streamErr := faceit.DemoStream(matchId)
+	demoFileReader, streamErr := faceit.DemoStream(matchId, config.FaceitApiKey)
 	if streamErr != nil {
 		return nil, closers, streamErr
 	}

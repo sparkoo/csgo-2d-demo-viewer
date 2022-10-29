@@ -9,7 +9,10 @@ require (
 	google.golang.org/protobuf v1.28.0
 )
 
+require github.com/alexflint/go-scalar v1.1.0 // indirect
+
 require (
+	github.com/alexflint/go-arg v1.4.3
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/markus-wa/go-unassert v0.1.2 // indirect
 	github.com/markus-wa/gobitread v0.2.3 // indirect
