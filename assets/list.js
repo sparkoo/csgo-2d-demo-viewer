@@ -160,6 +160,11 @@ class MatchRow extends React.Component {
                             className={"material-icons w3-hover-text-amber"}>{"file_download"}</a>
     }
 
+    let playerLink = `/player?matchId=${this.props.match.match_id}`
+    if (window.location.host.includes("localhost")) {
+      playerLink = `http://localhost:3000/${playerLink}`
+    }
+
     return <tr className="w3-hover-gray w3-medium">
       <td className="w3-col l2">
         {this.state.playedTime}
@@ -184,7 +189,7 @@ class MatchRow extends React.Component {
         <a href={this.props.match.faceit_url.replace("{lang}", "en")}
            target="_blank"
            className="material-icons w3-hover-text-deep-orange">table_chart</a>
-        <a href={"/player?matchId=" + this.props.match.match_id} target="_blank"
+        <a href={playerLink} target="_blank"
            className="material-icons w3-hover-text-amber">play_circle_outline</a>
       </td>
     </tr>;
