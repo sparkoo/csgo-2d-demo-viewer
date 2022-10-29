@@ -27,7 +27,7 @@ func DemoStream(matchId string, apiKey string) (io.ReadCloser, error) {
 	}
 
 	log.Printf("Reading file '%s'", demoUrl)
-	req, reqErr := createRequest(demoUrl, apiKey)
+	req, reqErr := createRequest(demoUrl, false, apiKey)
 	if reqErr != nil {
 		return nil, reqErr
 	}
@@ -41,7 +41,7 @@ func DemoStream(matchId string, apiKey string) (io.ReadCloser, error) {
 func getDemoUrl(matchId string, apiKey string) (string, error) {
 	url := fmt.Sprintf("%s/matches/%s", faceitApiUrlBase, matchId)
 	log.Printf("requesting url '%s'", url)
-	req, reqErr := createRequest(url, apiKey)
+	req, reqErr := createRequest(url, true, apiKey)
 	if reqErr != nil {
 		return "", reqErr
 	}
@@ -65,12 +65,12 @@ func getDemoUrl(matchId string, apiKey string) (string, error) {
 	return demo.DemoUrl[0], nil
 }
 
-func createRequest(url string, apiKey string) (*http.Request, error) {
+func createRequest(url string, auth bool, apiKey string) (*http.Request, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	if apiKey != "" {
+	if auth && apiKey != "" {
 		req.Header.Set("Authorization", "Bearer "+apiKey)
 	}
 
@@ -126,7 +126,7 @@ func doRequestStream(req *http.Request) (io.ReadCloser, error) {
 		if resp.StatusCode == 200 {
 			return resp.Body, nil
 		}
-		log.Printf("failed request, response code '%d'", resp.StatusCode)
+		log.Printf("failed request '%+v', resp '%+v'", req, resp)
 		resp.Body.Close()
 	}
 
