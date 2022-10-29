@@ -1,4 +1,4 @@
-FROM golang:1.18 as builderGo
+FROM golang:1.19 as builderGo
 
 USER root
 WORKDIR /csgo-2d-demo-player
