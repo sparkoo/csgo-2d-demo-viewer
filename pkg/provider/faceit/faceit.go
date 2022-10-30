@@ -23,7 +23,7 @@ func NewFaceitClient(apiKey string) *FaceitClient {
 	return &FaceitClient{
 		apiKey: apiKey,
 		httpClient: &http.Client{
-			Timeout: time.Second * 10,
+			Timeout: time.Second * 60,
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
 					InsecureSkipVerify: true,
