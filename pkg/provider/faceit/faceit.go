@@ -14,70 +14,88 @@ import (
 
 const faceitApiUrlBase = "https://open.faceit.com/data/v4"
 
-type MatchDemo struct {
+type FaceitClient struct {
+	httpClient *http.Client
+	apiKey     string
+}
+
+func NewFaceitClient(apiKey string) *FaceitClient {
+	return &FaceitClient{
+		apiKey: apiKey,
+		httpClient: &http.Client{
+			Timeout: time.Second * 10,
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: true,
+				},
+			}},
+	}
+}
+
+type matchDemo struct {
 	DemoUrl []string `json:"demo_url"`
 }
 
-var NoDemoError = errors.New("no demo found for this match")
+var ErrorNoDemo = errors.New("no demo found for this match")
 
-func DemoStream(matchId string, apiKey string) (io.ReadCloser, error) {
-	demoUrl, urlErr := getDemoUrl(matchId, apiKey)
+func (f *FaceitClient) DemoStream(matchId string) (io.ReadCloser, error) {
+	demoUrl, urlErr := f.getDemoUrl(matchId)
 	if urlErr != nil {
 		return nil, urlErr
 	}
 
 	log.Printf("Reading file '%s'", demoUrl)
-	req, reqErr := createRequest(demoUrl, false, apiKey)
+	req, reqErr := f.createRequest(demoUrl, false)
 	if reqErr != nil {
 		return nil, reqErr
 	}
-	reader, doReqErr := doRequestStream(req)
+	reader, doReqErr := f.doRequestStream(req)
 	if doReqErr != nil {
 		return nil, doReqErr
 	}
 	return reader, nil
 }
 
-func getDemoUrl(matchId string, apiKey string) (string, error) {
+func (f *FaceitClient) getDemoUrl(matchId string) (string, error) {
 	url := fmt.Sprintf("%s/matches/%s", faceitApiUrlBase, matchId)
 	log.Printf("requesting url '%s'", url)
-	req, reqErr := createRequest(url, true, apiKey)
+	req, reqErr := f.createRequest(url, true)
 	if reqErr != nil {
 		return "", reqErr
 	}
 	q := req.URL.Query()
 	req.URL.RawQuery = q.Encode()
-	content, doReqErr := doRequest(req)
+	content, doReqErr := f.doRequest(req)
 	if doReqErr != nil {
 		return "", doReqErr
 	}
 
-	demo := &MatchDemo{}
+	demo := &matchDemo{}
 	jsonErr := json.Unmarshal(content, demo)
 	if jsonErr != nil {
 		return "", jsonErr
 	}
 
 	if len(demo.DemoUrl) == 0 {
-		return "", NoDemoError
+		return "", ErrorNoDemo
 	}
 
 	return demo.DemoUrl[0], nil
 }
 
-func createRequest(url string, auth bool, apiKey string) (*http.Request, error) {
+func (f *FaceitClient) createRequest(url string, auth bool) (*http.Request, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	if auth && apiKey != "" {
-		req.Header.Set("Authorization", "Bearer "+apiKey)
+	if auth && f.apiKey != "" {
+		req.Header.Set("Authorization", "Bearer "+f.apiKey)
 	}
 
 	return req, nil
 }
 
-func doRequest(req *http.Request) ([]byte, error) {
+func (f *FaceitClient) doRequest(req *http.Request) ([]byte, error) {
 	client := &http.Client{
 		Timeout: time.Second * 10,
 		Transport: &http.Transport{
@@ -107,19 +125,11 @@ func doRequest(req *http.Request) ([]byte, error) {
 	return body, nil
 }
 
-func doRequestStream(req *http.Request) (io.ReadCloser, error) {
-	client := &http.Client{
-		Timeout: time.Second * 30,
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-		}}
-
+func (f *FaceitClient) doRequestStream(req *http.Request) (io.ReadCloser, error) {
 	var resp *http.Response
 	for i := 0; i < 3; i++ {
 		var err error
-		resp, err = client.Do(req)
+		resp, err = f.httpClient.Do(req)
 		if err != nil {
 			return nil, err
 		}

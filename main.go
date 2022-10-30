@@ -3,9 +3,9 @@ package main
 import (
 	"compress/gzip"
 	"csgo-2d-demo-player/conf"
-	"csgo-2d-demo-player/pkg/faceit"
 	"csgo-2d-demo-player/pkg/message"
 	"csgo-2d-demo-player/pkg/parser"
+	"csgo-2d-demo-player/pkg/provider/faceit"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -20,11 +20,13 @@ import (
 )
 
 var config *conf.Conf
+var faceitClient *faceit.FaceitClient
 
 func main() {
 	config = &conf.Conf{}
 	arg.MustParse(config)
-	log.Printf("using config %+v", config)
+	faceitClient = faceit.NewFaceitClient(config.FaceitApiKey)
+	// log.Printf("using config %+v", config)
 	server()
 }
 
@@ -56,20 +58,14 @@ func server() {
 		}
 	})
 
-	//mux.HandleFunc("/test", func(writer http.ResponseWriter, request *http.Request) {
-	//	temp, err := template.ParseFiles("templates/test.html")
-	//	if err != nil {
-	//		http.Error(writer, err.Error(), 500)
-	//	}
-	//
-	//	if temp.Execute(writer, nil) != nil {
-	//		http.Error(writer, err.Error(), 500)
-	//	}
-	//})
+	mux.HandleFunc("/faceitClientKey", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte(config.FaceitClientApiKey))
+	})
 
 	playerFileServer := http.FileServer(http.Dir("web/player/build"))
-	mux.Handle("/player/",
-		http.StripPrefix("/player", playerFileServer))
+	mux.Handle("/player/", http.StripPrefix("/player", playerFileServer))
 
 	assetsFileServer := http.FileServer(http.Dir("./assets"))
 	mux.Handle("/assets/", http.StripPrefix("/assets", assetsFileServer))
@@ -172,7 +168,7 @@ func sendError(errorMessage string, out chan []byte) {
 func obtainDemoFile(matchId string) (io.Reader, []io.Closer, error) {
 	closers := make([]io.Closer, 0)
 
-	demoFileReader, streamErr := faceit.DemoStream(matchId, config.FaceitApiKey)
+	demoFileReader, streamErr := faceitClient.DemoStream(matchId)
 	if streamErr != nil {
 		return nil, closers, streamErr
 	}
