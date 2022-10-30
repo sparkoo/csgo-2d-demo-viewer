@@ -223,6 +223,18 @@ function formatDate(time) {
 }
 
 function playerSearchSubmit(e) {
+  if (window.history.replaceState) {
+    const url = window.location.protocol
+      + "//" + window.location.host
+      + window.location.pathname
+      + "?nickname="
+      + e.target.value;
+
+    window.history.replaceState({
+      path: url
+    }, "", url)
+  }
+
   if (e.keyCode === 13) {
     saveSearchedNicknameToCookie(e.target.value)
     listMatches(e.target.value)
@@ -309,6 +321,18 @@ ReactDOM.render(
 
 let userName = ""
 let userId = ""
+
+// use nickname from query if set
+let paramString = window.location.search.split('?')[1];
+let queryString = new URLSearchParams(paramString);
+for (let pair of queryString.entries()) {
+  if (pair[0] === "nickname") {
+    userName = pair[1]
+    saveSearchedNicknameToCookie(userName)
+    break
+  }
+}
+
 if (document.cookie.length > 0) {
   let cookie = document.cookie
   cookie.split(";").forEach(c => {
