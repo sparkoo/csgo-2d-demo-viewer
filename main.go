@@ -48,6 +48,12 @@ func server() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		// we want just /
+		if request.URL.Path != "/" {
+			http.Error(writer, "", 404)
+			return
+		}
+
 		temp, err := template.ParseFiles("templates/list.html")
 		if err != nil {
 			http.Error(writer, err.Error(), 500)
