@@ -10,7 +10,9 @@ func NewRound(startTick int) *Round {
 }
 
 func (r *Round) Add(message *Message) {
-	r.Ticks = append(r.Ticks, message)
+	if message != nil {
+		r.Ticks = append(r.Ticks, message)
+	}
 }
 
 func CreateTeamUpdateMessage(tick demoinfocs.GameState) *TeamUpdate {

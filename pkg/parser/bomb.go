@@ -72,7 +72,7 @@ func (b *bombHandler) tick() {
 	b.position = b.parser.GameState().Bomb().Position()
 }
 
-func (b *bombHandler) message(mapCS *Map) *message.Bomb {
+func (b *bombHandler) message(mapCS *MapCS) *message.Bomb {
 	x, y := translatePosition(b.position, mapCS)
 	return &message.Bomb{
 		X:     x,

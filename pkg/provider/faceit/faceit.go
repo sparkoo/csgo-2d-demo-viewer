@@ -44,7 +44,7 @@ func (f *FaceitClient) DemoStream(matchId string) (io.ReadCloser, error) {
 		return nil, urlErr
 	}
 
-	log.Printf("Reading file '%s'", demoUrl)
+	// log.Printf("Reading file '%s'", demoUrl)
 	req, reqErr := f.createRequest(demoUrl, false)
 	if reqErr != nil {
 		return nil, reqErr
@@ -58,7 +58,7 @@ func (f *FaceitClient) DemoStream(matchId string) (io.ReadCloser, error) {
 
 func (f *FaceitClient) getDemoUrl(matchId string) (string, error) {
 	url := fmt.Sprintf("%s/matches/%s", faceitApiUrlBase, matchId)
-	log.Printf("requesting url '%s'", url)
+	// log.Printf("requesting url '%s'", url)
 	req, reqErr := f.createRequest(url, true)
 	if reqErr != nil {
 		return "", reqErr

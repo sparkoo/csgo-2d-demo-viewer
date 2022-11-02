@@ -6,32 +6,32 @@ import (
 	"github.com/golang/geo/r2"
 )
 
-// Map represents a CS:GO map. It contains information required to translate
+// MapCS represents a CS:GO map. It contains information required to translate
 // in-game world coordinates to coordinates relative to (0, 0) on the provided map-overviews (radar images).
-type Map struct {
+type MapCS struct {
 	Name  string
 	PZero r2.Point
 	Scale float64
 }
 
 // Translate translates in-game world-relative coordinates to (0, 0) relative coordinates.
-func (m Map) Translate(x, y float64) (float64, float64) {
+func (m MapCS) Translate(x, y float64) (float64, float64) {
 	return x - m.PZero.X, m.PZero.Y - y
 }
 
 // TranslateScale translates and scales in-game world-relative coordinates to (0, 0) relative coordinates.
 // The outputs are pixel coordinates for the radar images found in the maps folder.
-func (m Map) TranslateScale(x, y float64) (float64, float64) {
+func (m MapCS) TranslateScale(x, y float64) (float64, float64) {
 	x, y = m.Translate(x, y)
 	return x / m.Scale, y / m.Scale
 }
 
 // MapNameToMap translates a map name to a Map.
-var MapNameToMap = make(map[string]Map)
+var MapNameToMap = make(map[string]MapCS)
 
 // makeMap creates a map stuct initialized with the given parameters.
-func makeMap(name string, x, y, scale float64) Map {
-	m := Map{Name: name, PZero: r2.Point{X: x, Y: y}, Scale: scale}
+func makeMap(name string, x, y, scale float64) MapCS {
+	m := MapCS{Name: name, PZero: r2.Point{X: x, Y: y}, Scale: scale}
 
 	MapNameToMap[name] = m
 

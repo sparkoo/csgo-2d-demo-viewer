@@ -122,7 +122,10 @@ func server() {
 			for {
 				_, msg, err := conn.ReadMessage()
 				if err != nil {
-					log.Println("Error during message reading:", err)
+					closeErr, isCloseErr := err.(*websocket.CloseError)
+					if !isCloseErr || closeErr.Code != websocket.CloseGoingAway {
+						log.Println("Error during message reading: ", err)
+					}
 					break
 				}
 				in <- msg
@@ -134,6 +137,7 @@ func server() {
 }
 
 func playDemo(out chan []byte, matchId string) {
+	log.Printf("playing faceit demo '%s'", matchId)
 	if matchId == "" {
 		sendError("no matchId", out)
 		return
