@@ -2,11 +2,11 @@ package parser
 
 import (
 	"csgo-2d-demo-player/pkg/message"
-	"github.com/golang/geo/r3"
-	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 	"log"
+
+	"github.com/golang/geo/r3"
+	dem "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
 )
 
 type bombHandler struct {
@@ -72,7 +72,7 @@ func (b *bombHandler) tick() {
 	b.position = b.parser.GameState().Bomb().Position()
 }
 
-func (b *bombHandler) message(mapCS *metadata.Map) *message.Bomb {
+func (b *bombHandler) message(mapCS *Map) *message.Bomb {
 	x, y := translatePosition(b.position, mapCS)
 	return &message.Bomb{
 		X:     x,

@@ -15,7 +15,7 @@ import (
 
 	"github.com/alexflint/go-arg"
 	"github.com/gorilla/websocket"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -1,8 +1,9 @@
 package parser
 
 import (
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	"log"
+
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
 )
 
 // TODO: unused, remove later. keeping here for now to have model names

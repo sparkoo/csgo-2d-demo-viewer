@@ -10,10 +10,9 @@ import (
 	"time"
 
 	"github.com/golang/geo/r3"
-	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
+	dem "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
 )
 
 var zeroVector = r3.Vector{
@@ -43,7 +42,7 @@ func Parse(demoFile io.Reader, handler func(msg *message.Message, state dem.Game
 func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.GameState)) error {
 	log.Println("parsing started")
 	gameStarted := false
-	var mapCS metadata.Map
+	var mapCS Map
 
 	// parse one frame to have something
 	if more, err := parser.ParseNextFrame(); !more || err != nil {
@@ -163,7 +162,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		}
 
 		if !gameStarted {
-			mapCS = metadata.MapNameToMap[parser.Header().MapName]
+			mapCS = MapNameToMap[parser.Header().MapName]
 			handler(&message.Message{
 				MsgType: message.Message_InitType,
 				Tick:    int32(parser.CurrentFrame()),
@@ -236,7 +235,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	}
 }
 
-func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.Parser, bombH *bombHandler) *message.Message {
+func createTickStateMessage(tick dem.GameState, mapCS *Map, parser dem.Parser, bombH *bombHandler) *message.Message {
 	msgPlayers := make([]*message.Player, 0)
 	for _, p := range tick.TeamTerrorists().Members() {
 		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
@@ -309,7 +308,7 @@ func createTickStateMessage(tick dem.GameState, mapCS *metadata.Map, parser dem.
 	}
 }
 
-func transformPlayer(p *common.Player, mapCS *metadata.Map) *message.Player {
+func transformPlayer(p *common.Player, mapCS *Map) *message.Player {
 	x, y := translatePosition(p.LastAlivePosition, mapCS)
 	player := &message.Player{
 		PlayerId: int32(p.UserID),
@@ -368,7 +367,7 @@ func transformPlayer(p *common.Player, mapCS *metadata.Map) *message.Player {
 	return player
 }
 
-func translatePosition(position r3.Vector, mapCS *metadata.Map) (float64, float64) {
+func translatePosition(position r3.Vector, mapCS *Map) (float64, float64) {
 	x, y := mapCS.TranslateScale(position.X, position.Y)
 	x = x / 1024 * 100
 	y = y / 1024 * 100

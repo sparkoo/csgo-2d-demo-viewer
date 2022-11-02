@@ -2,7 +2,7 @@ package parser
 
 //
 //import (
-//	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+//	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
 //	"log"
 //	"testing"
 //)
