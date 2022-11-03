@@ -26,7 +26,7 @@ func Close() {
 	logger.Sync()
 }
 
-func Get() *zap.Logger {
+func L() *zap.Logger {
 	if logger == nil {
 		panic("logger is not initialized, first call 'log.Init(*conf.Conf)'")
 	}

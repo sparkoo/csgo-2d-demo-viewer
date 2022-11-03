@@ -158,7 +158,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			return err
 		}
 		if !more {
-			log.Get().Info("demo parsed", zap.Duration("took", time.Since(parseTimer)), zap.Duration("demo length", parser.Header().PlaybackTime))
+			log.L().Info("demo parsed", zap.Duration("took", time.Since(parseTimer)), zap.Duration("demo length", parser.Header().PlaybackTime))
 			handler(&message.Message{
 				MsgType: message.Message_DemoEndType,
 				Tick:    int32(parser.CurrentFrame()),

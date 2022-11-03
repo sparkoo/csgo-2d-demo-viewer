@@ -15,7 +15,7 @@ func main() {
 
 		_, writeWarningErr := f.WriteString("/* THIS FILE IS GENERATED, PLEASE DO NOT CHANGE !!! */\n\n")
 		if writeWarningErr != nil {
-			log.Get().Fatal("failed to write to file", zap.Error(writeWarningErr))
+			log.L().Fatal("failed to write to file", zap.Error(writeWarningErr))
 		}
 		for _, g := range parser.WeaponsEqType {
 			filename := fmt.Sprintf("%s.svg", g)
@@ -24,11 +24,11 @@ func main() {
 			}
 			_, writeLineErr := f.WriteString(fmt.Sprintf(".%s {\n  background-image: url(\"assets/icons/csgo/%s\");\n}\n\n", g, filename))
 			if writeLineErr != nil {
-				log.Get().Fatal("failed to write to file", zap.Error(writeLineErr))
+				log.L().Fatal("failed to write to file", zap.Error(writeLineErr))
 			}
 		}
 		log.Printf("Generated styles for '%d' guns.", len(parser.WeaponsEqType))
 	} else {
-		log.Get().Fatal("failed to open file for write", zap.Error(err))
+		log.L().Fatal("failed to open file for write", zap.Error(err))
 	}
 }

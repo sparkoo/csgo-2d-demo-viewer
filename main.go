@@ -30,7 +30,7 @@ func main() {
 	log.Init(config)
 	defer log.Close()
 
-	log.Get().Debug("using config", zap.Any("config", config))
+	log.L().Debug("using config", zap.Any("config", config))
 	faceitClient = faceit.NewFaceitClient(config.FaceitApiKey)
 	// log.Printf("using config %+v", config)
 	server()
@@ -138,14 +138,14 @@ func server() {
 			}
 		}()
 	})
-	log.Get().Info("HTTP server listening on ...", zap.String("listen", config.Listen), zap.Int("port", config.Port))
+	log.L().Info("HTTP server listening on ...", zap.String("listen", config.Listen), zap.Int("port", config.Port))
 	// log.Println("Listening on ", config.Port, " ...")
 	listenErr := http.ListenAndServe(fmt.Sprintf("%s:%d", config.Listen, config.Port), mux)
-	log.Get().Fatal("failed to listen", zap.Error(listenErr))
+	log.L().Fatal("failed to listen", zap.Error(listenErr))
 }
 
 func playDemo(out chan []byte, matchId string) {
-	log.Get().Info("playing faceit demo", zap.String("matchId", matchId))
+	log.L().Info("playing faceit demo", zap.String("matchId", matchId))
 	if matchId == "" {
 		sendError("no matchId", out)
 		return
