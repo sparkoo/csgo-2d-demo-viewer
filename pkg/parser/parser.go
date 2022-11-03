@@ -1,10 +1,10 @@
 package parser
 
 import (
+	"csgo-2d-demo-player/pkg/log"
 	"csgo-2d-demo-player/pkg/message"
 	"fmt"
 	"io"
-	"log"
 	"math"
 	"sort"
 	"time"
@@ -13,6 +13,7 @@ import (
 	dem "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
+	"go.uber.org/zap"
 )
 
 var zeroVector = r3.Vector{
@@ -157,7 +158,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			return err
 		}
 		if !more {
-			log.Printf("demo parsed in %dms. Length of the demo '%s'", time.Since(parseTimer).Milliseconds(), parser.Header().PlaybackTime.String())
+			log.Get().Info("demo parsed", zap.Duration("took", time.Since(parseTimer)), zap.Duration("demo length", parser.Header().PlaybackTime))
 			handler(&message.Message{
 				MsgType: message.Message_DemoEndType,
 				Tick:    int32(parser.CurrentFrame()),

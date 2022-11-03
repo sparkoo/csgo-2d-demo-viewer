@@ -3,6 +3,7 @@ package main
 import (
 	"compress/gzip"
 	"csgo-2d-demo-player/conf"
+	"csgo-2d-demo-player/pkg/log"
 	"csgo-2d-demo-player/pkg/message"
 	"csgo-2d-demo-player/pkg/parser"
 	"csgo-2d-demo-player/pkg/provider/faceit"
@@ -10,12 +11,12 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/alexflint/go-arg"
 	"github.com/gorilla/websocket"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -25,6 +26,11 @@ var faceitClient *faceit.FaceitClient
 func main() {
 	config = &conf.Conf{}
 	arg.MustParse(config)
+
+	log.Init(config)
+	defer log.Close()
+
+	log.Get().Debug("using config", zap.Any("config", config))
 	faceitClient = faceit.NewFaceitClient(config.FaceitApiKey)
 	// log.Printf("using config %+v", config)
 	server()
@@ -132,12 +138,14 @@ func server() {
 			}
 		}()
 	})
-	log.Println("Listening on ", config.Port, " ...")
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), mux))
+	log.Get().Info("HTTP server listening on ...", zap.String("listen", config.Listen), zap.Int("port", config.Port))
+	// log.Println("Listening on ", config.Port, " ...")
+	listenErr := http.ListenAndServe(fmt.Sprintf("%s:%d", config.Listen, config.Port), mux)
+	log.Get().Fatal("failed to listen", zap.Error(listenErr))
 }
 
 func playDemo(out chan []byte, matchId string) {
-	log.Printf("playing faceit demo '%s'", matchId)
+	log.Get().Info("playing faceit demo", zap.String("matchId", matchId))
 	if matchId == "" {
 		sendError("no matchId", out)
 		return

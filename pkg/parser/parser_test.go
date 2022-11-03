@@ -3,7 +3,7 @@ package parser
 //
 //import (
 //	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
-//	"log"
+//	"csgo-2d-demo-player/pkg/log"
 //	"testing"
 //)
 //

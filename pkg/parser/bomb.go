@@ -1,8 +1,8 @@
 package parser
 
 import (
+	"csgo-2d-demo-player/pkg/log"
 	"csgo-2d-demo-player/pkg/message"
-	"log"
 
 	"github.com/golang/geo/r3"
 	dem "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"

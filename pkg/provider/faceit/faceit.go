@@ -2,12 +2,12 @@ package faceit
 
 import (
 	"crypto/tls"
+	"csgo-2d-demo-player/pkg/log"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 )
