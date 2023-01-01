@@ -42,6 +42,7 @@ func makeMap(name string, x, y, scale float64) MapCS {
 // see "steamapps/common/Counter-Strike Global Offensive/csgo/resource/overviews/*.txt"
 var (
 	MapDeAncient  = makeMap("de_ancient", -2953, 2164, 5)
+	MapDeAnubis   = makeMap("de_anubis", -2796, 3328, 5.22)
 	MapDeCache    = makeMap("de_cache", -2000, 3250, 5.5)
 	MapDeCanals   = makeMap("de_canals", -2496, 1792, 4)
 	MapDeCbble    = makeMap("de_cbble", -3840, 3072, 6)
