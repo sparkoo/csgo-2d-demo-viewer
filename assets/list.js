@@ -335,7 +335,7 @@ for (let pair of queryString.entries()) {
 
 if (document.cookie.length > 0) {
   let cookie = document.cookie
-  cookie.split(";").forEach(c => {
+  cookie.split("; ").forEach(c => {
     let kv = c.split("=")
     if (kv[0] === "lastSearchedNickname") {
       userName = kv[1]
