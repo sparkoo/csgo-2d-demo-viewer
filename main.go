@@ -135,23 +135,13 @@ func server() {
 		base64.RawStdEncoding.Encode(encoded, tokenBytes)
 
 		http.SetCookie(w, &http.Cookie{
-			Name:  "auth",
-			Value: string(encoded),
-			Path:  "/",
-
-			// Domain     string    // optional
-			// Expires    time.Time // optional
-			// RawExpires string    // for reading cookies only
-
-			// // MaxAge=0 means no 'Max-Age' attribute specified.
-			// // MaxAge<0 means delete cookie now, equivalently 'Max-Age: 0'
-			// // MaxAge>0 means Max-Age attribute present and given in seconds
+			Name:     "auth",
+			Value:    string(encoded),
+			Path:     "/",
 			MaxAge:   60 * 60 * 24 * 14,
 			Secure:   true,
 			HttpOnly: true,
 			SameSite: http.SameSiteStrictMode,
-			// Raw      string
-			// Unparsed []string // Raw text of unparsed attribute-value pairs
 		})
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 	})
