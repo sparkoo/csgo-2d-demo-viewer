@@ -12,20 +12,34 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/alexflint/go-arg"
 	"github.com/gorilla/websocket"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
 	"google.golang.org/protobuf/proto"
 )
 
 var config *conf.Conf
 var faceitClient *faceit.FaceitClient
+var faceitOAuthConfig *oauth2.Config
 
 func main() {
 	config = &conf.Conf{}
 	arg.MustParse(config)
+
+	faceitOAuthConfig = &oauth2.Config{
+		ClientID:     config.FaceitOAuthClientId,
+		ClientSecret: config.FaceitOAuthClientSecret,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.faceit.com",
+			TokenURL: "https://api.faceit.com/auth/v1/oauth/token",
+		},
+		Scopes:      []string{"openid"},
+		RedirectURL: "http://localhost:8080/oauth/callback",
+	}
 
 	log.Init(config)
 	defer log.Close()
@@ -74,6 +88,42 @@ func server() {
 		w.WriteHeader(200)
 		w.Header().Set("Content-Type", "text/plain")
 		w.Write([]byte(config.FaceitClientApiKey))
+	})
+
+	mux.HandleFunc("/faceit/login", func(w http.ResponseWriter, r *http.Request) {
+		// ctx := context.Background()
+		if val, ok := os.LookupEnv("DOTENV"); ok {
+			log.Printf("env", zap.String("DOTENV", val))
+		} else {
+			log.Printf("env DOTENV not set")
+		}
+		url := faceitOAuthConfig.AuthCodeURL("state")
+		url += "&redirect_popup=true"
+		fmt.Printf("Visit the URL for the auth dialog: %v", url)
+
+		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	})
+
+	mux.HandleFunc("/oauth/callback", func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		code := r.URL.Query().Get("code")
+		tok, err := faceitOAuthConfig.Exchange(ctx, code)
+		if err != nil {
+			log.L().Error("failed to exchange oauth", zap.Error(err))
+		}
+		log.L().Info("faceit token", zap.Any("token", tok))
+
+		client := faceitOAuthConfig.Client(ctx, tok)
+		resp, err := client.Get("https://api.faceit.com/auth/v1/resources/userinfo")
+		if err != nil {
+			log.L().Error("failed to get oauth", zap.Error(err))
+		}
+		respbody, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.L().Error("failed to read resp body", zap.Error(err))
+		}
+		log.L().Info("get resp", zap.String("getresp", string(respbody)))
 	})
 
 	playerFileServer := http.FileServer(http.Dir("web/player/build"))
