@@ -1,17 +1,21 @@
 package auth
 
 import (
+	"csgo-2d-demo-player/pkg/log"
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
-const sparko2dAuth = "2dsparkoauth"
+const AuthCookieName = "auth"
 
-func getAuthCookie(r *http.Request) (*AuthInfo, error) {
-	authCookie, err := r.Cookie(sparko2dAuth)
+func GetAuthCookie[T any](name string, r *http.Request, objType *T) (*T, error) {
+	authCookie, err := r.Cookie(name)
 	if err != nil {
 		//TODO: check if cookie was not found and return nil,nil in that case
+		log.L().Info("failed to get the cookie", zap.Error(err))
 		return nil, err
 	}
 
@@ -20,17 +24,16 @@ func getAuthCookie(r *http.Request) (*AuthInfo, error) {
 		return nil, errDecode
 	}
 
-	authInfo := &AuthInfo{}
-	errUnmarshall := json.Unmarshal(decoded, authInfo)
+	errUnmarshall := json.Unmarshal(decoded, objType)
 	if errUnmarshall != nil {
 		return nil, errUnmarshall
 	}
 
-	return authInfo, nil
+	return objType, nil
 }
 
-func setAuthCookie(authInfo *AuthInfo, w http.ResponseWriter) error {
-	jsonAuth, errJsonMarshall := json.Marshal(authInfo)
+func SetAuthCookie(name string, obj any, w http.ResponseWriter) error {
+	jsonAuth, errJsonMarshall := json.Marshal(obj)
 	if errJsonMarshall != nil {
 		return errJsonMarshall
 	}
@@ -38,14 +41,23 @@ func setAuthCookie(authInfo *AuthInfo, w http.ResponseWriter) error {
 	authCookie := base64.StdEncoding.EncodeToString(jsonAuth)
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     sparko2dAuth,
+		Name:     name,
 		Value:    authCookie,
 		Path:     "/",
 		MaxAge:   60 * 60 * 24 * 14,
-		Secure:   true,
+		Secure:   false,
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
+		Domain:   "",
 	})
 
 	return nil
+}
+
+func ClearCookie(name string, w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:   name,
+		Path:   "/",
+		MaxAge: 0,
+	})
 }

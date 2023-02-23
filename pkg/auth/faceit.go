@@ -3,7 +3,6 @@ package auth
 import (
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/log"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -26,12 +25,17 @@ func NewFaceitAuth(config *conf.Conf) *FaceitAuth {
 			TokenURL: "https://api.faceit.com/auth/v1/oauth/token",
 		},
 		Scopes:      []string{"openid"},
-		RedirectURL: "http://localhost:8080/oauth/callback",
+		RedirectURL: "http://localhost:8080/auth/faceit/callback",
 	}
 
 	return &FaceitAuth{
 		oauthConfig: faceitOAuthConfig,
 	}
+}
+
+func (fa *FaceitAuth) FaceitLogoutHandler(w http.ResponseWriter, r *http.Request) {
+	ClearCookie(AuthCookieName, w)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 
 func (fa *FaceitAuth) FaceitLoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -63,22 +67,22 @@ func (fa *FaceitAuth) FaceitOAuthCallbackHandler(w http.ResponseWriter, r *http.
 	}
 	log.L().Info("get resp", zap.String("getresp", string(respbody)))
 
-	tokenBytes, errMarshall := json.Marshal(tok)
-	if errMarshall != nil {
-		log.L().Error("failed to marshall the token", zap.Error(errMarshall))
+	userInfo := &FaceitUserInfo{}
+	errUnmarshalUserInfo := json.Unmarshal(respbody, userInfo)
+	if errUnmarshalUserInfo != nil {
+		log.L().Error("failed to unmarshall user info", zap.Error(errUnmarshalUserInfo))
 	}
 
-	encoded := make([]byte, 1024)
-	base64.RawStdEncoding.Encode(encoded, tokenBytes)
+	authInfo := &AuthInfo{
+		Faceit: &FaceitAuthInfo{
+			Token:    tok,
+			UserInfo: userInfo,
+		},
+	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "auth",
-		Value:    string(encoded),
-		Path:     "/",
-		MaxAge:   60 * 60 * 24 * 14,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
-	})
+	errCookie := SetAuthCookie(AuthCookieName, authInfo, w)
+	if errCookie != nil {
+		log.L().Error("failed to set the auth cookie", zap.Error(errCookie))
+	}
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
