@@ -68,7 +68,23 @@ func server() {
 			http.Error(writer, err.Error(), 500)
 		}
 
-		if temp.Execute(writer, nil) != nil {
+		authCookie, err := auth.GetAuthCookie(auth.AuthCookieName, request, &auth.AuthInfo{})
+		if err != nil {
+			log.L().Info("some error getting the cookie, why???", zap.Error(err))
+			// http.Error(writer, err.Error(), 500)
+		}
+		log.L().Info("auth cookie " + authCookie.String())
+
+		nickname := "blabol"
+		if authCookie != nil {
+			nickname = authCookie.Faceit.UserInfo.Nickname
+		}
+		listData := struct {
+			AuthCookie string
+		}{
+			AuthCookie: nickname,
+		}
+		if temp.Execute(writer, listData) != nil {
 			http.Error(writer, err.Error(), 500)
 		}
 	})
@@ -83,6 +99,7 @@ func server() {
 	faceitAuthHandler := auth.NewFaceitAuth(config)
 	mux.HandleFunc("/auth/faceit/login", faceitAuthHandler.FaceitLoginHandler)
 	mux.HandleFunc("/auth/faceit/callback", faceitAuthHandler.FaceitOAuthCallbackHandler)
+	mux.HandleFunc("/auth/faceit/logout", faceitAuthHandler.FaceitLogoutHandler)
 
 	playerFileServer := http.FileServer(http.Dir("web/player/build"))
 	mux.Handle("/player/", http.StripPrefix("/player", playerFileServer))
