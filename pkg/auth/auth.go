@@ -12,7 +12,7 @@ type AuthInfo struct {
 }
 
 func (a *AuthInfo) String() string {
-	return fmt.Sprintf("%b", a)
+	return fmt.Sprintf("%s", a.Faceit.UserInfo.Nickname)
 }
 
 type FaceitAuthInfo struct {
