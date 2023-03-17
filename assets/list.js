@@ -344,6 +344,12 @@ if (document.cookie.length > 0) {
   })
 }
 
+console.log("faceit nickname???")
+console.log(document.getElementById("faceitNickname"))
+if (document.getElementById("faceitNickname")) {
+  listMatches(document.getElementById("faceitNickname").innerHTML)
+}
+
 const searchInput = <input
   className="w3-input w3-round w3-xxlarge"
   type="text"
