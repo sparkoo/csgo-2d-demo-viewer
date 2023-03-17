@@ -40,7 +40,11 @@
     <div class="w3-col l8">
       <div class="w3-margin w3-container w3-xlarge">
         {{if .AuthCookie }}
-          <div>FACEIT: <span id="faceitNickname">{{.AuthCookie}}</span> <a class="w3-large" href="/auth/faceit/logout">(logout)</a></div>
+          <div>
+            <img src="/assets/faceit-logo.svg" height="50">
+            <span id="faceitNickname">{{.AuthCookie}}</span>
+            <a class="material-icons w3-large" href="/auth/faceit/logout">logout</a>
+          </div>
         {{else}}
           <a href="/auth/faceit/login">Connect FACEIT account</a>
         {{end}}
