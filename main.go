@@ -73,7 +73,7 @@ func server() {
 			log.L().Info("some error getting the cookie, why???", zap.Error(err))
 			// http.Error(writer, err.Error(), 500)
 		}
-		log.L().Info("auth cookie " + authCookie.String())
+		// log.L().Info("auth cookie " + authCookie.String())
 
 		nickname := ""
 		if authCookie != nil {

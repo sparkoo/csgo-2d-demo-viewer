@@ -54,7 +54,7 @@ func (fa *FaceitAuth) FaceitOAuthCallbackHandler(w http.ResponseWriter, r *http.
 	if err != nil {
 		log.L().Error("failed to exchange oauth", zap.Error(err))
 	}
-	log.L().Info("faceit token", zap.Any("token", tok))
+	// log.L().Info("faceit token", zap.Any("token", tok))
 
 	client := fa.oauthConfig.Client(ctx, tok)
 	resp, err := client.Get("https://api.faceit.com/auth/v1/resources/userinfo")
@@ -65,7 +65,7 @@ func (fa *FaceitAuth) FaceitOAuthCallbackHandler(w http.ResponseWriter, r *http.
 	if err != nil {
 		log.L().Error("failed to read resp body", zap.Error(err))
 	}
-	log.L().Info("get resp", zap.String("getresp", string(respbody)))
+	// log.L().Info("get resp", zap.String("getresp", string(respbody)))
 
 	userInfo := &FaceitUserInfo{}
 	errUnmarshalUserInfo := json.Unmarshal(respbody, userInfo)
