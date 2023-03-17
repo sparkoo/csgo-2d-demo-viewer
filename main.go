@@ -75,7 +75,7 @@ func server() {
 		}
 		log.L().Info("auth cookie " + authCookie.String())
 
-		nickname := "blabol"
+		nickname := ""
 		if authCookie != nil {
 			nickname = authCookie.Faceit.UserInfo.Nickname
 		}
