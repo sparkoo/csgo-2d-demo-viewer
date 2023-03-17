@@ -25,7 +25,7 @@ func NewFaceitAuth(config *conf.Conf) *FaceitAuth {
 			TokenURL: "https://api.faceit.com/auth/v1/oauth/token",
 		},
 		Scopes:      []string{"openid"},
-		RedirectURL: "http://localhost:8080/auth/faceit/callback",
+		RedirectURL: "https://2d.sparko.cz/auth/faceit/callback", // TODO: config option
 	}
 
 	return &FaceitAuth{

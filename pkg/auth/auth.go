@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"fmt"
-
 	"golang.org/x/oauth2"
 )
 
@@ -12,7 +10,7 @@ type AuthInfo struct {
 }
 
 func (a *AuthInfo) String() string {
-	return fmt.Sprintf("%s", a.Faceit.UserInfo.Nickname)
+	return a.Faceit.UserInfo.Nickname
 }
 
 type FaceitAuthInfo struct {
