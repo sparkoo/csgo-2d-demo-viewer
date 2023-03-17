@@ -24,8 +24,7 @@ func NewFaceitAuth(config *conf.Conf) *FaceitAuth {
 			AuthURL:  "https://accounts.faceit.com",
 			TokenURL: "https://api.faceit.com/auth/v1/oauth/token",
 		},
-		Scopes:      []string{"openid"},
-		RedirectURL: "https://2d.sparko.cz/auth/faceit/callback", // TODO: config option
+		Scopes: []string{"openid"},
 	}
 
 	return &FaceitAuth{
@@ -54,7 +53,7 @@ func (fa *FaceitAuth) FaceitOAuthCallbackHandler(w http.ResponseWriter, r *http.
 	if err != nil {
 		log.L().Error("failed to exchange oauth", zap.Error(err))
 	}
-	log.L().Info("faceit token", zap.Any("token", tok.TokenType))
+	log.L().Info("faceit token", zap.Any("token", tok.TokenType), zap.Any("expiry", tok.Expiry))
 
 	client := fa.oauthConfig.Client(ctx, tok)
 	resp, err := client.Get("https://api.faceit.com/auth/v1/resources/userinfo")
