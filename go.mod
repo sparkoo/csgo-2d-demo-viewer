@@ -8,7 +8,7 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/markus-wa/demoinfocs-golang/v3 v3.1.0
 	go.uber.org/zap v1.23.0
-	golang.org/x/oauth2 v0.5.0
+	golang.org/x/oauth2 v0.6.0
 	google.golang.org/protobuf v1.28.1
 )
 
@@ -26,6 +26,6 @@ require (
 	github.com/stretchr/testify v1.8.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	golang.org/x/net v0.6.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 )
