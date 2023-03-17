@@ -44,7 +44,7 @@ func SetAuthCookie(name string, obj any, w http.ResponseWriter) error {
 		Name:     name,
 		Value:    authCookie,
 		Path:     "/",
-		MaxAge:   60 * 60 * 24 * 14,
+		MaxAge:   60 * 60 * 24 * 30,
 		Secure:   false,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
