@@ -1,6 +1,7 @@
 package main
 
 import (
+	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/log"
 	"csgo-2d-demo-player/pkg/parser"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 )
 
 func main() {
+	log.Init(&conf.Conf{Mode: conf.MODE_DEV})
 	if f, err := os.OpenFile("weapons.css_tmp", os.O_CREATE|os.O_WRONLY, 0644); err == nil {
 		defer f.Close()
 

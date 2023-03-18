@@ -378,3 +378,7 @@
 .c4.active {
   filter: brightness(1.5) !important;
 }
+
+a:hover {
+  text-shadow: 0 0 2px gray;
+}
