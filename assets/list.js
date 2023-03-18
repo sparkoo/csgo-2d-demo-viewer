@@ -87,8 +87,13 @@ class MatchRow extends React.Component {
             })
             .catch(reason => console.log("failed", reason))
         } else {
+          // try again
+          let updateAgain = function() {
+            this.updateMatchDetail()
+          }.bind(this)
+          setTimeout(updateAgain, 1000)
+          
           // remove matches where we can't find detailed stats
-          this.updateMatchDetail()
           // matchTableUpdater.remove(this.props.match.match_id);
         }
       })
@@ -254,7 +259,7 @@ function fetchMatches(playerId) {
       if (response.ok) {
         return response.json()
       } else {
-        this.fetchMatches(playerId)
+        return this.fetchMatches(playerId)
       }
     })
     .then(matchesResponse => {
