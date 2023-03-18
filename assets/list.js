@@ -1,15 +1,6 @@
 'use strict';
 
 const faceitApiUrlBase = "/faceit/api";
-let faceitApiKey = ""
-
-function reqParamHeaders() {
-  return {
-    headers: {
-      Authorization: `Bearer ${faceitApiKey}`
-    }
-  }
-}
 
 let matchTableUpdater = {};
 
@@ -64,8 +55,7 @@ class MatchRow extends React.Component {
   }
 
   updateMatchDetail() {
-    fetch(`${faceitApiUrlBase}/matches/${this.props.match.match_id}/stats`,
-      reqParamHeaders())
+    fetch(`${faceitApiUrlBase}/matches/${this.props.match.match_id}/stats`)
       .then(response => {
         if (response.ok) {
           response.json()
@@ -107,8 +97,7 @@ class MatchRow extends React.Component {
   }
 
   updateMatchDemoLink() {
-    fetch(`${faceitApiUrlBase}/matches/${this.props.match.match_id}`,
-      reqParamHeaders())
+    fetch(`${faceitApiUrlBase}/matches/${this.props.match.match_id}`)
       .then(response => {
         if (response.ok) {
           response.json()
@@ -129,7 +118,7 @@ class MatchRow extends React.Component {
   }
 
   downloadDemo(matchId) {
-    fetch(`${faceitApiUrlBase}/matches/${matchId}`, reqParamHeaders())
+    fetch(`${faceitApiUrlBase}/matches/${matchId}`)
       .then(response => {
         if (response.ok) {
           response.json()
@@ -249,41 +238,28 @@ function listMatches(nickname) {
 
   matchTableUpdater.clearMatches()
 
-  console.log(document.cookie)
-
-  fetch("/faceitClientKey")
+  fetch(`${faceitApiUrlBase}/players?nickname=${nickname}`)
     .then(response => {
       if (response.ok) {
-        response.text().then(body => {
-          faceitApiKey = body
-
-          fetch(`${faceitApiUrlBase}/players?nickname=${nickname}`, reqParamHeaders())
-            .then(response => {
-              if (response.ok) {
-                response.json()
-                  .then(player => {
-                    userName = nickname
-                    userId = player.player_id
-                    fetchMatches(player.player_id)
-                  })
-                  .catch(reason => ReactDOM.render(
-                    <span>Failed to parse faceit api response '{reason.message}'</span>,
-                    document.getElementById("searchNote")))
-              } else {
-                ReactDOM.render(
-                  <span>player '{nickname}' does not exist on faceit ...</span>,
-                  document.getElementById("searchNote")
-                )
-              }
-            })
-            .catch(reason => {
-              renderError(`"Failed request to Faceit API: '${reason.message}'`)
-            })
-        })
+        response.json()
+          .then(player => {
+            userName = nickname
+            userId = player.player_id
+            fetchMatches(player.player_id)
+          })
+          .catch(reason => ReactDOM.render(
+            <span>Failed to parse faceit api response '{reason.message}'</span>,
+            document.getElementById("searchNote")))
+      } else {
+        ReactDOM.render(
+          <span>player '{nickname}' does not exist on faceit ...</span>,
+          document.getElementById("searchNote")
+        )
       }
     })
-
-
+    .catch(reason => {
+      renderError(`"Failed request to Faceit API: '${reason.message}'`)
+    })
 }
 
 function renderError(message) {
@@ -295,8 +271,7 @@ function renderError(message) {
 }
 
 function fetchMatches(playerId) {
-  fetch(`${faceitApiUrlBase}/players/${playerId}/history?limit=100`,
-    reqParamHeaders())
+  fetch(`${faceitApiUrlBase}/players/${playerId}/history?limit=100`)
     .then(response => response.json())
     .then(matchesResponse => {
       matchesResponse.items

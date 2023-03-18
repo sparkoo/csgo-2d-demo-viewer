@@ -87,14 +87,6 @@ func server() {
 		}
 	})
 
-	mux.HandleFunc("/faceitClientKey", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
-		w.Header().Set("Content-Type", "text/plain")
-		if _, errWrite := w.Write([]byte(config.FaceitClientApiKey)); errWrite != nil {
-			log.L().Error("failed to write faceit apikey bytes", zap.Error(errWrite))
-		}
-	})
-
 	// faceit auth
 	faceitAuthHandler := auth.NewFaceitAuth(config)
 	mux.HandleFunc("/auth/faceit/login", faceitAuthHandler.FaceitLoginHandler)
