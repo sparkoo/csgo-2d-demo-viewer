@@ -32,7 +32,7 @@ func main() {
 	defer log.Close()
 
 	log.L().Debug("using config", zap.Any("config", config))
-	faceitClient = faceit.NewFaceitClient(config.FaceitApiKey)
+	faceitClient = faceit.NewFaceitClient(config)
 	// log.Printf("using config %+v", config)
 	server()
 }
@@ -87,19 +87,11 @@ func server() {
 		}
 	})
 
-	mux.HandleFunc("/faceitClientKey", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
-		w.Header().Set("Content-Type", "text/plain")
-		if _, errWrite := w.Write([]byte(config.FaceitClientApiKey)); errWrite != nil {
-			log.L().Error("failed to write faceit apikey bytes", zap.Error(errWrite))
-		}
-	})
-
 	// faceit auth
-	faceitAuthHandler := auth.NewFaceitAuth(config)
-	mux.HandleFunc("/auth/faceit/login", faceitAuthHandler.FaceitLoginHandler)
-	mux.HandleFunc("/auth/faceit/callback", faceitAuthHandler.FaceitOAuthCallbackHandler)
-	mux.HandleFunc("/auth/faceit/logout", faceitAuthHandler.FaceitLogoutHandler)
+	mux.HandleFunc("/auth/faceit/login", faceitClient.FaceitLoginHandler)
+	mux.HandleFunc("/auth/faceit/callback", faceitClient.FaceitOAuthCallbackHandler)
+	mux.HandleFunc("/auth/faceit/logout", faceitClient.FaceitLogoutHandler)
+	mux.Handle("/faceit/api/", http.StripPrefix("/faceit/api/", faceitClient))
 
 	playerFileServer := http.FileServer(http.Dir("web/player/build"))
 	mux.Handle("/player/", http.StripPrefix("/player", playerFileServer))

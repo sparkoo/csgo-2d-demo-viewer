@@ -1,15 +1,6 @@
 'use strict';
 
-const faceitApiUrlBase = "https://open.faceit.com/data/v4";
-let faceitApiKey = ""
-
-function reqParamHeaders() {
-  return {
-    headers: {
-      Authorization: `Bearer ${faceitApiKey}`
-    }
-  }
-}
+const faceitApiUrlBase = "/faceit/api";
 
 let matchTableUpdater = {};
 
@@ -64,8 +55,7 @@ class MatchRow extends React.Component {
   }
 
   updateMatchDetail() {
-    fetch(`${faceitApiUrlBase}/matches/${this.props.match.match_id}/stats`,
-      reqParamHeaders())
+    fetch(`${faceitApiUrlBase}/matches/${this.props.match.match_id}/stats`)
       .then(response => {
         if (response.ok) {
           response.json()
@@ -89,8 +79,6 @@ class MatchRow extends React.Component {
                 updatedState.Win = userTeam === round.round_stats.Winner
 
                 this.setState(updatedState)
-
-                // this.updateMatchDemoLink()
               } else {
                 console.log(
                   `removing match ${this.props.match.match_id} because details rounds is ${detail.rounds.length} and teams is ${detail.teams.length}`)
@@ -100,36 +88,15 @@ class MatchRow extends React.Component {
             .catch(reason => console.log("failed", reason))
         } else {
           // remove matches where we can't find detailed stats
-          matchTableUpdater.remove(this.props.match.match_id);
+          this.updateMatchDetail()
+          // matchTableUpdater.remove(this.props.match.match_id);
         }
       })
       .catch(reason => console.log("failed", reason))
   }
 
-  updateMatchDemoLink() {
-    fetch(`${faceitApiUrlBase}/matches/${this.props.match.match_id}`,
-      reqParamHeaders())
-      .then(response => {
-        if (response.ok) {
-          response.json()
-            .then(detail => {
-              let updatedState = this.state;
-              if (detail.demo_url.length === 1) {
-                updatedState.demoLink = detail.demo_url[0]
-              } else {
-                updatedState.demoLink = ""
-              }
-              this.setState(updatedState)
-            })
-        } else {
-          updatedState.demoLink = ""
-          this.setState(updatedState)
-        }
-      }).catch(error => console.log("no demo", error))
-  }
-
   downloadDemo(matchId) {
-    fetch(`${faceitApiUrlBase}/matches/${matchId}`, reqParamHeaders())
+    fetch(`${faceitApiUrlBase}/matches/${matchId}`)
       .then(response => {
         if (response.ok) {
           response.json()
@@ -249,39 +216,28 @@ function listMatches(nickname) {
 
   matchTableUpdater.clearMatches()
 
-  fetch("/faceitClientKey")
+  fetch(`${faceitApiUrlBase}/players?nickname=${nickname}`)
     .then(response => {
       if (response.ok) {
-        response.text().then(body => {
-          faceitApiKey = body
-
-          fetch(`${faceitApiUrlBase}/players?nickname=${nickname}`, reqParamHeaders())
-            .then(response => {
-              if (response.ok) {
-                response.json()
-                  .then(player => {
-                    userName = nickname
-                    userId = player.player_id
-                    fetchMatches(player.player_id)
-                  })
-                  .catch(reason => ReactDOM.render(
-                    <span>Failed to parse faceit api response '{reason.message}'</span>,
-                    document.getElementById("searchNote")))
-              } else {
-                ReactDOM.render(
-                  <span>player '{nickname}' does not exist on faceit ...</span>,
-                  document.getElementById("searchNote")
-                )
-              }
-            })
-            .catch(reason => {
-              renderError(`"Failed request to Faceit API: '${reason.message}'`)
-            })
-        })
+        response.json()
+          .then(player => {
+            userName = nickname
+            userId = player.player_id
+            fetchMatches(player.player_id)
+          })
+          .catch(reason => ReactDOM.render(
+            <span>Failed to parse faceit api response '{reason.message}'</span>,
+            document.getElementById("searchNote")))
+      } else {
+        ReactDOM.render(
+          <span>player '{nickname}' does not exist on faceit ...</span>,
+          document.getElementById("searchNote")
+        )
       }
     })
-
-
+    .catch(reason => {
+      renderError(`"Failed request to Faceit API: '${reason.message}'`)
+    })
 }
 
 function renderError(message) {
@@ -293,15 +249,21 @@ function renderError(message) {
 }
 
 function fetchMatches(playerId) {
-  fetch(`${faceitApiUrlBase}/players/${playerId}/history?limit=100`,
-    reqParamHeaders())
-    .then(response => response.json())
+  fetch(`${faceitApiUrlBase}/players/${playerId}/history?limit=30`)
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+      } else {
+        this.fetchMatches(playerId)
+      }
+    })
     .then(matchesResponse => {
       matchesResponse.items
-        .filter(m => m.game_mode.includes("5v5", 0))
-        .forEach(match => {
-          matchTableUpdater.addMatch(<MatchRow match={match} key={match.match_id} />)
-        })
+      .filter(m => m.game_mode.includes("5v5", 0))
+      .filter(m => m.finished_at > m.started_at)
+      .forEach(match => {
+        matchTableUpdater.addMatch(<MatchRow match={match} key={match.match_id} />)
+      })
       ReactDOM.render(
         null,
         document.getElementById('searchNote')
@@ -333,8 +295,6 @@ for (let pair of queryString.entries()) {
   }
 }
 
-console.log("faceit nickname???")
-console.log(document.getElementById("faceitNickname"))
 if (document.getElementById("faceitNickname")) {
   listMatches(document.getElementById("faceitNickname").innerHTML)
 }
