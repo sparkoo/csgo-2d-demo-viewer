@@ -100,6 +100,7 @@ func server() {
 	mux.HandleFunc("/auth/faceit/login", faceitAuthHandler.FaceitLoginHandler)
 	mux.HandleFunc("/auth/faceit/callback", faceitAuthHandler.FaceitOAuthCallbackHandler)
 	mux.HandleFunc("/auth/faceit/logout", faceitAuthHandler.FaceitLogoutHandler)
+	mux.Handle("/faceit/api/", http.StripPrefix("/faceit/api/", faceitClient))
 
 	playerFileServer := http.FileServer(http.Dir("web/player/build"))
 	mux.Handle("/player/", http.StripPrefix("/player", playerFileServer))

@@ -1,6 +1,6 @@
 'use strict';
 
-const faceitApiUrlBase = "https://open.faceit.com/data/v4";
+const faceitApiUrlBase = "/faceit/api";
 let faceitApiKey = ""
 
 function reqParamHeaders() {
@@ -248,6 +248,8 @@ function listMatches(nickname) {
   );
 
   matchTableUpdater.clearMatches()
+
+  console.log(document.cookie)
 
   fetch("/faceitClientKey")
     .then(response => {

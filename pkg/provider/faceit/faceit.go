@@ -9,6 +9,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 const faceitApiUrlBase = "https://open.faceit.com/data/v4"
@@ -37,6 +39,48 @@ type matchDemo struct {
 
 var ErrorNoDemo = errors.New("no demo found for this match")
 
+func (f *FaceitClient) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// authCookie, err := auth.GetAuthCookie(auth.AuthCookieName, r.Response.Request, &auth.AuthInfo{})
+	// if err != nil {
+	// 	log.L().Info("some error getting the cookie, why???", zap.Error(err))
+	// }
+
+	reqUrl := fmt.Sprintf("%s/%s", faceitApiUrlBase, r.URL.String())
+
+	log.L().Debug("Proxying request to faceit", zap.String("url", reqUrl))
+
+	proxyReq, errProxyReq := f.createRequest(reqUrl, true)
+	if errProxyReq != nil {
+		log.L().Error("failed to create faceit proxy request", zap.Error(errProxyReq))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	proxyResponse, errProxyDoReq := f.doRequest(proxyReq, false)
+	if errProxyDoReq != nil {
+		log.L().Error("failed to request faceit", zap.Error(errProxyDoReq))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if proxyResponse.Body != nil {
+		proxyResponseContent, errReadBody := io.ReadAll(proxyResponse.Body)
+		if errReadBody != nil {
+			log.L().Error("failed to read faceit proxy response body", zap.Error(errReadBody))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(proxyResponse.StatusCode)
+		if _, errWrite := w.Write(proxyResponseContent); errWrite != nil {
+			log.L().Error("failed to write faceit proxy response", zap.Error(errWrite))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	} else {
+		w.WriteHeader(proxyResponse.StatusCode)
+	}
+}
+
 func (f *FaceitClient) DemoStream(matchId string) (io.ReadCloser, error) {
 	demoUrl, urlErr := f.getDemoUrl(matchId)
 	if urlErr != nil {
@@ -64,9 +108,14 @@ func (f *FaceitClient) getDemoUrl(matchId string) (string, error) {
 	}
 	q := req.URL.Query()
 	req.URL.RawQuery = q.Encode()
-	content, doReqErr := f.doRequest(req)
+	resp, doReqErr := f.doRequest(req, true)
 	if doReqErr != nil {
 		return "", doReqErr
+	}
+
+	content, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
 	}
 
 	demo := &matchDemo{}
@@ -94,34 +143,25 @@ func (f *FaceitClient) createRequest(url string, auth bool) (*http.Request, erro
 	return req, nil
 }
 
-func (f *FaceitClient) doRequest(req *http.Request) ([]byte, error) {
-	client := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-		}}
+func (f *FaceitClient) doRequest(req *http.Request, expect200 bool) (*http.Response, error) {
 
 	var resp *http.Response
 	for i := 0; i < 3; i++ {
 		var err error
-		resp, err = client.Do(req)
+		resp, err = f.httpClient.Do(req)
 		if err != nil {
 			return nil, err
 		}
-		defer resp.Body.Close()
+		if !expect200 {
+			break
+		}
 		if resp.StatusCode == 200 {
 			break
 		}
 		log.Printf("response code '%d'", resp.StatusCode)
 	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
 
-	return body, nil
+	return resp, nil
 }
 
 func (f *FaceitClient) doRequestStream(req *http.Request) (io.ReadCloser, error) {
