@@ -32,7 +32,7 @@ func main() {
 	defer log.Close()
 
 	log.L().Debug("using config", zap.Any("config", config))
-	faceitClient = faceit.NewFaceitClient(config.FaceitApiKey)
+	faceitClient = faceit.NewFaceitClient(config)
 	// log.Printf("using config %+v", config)
 	server()
 }
@@ -88,10 +88,9 @@ func server() {
 	})
 
 	// faceit auth
-	faceitAuthHandler := auth.NewFaceitAuth(config)
-	mux.HandleFunc("/auth/faceit/login", faceitAuthHandler.FaceitLoginHandler)
-	mux.HandleFunc("/auth/faceit/callback", faceitAuthHandler.FaceitOAuthCallbackHandler)
-	mux.HandleFunc("/auth/faceit/logout", faceitAuthHandler.FaceitLogoutHandler)
+	mux.HandleFunc("/auth/faceit/login", faceitClient.FaceitLoginHandler)
+	mux.HandleFunc("/auth/faceit/callback", faceitClient.FaceitOAuthCallbackHandler)
+	mux.HandleFunc("/auth/faceit/logout", faceitClient.FaceitLogoutHandler)
 	mux.Handle("/faceit/api/", http.StripPrefix("/faceit/api/", faceitClient))
 
 	playerFileServer := http.FileServer(http.Dir("web/player/build"))

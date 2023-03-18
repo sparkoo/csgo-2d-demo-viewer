@@ -79,8 +79,6 @@ class MatchRow extends React.Component {
                 updatedState.Win = userTeam === round.round_stats.Winner
 
                 this.setState(updatedState)
-
-                // this.updateMatchDemoLink()
               } else {
                 console.log(
                   `removing match ${this.props.match.match_id} because details rounds is ${detail.rounds.length} and teams is ${detail.teams.length}`)
@@ -90,31 +88,11 @@ class MatchRow extends React.Component {
             .catch(reason => console.log("failed", reason))
         } else {
           // remove matches where we can't find detailed stats
-          matchTableUpdater.remove(this.props.match.match_id);
+          this.updateMatchDetail()
+          // matchTableUpdater.remove(this.props.match.match_id);
         }
       })
       .catch(reason => console.log("failed", reason))
-  }
-
-  updateMatchDemoLink() {
-    fetch(`${faceitApiUrlBase}/matches/${this.props.match.match_id}`)
-      .then(response => {
-        if (response.ok) {
-          response.json()
-            .then(detail => {
-              let updatedState = this.state;
-              if (detail.demo_url.length === 1) {
-                updatedState.demoLink = detail.demo_url[0]
-              } else {
-                updatedState.demoLink = ""
-              }
-              this.setState(updatedState)
-            })
-        } else {
-          updatedState.demoLink = ""
-          this.setState(updatedState)
-        }
-      }).catch(error => console.log("no demo", error))
   }
 
   downloadDemo(matchId) {
@@ -271,14 +249,21 @@ function renderError(message) {
 }
 
 function fetchMatches(playerId) {
-  fetch(`${faceitApiUrlBase}/players/${playerId}/history?limit=100`)
-    .then(response => response.json())
+  fetch(`${faceitApiUrlBase}/players/${playerId}/history?limit=30`)
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+      } else {
+        this.fetchMatches(playerId)
+      }
+    })
     .then(matchesResponse => {
       matchesResponse.items
-        .filter(m => m.game_mode.includes("5v5", 0))
-        .forEach(match => {
-          matchTableUpdater.addMatch(<MatchRow match={match} key={match.match_id} />)
-        })
+      .filter(m => m.game_mode.includes("5v5", 0))
+      .filter(m => m.finished_at > m.started_at)
+      .forEach(match => {
+        matchTableUpdater.addMatch(<MatchRow match={match} key={match.match_id} />)
+      })
       ReactDOM.render(
         null,
         document.getElementById('searchNote')
@@ -310,8 +295,6 @@ for (let pair of queryString.entries()) {
   }
 }
 
-console.log("faceit nickname???")
-console.log(document.getElementById("faceitNickname"))
 if (document.getElementById("faceitNickname")) {
   listMatches(document.getElementById("faceitNickname").innerHTML)
 }

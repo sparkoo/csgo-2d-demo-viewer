@@ -1,7 +1,10 @@
 package faceit
 
 import (
+	"context"
 	"crypto/tls"
+	"csgo-2d-demo-player/conf"
+	"csgo-2d-demo-player/pkg/auth"
 	"csgo-2d-demo-player/pkg/log"
 	"encoding/json"
 	"errors"
@@ -11,18 +14,31 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
 )
 
-const faceitApiUrlBase = "https://open.faceit.com/data/v4"
+const faceitOpenApiUrlBase = "https://open.faceit.com/data/v4"
 
 type FaceitClient struct {
-	httpClient *http.Client
-	apiKey     string
+	oauthConfig *oauth2.Config
+	httpClient  *http.Client
+	apiKey      string
 }
 
-func NewFaceitClient(apiKey string) *FaceitClient {
+func NewFaceitClient(config *conf.Conf) *FaceitClient {
+	faceitOAuthConfig := &oauth2.Config{
+		ClientID:     config.FaceitOAuthClientId,
+		ClientSecret: config.FaceitOAuthClientSecret,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.faceit.com",
+			TokenURL: "https://api.faceit.com/auth/v1/oauth/token",
+		},
+		Scopes: []string{"openid", "profile"},
+	}
+
 	return &FaceitClient{
-		apiKey: apiKey,
+		oauthConfig: faceitOAuthConfig,
+		apiKey:      config.FaceitApiKey,
 		httpClient: &http.Client{
 			Timeout: time.Second * 60,
 			Transport: &http.Transport{
@@ -39,23 +55,89 @@ type matchDemo struct {
 
 var ErrorNoDemo = errors.New("no demo found for this match")
 
+func (f *FaceitClient) FaceitLogoutHandler(w http.ResponseWriter, r *http.Request) {
+	auth.ClearCookie(auth.AuthCookieName, w)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+}
+
+func (f *FaceitClient) FaceitLoginHandler(w http.ResponseWriter, r *http.Request) {
+	url := f.oauthConfig.AuthCodeURL("state")
+	url += "&redirect_popup=true"
+	fmt.Printf("Visit the URL for the auth dialog: %v", url)
+
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
+func (f *FaceitClient) FaceitOAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
+	// we need to set insecure here, because faceit is using some weird CA
+	// would be nice to fix, but who kers now (haha)
+	ctx := context.WithValue(r.Context(), oauth2.HTTPClient, &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		}})
+
+	code := r.URL.Query().Get("code")
+	tok, err := f.oauthConfig.Exchange(ctx, code)
+	if err != nil {
+		log.L().Error("failed to exchange oauth", zap.Error(err))
+	}
+	log.L().Info("faceit token", zap.Any("token", tok.TokenType), zap.Any("expiry", tok.Expiry))
+
+	client := f.oauthConfig.Client(ctx, tok)
+	resp, err := client.Get("https://api.faceit.com/auth/v1/resources/userinfo")
+	if err != nil {
+		log.L().Error("failed to get oauth", zap.Error(err))
+	}
+	respbody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.L().Error("failed to read resp body", zap.Error(err))
+	}
+	// log.L().Info("get resp", zap.String("getresp", string(respbody)))
+
+	userInfo := &auth.FaceitUserInfo{}
+	errUnmarshalUserInfo := json.Unmarshal(respbody, userInfo)
+	if errUnmarshalUserInfo != nil {
+		log.L().Error("failed to unmarshall user info", zap.Error(errUnmarshalUserInfo))
+	}
+
+	authInfo := &auth.AuthInfo{
+		Faceit: &auth.FaceitAuthInfo{
+			Token:    tok,
+			UserInfo: userInfo,
+		},
+	}
+
+	errCookie := auth.SetAuthCookie(auth.AuthCookieName, authInfo, w)
+	if errCookie != nil {
+		log.L().Error("failed to set the auth cookie", zap.Error(errCookie))
+	}
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+}
+
 func (f *FaceitClient) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// authCookie, err := auth.GetAuthCookie(auth.AuthCookieName, r.Response.Request, &auth.AuthInfo{})
+	ctx := r.Context()
+	// authCookie, err := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
 	// if err != nil {
-	// 	log.L().Info("some error getting the cookie, why???", zap.Error(err))
+	// 	log.L().Info("failed to get auth cookie", zap.Error(err))
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	return
 	// }
 
-	reqUrl := fmt.Sprintf("%s/%s", faceitApiUrlBase, r.URL.String())
+	reqUrl := fmt.Sprintf("%s/%s", faceitOpenApiUrlBase, r.URL.String())
 
 	log.L().Debug("Proxying request to faceit", zap.String("url", reqUrl))
 
-	proxyReq, errProxyReq := f.createRequest(reqUrl, true)
+	proxyReq, errProxyReq := http.NewRequestWithContext(ctx, r.Method, reqUrl, nil)
+	proxyReq.Header.Set("Authorization", "Bearer "+f.apiKey)
 	if errProxyReq != nil {
 		log.L().Error("failed to create faceit proxy request", zap.Error(errProxyReq))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	proxyResponse, errProxyDoReq := f.doRequest(proxyReq, false)
+
+	proxyResponse, errProxyDoReq := f.httpClient.Do(proxyReq)
 	if errProxyDoReq != nil {
 		log.L().Error("failed to request faceit", zap.Error(errProxyDoReq))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -70,6 +152,9 @@ func (f *FaceitClient) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if proxyResponse.StatusCode != http.StatusOK {
+			log.L().Debug("non ok status code to faceit api", zap.Int("code", proxyResponse.StatusCode))
+		}
 		w.WriteHeader(proxyResponse.StatusCode)
 		if _, errWrite := w.Write(proxyResponseContent); errWrite != nil {
 			log.L().Error("failed to write faceit proxy response", zap.Error(errWrite))
@@ -77,6 +162,7 @@ func (f *FaceitClient) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
+		log.L().Info("empty body? how so ?", zap.Int("code", proxyResponse.StatusCode))
 		w.WriteHeader(proxyResponse.StatusCode)
 	}
 }
@@ -100,7 +186,7 @@ func (f *FaceitClient) DemoStream(matchId string) (io.ReadCloser, error) {
 }
 
 func (f *FaceitClient) getDemoUrl(matchId string) (string, error) {
-	url := fmt.Sprintf("%s/matches/%s", faceitApiUrlBase, matchId)
+	url := fmt.Sprintf("%s/matches/%s", faceitOpenApiUrlBase, matchId)
 	// log.Printf("requesting url '%s'", url)
 	req, reqErr := f.createRequest(url, true)
 	if reqErr != nil {
@@ -144,7 +230,6 @@ func (f *FaceitClient) createRequest(url string, auth bool) (*http.Request, erro
 }
 
 func (f *FaceitClient) doRequest(req *http.Request, expect200 bool) (*http.Response, error) {
-
 	var resp *http.Response
 	for i := 0; i < 3; i++ {
 		var err error
