@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"context"
+	"crypto/tls"
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/log"
 	"encoding/json"
@@ -24,8 +26,7 @@ func NewFaceitAuth(config *conf.Conf) *FaceitAuth {
 			AuthURL:  "https://accounts.faceit.com",
 			TokenURL: "https://api.faceit.com/auth/v1/oauth/token",
 		},
-		Scopes:      []string{"openid"},
-		RedirectURL: "https://2d.sparko.cz/auth/faceit/callback", // TODO: config option
+		Scopes: []string{"openid"},
 	}
 
 	return &FaceitAuth{
@@ -47,14 +48,21 @@ func (fa *FaceitAuth) FaceitLoginHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (fa *FaceitAuth) FaceitOAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	// we need to set insecure here, because faceit is using some weird CA
+	// would be nice to fix, but who kers now (haha)
+	ctx := context.WithValue(r.Context(), oauth2.HTTPClient, &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		}})
 
 	code := r.URL.Query().Get("code")
 	tok, err := fa.oauthConfig.Exchange(ctx, code)
 	if err != nil {
 		log.L().Error("failed to exchange oauth", zap.Error(err))
 	}
-	log.L().Info("faceit token", zap.Any("token", tok.TokenType))
+	log.L().Info("faceit token", zap.Any("token", tok.TokenType), zap.Any("expiry", tok.Expiry))
 
 	client := fa.oauthConfig.Client(ctx, tok)
 	resp, err := client.Get("https://api.faceit.com/auth/v1/resources/userinfo")
