@@ -23,7 +23,10 @@ func Init(config *conf.Conf) {
 }
 
 func Close() {
-	logger.Sync()
+	errClose := logger.Sync()
+	if errClose != nil {
+		panic(errClose)
+	}
 }
 
 func L() *zap.Logger {

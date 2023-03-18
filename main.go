@@ -18,13 +18,11 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
 	"go.uber.org/zap"
-	"golang.org/x/oauth2"
 	"google.golang.org/protobuf/proto"
 )
 
 var config *conf.Conf
 var faceitClient *faceit.FaceitClient
-var faceitOAuthConfig *oauth2.Config
 
 func main() {
 	config = &conf.Conf{}
@@ -92,7 +90,9 @@ func server() {
 	mux.HandleFunc("/faceitClientKey", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte(config.FaceitClientApiKey))
+		if _, errWrite := w.Write([]byte(config.FaceitClientApiKey)); errWrite != nil {
+			log.L().Error("failed to write faceit apikey bytes", zap.Error(errWrite))
+		}
 	})
 
 	// faceit auth
