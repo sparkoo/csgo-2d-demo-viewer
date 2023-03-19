@@ -234,10 +234,14 @@ function listMatches(nickname) {
             <span>Failed to parse faceit api response '{reason.message}'</span>,
             document.getElementById("searchNote")))
       } else {
-        ReactDOM.render(
-          <span>player '{nickname}' does not exist on faceit ...</span>,
-          document.getElementById("searchNote")
-        )
+        let updateAgain = function() {
+          listMatches(nickname)
+        }
+        setTimeout(updateAgain, 1000)
+        // ReactDOM.render(
+        //   <span>player '{nickname}' does not exist on faceit ...</span>,
+        //   document.getElementById("searchNote")
+        // )
       }
     })
     .catch(reason => {
