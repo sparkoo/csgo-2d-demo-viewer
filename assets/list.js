@@ -235,8 +235,8 @@ function listMatches(nickname) {
             document.getElementById("searchNote")))
       } else {
         let updateAgain = function() {
-          listMatches(nickname)
-        }
+          this.listMatches(nickname)
+        }.bind(this)
         setTimeout(updateAgain, 1000)
         // ReactDOM.render(
         //   <span>player '{nickname}' does not exist on faceit ...</span>,
@@ -263,7 +263,11 @@ function fetchMatches(playerId) {
       if (response.ok) {
         return response.json()
       } else {
-        return this.fetchMatches(playerId)
+        let updateAgain = function() {
+          listMatches(nickname)
+        }
+        setTimeout(updateAgain, 1000)
+        this.fetchMatches(playerId)
       }
     })
     .then(matchesResponse => {
