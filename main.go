@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/auth"
+	"csgo-2d-demo-player/pkg/list"
 	"csgo-2d-demo-player/pkg/log"
 	"csgo-2d-demo-player/pkg/message"
 	"csgo-2d-demo-player/pkg/parser"
@@ -86,6 +87,9 @@ func server() {
 			http.Error(writer, err.Error(), 500)
 		}
 	})
+
+	listService := list.ListService{}
+	mux.HandleFunc("/matches/list", listService.ListMatches)
 
 	// faceit auth
 	mux.HandleFunc("/auth/faceit/login", faceitClient.FaceitLoginHandler)
