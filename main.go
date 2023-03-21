@@ -88,13 +88,51 @@ func server() {
 		}
 	})
 
-	listService := list.ListService{}
+	listService := list.ListService{
+		Conf: config,
+	}
 	mux.HandleFunc("/match/list", listService.ListMatches)
 
 	// faceit auth
 	mux.HandleFunc("/auth/faceit/login", faceitClient.FaceitLoginHandler)
 	mux.HandleFunc("/auth/faceit/callback", faceitClient.FaceitOAuthCallbackHandler)
 	mux.HandleFunc("/auth/faceit/logout", faceitClient.FaceitLogoutHandler)
+	mux.HandleFunc("/auth/whoami", func(w http.ResponseWriter, r *http.Request) {
+		if config.Mode == conf.MODE_DEV {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+
+		authCookie, err := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
+		if err != nil {
+			log.L().Info("some error getting the cookie, why???", zap.Error(err))
+			// http.Error(writer, err.Error(), 500)
+		}
+		type whoamiInfo struct {
+			FaceitNickname string
+			FaceitGuid     string
+		}
+		whoami := whoamiInfo{}
+		if authCookie != nil {
+			whoami.FaceitNickname = authCookie.Faceit.UserInfo.Nickname
+			whoami.FaceitGuid = authCookie.Faceit.UserInfo.Guid
+		}
+		// whoami := struct {
+		// 	FaceitNickname string
+		// 	FaceitGuid     string
+		// }{
+		// 	FaceitNickname: authCookie.Faceit.UserInfo.Nickname,
+		// 	FaceitGuid:     authCookie.Faceit.UserInfo.Guid,
+		// }
+		if whoamiJson, errMarshal := json.Marshal(whoami); errMarshal != nil {
+			log.L().Error("failed to marshall whoami info", zap.Error(errMarshal))
+		} else {
+			_, errWrite := w.Write(whoamiJson)
+			if errWrite != nil {
+				log.L().Error("failed to write response", zap.Error(errWrite))
+				w.WriteHeader(http.StatusServiceUnavailable)
+			}
+		}
+	})
 	mux.Handle("/faceit/api/", http.StripPrefix("/faceit/api/", faceitClient))
 
 	playerFileServer := http.FileServer(http.Dir("web/player/build"))

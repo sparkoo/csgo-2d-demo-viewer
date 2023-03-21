@@ -11,11 +11,11 @@ import (
 )
 
 type ListService struct {
-	conf *conf.Conf
+	Conf *conf.Conf
 }
 
 func (s *ListService) ListMatches(w http.ResponseWriter, r *http.Request) {
-	if s.conf.Mode == conf.MODE_DEV {
+	if s.Conf.Mode == conf.MODE_DEV {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 	}
 
