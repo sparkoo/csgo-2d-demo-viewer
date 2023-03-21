@@ -89,7 +89,7 @@ func server() {
 	})
 
 	listService := list.ListService{}
-	mux.HandleFunc("/matches/list", listService.ListMatches)
+	mux.HandleFunc("/match/list", listService.ListMatches)
 
 	// faceit auth
 	mux.HandleFunc("/auth/faceit/login", faceitClient.FaceitLoginHandler)

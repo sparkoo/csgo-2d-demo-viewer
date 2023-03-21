@@ -1,6 +1,7 @@
 package list
 
 import (
+	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/log"
 	"encoding/json"
 	"net/http"
@@ -10,9 +11,14 @@ import (
 )
 
 type ListService struct {
+	conf *conf.Conf
 }
 
 func (s *ListService) ListMatches(w http.ResponseWriter, r *http.Request) {
+	if s.conf.Mode == conf.MODE_DEV {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	}
+
 	matches := []MatchInfo{
 		{
 			Id:       "ahahaha",

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 function App() {
     const [posts, setPosts] = useState([]);
     useEffect(() => {
-      fetch('https://jsonplaceholder.typicode.com/posts?_limit=10')
+      fetch('http://localhost:8080/match/list')
         .then((response) => response.json())
         .then((data) => {
           console.log(data);
@@ -27,10 +27,10 @@ function App() {
               <div class="w3-container w3-xlarge w3-light-grey">
                 <div>
                   {/* {{ if .AuthCookie }} */}
-                  <a href="https://www.faceit.com/en/players/{{.AuthCookie}}" target="_blank"><img src="/assets/faceit-logo.svg" height="50" /><span id="faceitNickname">labol</span></a>
+                  <a href="https://www.faceit.com/en/players/{{.AuthCookie}}" target="_blank" rel="noreferrer"><img src="/assets/faceit-logo.svg" alt="faceit-logo" height="50" /><span id="faceitNickname">labol</span></a>
                   <a class="material-icons w3-large" href="/auth/faceit/logout">logout</a>
                   {/* {{ else}} */}
-                  <a href="/auth/faceit/login"><img src="/assets/faceit-logo.svg" height="50" />Connect FACEIT account</a>
+                  <a href="/auth/faceit/login"><img src="/assets/faceit-logo.svg" height="50" alt="faceit-logo" />Connect FACEIT account</a>
                   {/* {{ end }} */}
                 </div>
               </div>
