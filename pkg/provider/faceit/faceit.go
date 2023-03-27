@@ -57,11 +57,11 @@ var ErrorNoDemo = errors.New("no demo found for this match")
 
 func (f *FaceitClient) FaceitLogoutHandler(w http.ResponseWriter, r *http.Request) {
 	auth.ClearCookie(auth.AuthCookieName, w)
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, r.Header.Get("Referer"), http.StatusTemporaryRedirect)
 }
 
 func (f *FaceitClient) FaceitLoginHandler(w http.ResponseWriter, r *http.Request) {
-	url := f.oauthConfig.AuthCodeURL("state")
+	url := f.oauthConfig.AuthCodeURL(r.Header.Get("Referer"))
 	url += "&redirect_popup=true"
 	fmt.Printf("Visit the URL for the auth dialog: %v", url)
 
@@ -113,17 +113,11 @@ func (f *FaceitClient) FaceitOAuthCallbackHandler(w http.ResponseWriter, r *http
 	if errCookie != nil {
 		log.L().Error("failed to set the auth cookie", zap.Error(errCookie))
 	}
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, r.URL.Query().Get("state"), http.StatusTemporaryRedirect)
 }
 
 func (f *FaceitClient) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	// authCookie, err := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
-	// if err != nil {
-	// 	log.L().Info("failed to get auth cookie", zap.Error(err))
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
 
 	reqUrl := fmt.Sprintf("%s/%s", faceitOpenApiUrlBase, r.URL.String())
 

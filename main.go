@@ -99,7 +99,8 @@ func server() {
 	mux.HandleFunc("/auth/faceit/logout", faceitClient.FaceitLogoutHandler)
 	mux.HandleFunc("/auth/whoami", func(w http.ResponseWriter, r *http.Request) {
 		if config.Mode == conf.MODE_DEV {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
 
 		authCookie, err := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
@@ -107,22 +108,17 @@ func server() {
 			log.L().Info("some error getting the cookie, why???", zap.Error(err))
 			// http.Error(writer, err.Error(), 500)
 		}
+		log.L().Info("cookie", zap.Any("cok", authCookie))
 		type whoamiInfo struct {
-			FaceitNickname string
-			FaceitGuid     string
+			FaceitNickname string `json:"faceitNickname,omitempty"`
+			FaceitGuid     string `json:"faceitGuid,omitempty"`
 		}
 		whoami := whoamiInfo{}
 		if authCookie != nil {
 			whoami.FaceitNickname = authCookie.Faceit.UserInfo.Nickname
 			whoami.FaceitGuid = authCookie.Faceit.UserInfo.Guid
 		}
-		// whoami := struct {
-		// 	FaceitNickname string
-		// 	FaceitGuid     string
-		// }{
-		// 	FaceitNickname: authCookie.Faceit.UserInfo.Nickname,
-		// 	FaceitGuid:     authCookie.Faceit.UserInfo.Guid,
-		// }
+
 		if whoamiJson, errMarshal := json.Marshal(whoami); errMarshal != nil {
 			log.L().Error("failed to marshall whoami info", zap.Error(errMarshal))
 		} else {
