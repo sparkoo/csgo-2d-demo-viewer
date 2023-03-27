@@ -1,5 +1,6 @@
 import './App.css';
 import { useState, useEffect } from 'react';
+import MatchTable from './MatchTable/MatchTable';
 
 function App() {
   const [auth, setAuth] = useState([]);
@@ -7,6 +8,7 @@ function App() {
   const [content, setContent] = useState([]);
 
   useEffect(() => {
+    setContent(<span className="material-icons w3-xxxlarge rotate">autorenew</span>)
     fetch(serverHost + "/auth/whoami", {credentials: "include"})
     .then(response => response.json())
     .then(data => {
@@ -14,7 +16,7 @@ function App() {
       if (Object.keys(data).length > 0) {
         setContent(<MatchTable auth={auth} serverHost={serverHost} />)
       } else {
-        setContent(<span className="material-icons w3-xxxlarge rotate">autorenew</span>)
+        setContent()
       }
     })
   }, [serverHost])
@@ -63,67 +65,6 @@ function App() {
       </div>
     </div>
   );
-}
-
-const MatchTable = (props) => {
-  const [matches, setMatches] = useState([]);
-  const [loaded, setLoaded] = useState([]);
-
-  useEffect(() => {
-    fetch(props.serverHost + '/match/list')
-    .then((response) => response.json())
-    .then((data) => {
-      setLoaded(true)
-      console.log(data)
-      setMatches(data)
-    })
-    .catch((err) => {
-      console.log(err.message);
-    });
-  }, [loaded])
-
-  return (
-    <table className="w3-table-all w3-centered w3-hoverable" id="matchList">
-      <tbody>
-        {matches.map(match => (
-          <MatchRow key={match.matchId} details={match} />
-        ))}
-      </tbody>
-    </table>
-  )
-}
-
-const MatchRow = (props) => {
-  return (
-    <tr className="w3-hover-gray w3-medium">
-      <td className="w3-col l2">
-        {props.details.dateTime}
-      </td>
-      <td className="w3-col l1">
-        {props.details.map}
-      </td>
-      <td className="w3-col l2 w3-centered">
-        {props.details.type}
-      </td>
-      <td className="w3-col l2 w3-right-align">
-        {props.details.teamA}
-      </td>
-      <td className={"w3-col l1 " + (true ? "w3-green" : "w3-red")}>
-        {props.details.scoreA} : {props.details.scoreB}
-      </td>
-      <td className="w3-col l2 w3-left-align">
-        {props.details.teamB}
-      </td>
-      <td className="w3-col l2 actionButtons w3-right-align">
-        {props.details.demoLink}
-        <a href={props.details.matchId}
-          target="_blank"
-          className="material-icons w3-hover-text-deep-orange">table_chart</a>
-        <a href={props.details.matchId} target="_blank"
-          className="material-icons w3-hover-text-amber">play_circle_outline</a>
-      </td>
-    </tr>
-  )
 }
 
 export default App;
