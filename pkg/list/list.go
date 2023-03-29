@@ -47,5 +47,8 @@ func (s *ListService) ListMatches(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write(matchesJson)
+	if _, errWrite := w.Write(matchesJson); errWrite != nil {
+		log.L().Error("failed to write matches response", zap.Error(errWrite))
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
