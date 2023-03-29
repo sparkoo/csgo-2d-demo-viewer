@@ -3,19 +3,21 @@ import MatchRow from './MatchRow';
 
 const MatchTable = (props) => {
   const [matches, setMatches] = useState([]);
-  const [loaded, setLoaded] = useState([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch(props.serverHost + '/match/list')
-    .then((response) => response.json())
-    .then((data) => {
-      setLoaded(true)
-      console.log(data)
-      setMatches(data)
-    })
-    .catch((err) => {
-      console.log(err.message);
-    });
+    if (!loaded) {
+      fetch(props.serverHost + '/match/list')
+      .then((response) => response.json())
+      .then((data) => {
+        setLoaded(true)
+        console.log(data)
+        setMatches(data)
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+    }
   }, [loaded])
 
   return (
