@@ -7,7 +7,7 @@ const MatchTable = (props) => {
 
   useEffect(() => {
     if (!loaded) {
-      fetch(props.serverHost + '/match/list')
+      fetch(props.serverHost + '/match/list', {credentials: "include"})
       .then((response) => response.json())
       .then((data) => {
         setLoaded(true)

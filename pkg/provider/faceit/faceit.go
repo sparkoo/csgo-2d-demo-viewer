@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/auth"
+	"csgo-2d-demo-player/pkg/list/match"
 	"csgo-2d-demo-player/pkg/log"
 	"encoding/json"
 	"errors"
@@ -158,6 +159,29 @@ func (f *FaceitClient) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		log.L().Info("empty body? how so ?", zap.Int("code", proxyResponse.StatusCode))
 		w.WriteHeader(proxyResponse.StatusCode)
+	}
+}
+
+func (f *FaceitClient) ListMatches(authInfo *auth.FaceitAuthInfo) []match.MatchInfo {
+	return []match.MatchInfo{
+		{
+			Id:       "ahahaha",
+			DateTime: time.Now().String(),
+			Map:      "de_inferno",
+			TeamA:    "Lofu",
+			TeamB:    "Bofu",
+			ScoreA:   16,
+			ScoreB:   6,
+		},
+		{
+			Id:       "ehehe",
+			DateTime: time.Now().Add(-2 * time.Hour).String(),
+			Map:      "de_nuke",
+			TeamA:    "Lofu",
+			TeamB:    "Bofu 2",
+			ScoreA:   4,
+			ScoreB:   16,
+		},
 	}
 }
 

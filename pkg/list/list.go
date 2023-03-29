@@ -2,43 +2,39 @@ package list
 
 import (
 	"csgo-2d-demo-player/conf"
+	"csgo-2d-demo-player/pkg/auth"
 	"csgo-2d-demo-player/pkg/log"
+	"csgo-2d-demo-player/pkg/provider/faceit"
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"go.uber.org/zap"
 )
 
 type ListService struct {
-	Conf *conf.Conf
+	Conf         *conf.Conf
+	FaceitClient *faceit.FaceitClient
 }
 
 func (s *ListService) ListMatches(w http.ResponseWriter, r *http.Request) {
 	if s.Conf.Mode == conf.MODE_DEV {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
 	}
 
-	matches := []MatchInfo{
-		{
-			Id:       "ahahaha",
-			DateTime: time.Now().String(),
-			Map:      "de_inferno",
-			TeamA:    "Lofu",
-			TeamB:    "Bofu",
-			ScoreA:   16,
-			ScoreB:   6,
-		},
-		{
-			Id:       "ehehe",
-			DateTime: time.Now().Add(-2 * time.Hour).String(),
-			Map:      "de_nuke",
-			TeamA:    "Lofu",
-			TeamB:    "Bofu 2",
-			ScoreA:   4,
-			ScoreB:   16,
-		},
+	authInfo, errAuth := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
+	if errAuth != nil {
+		log.L().Error("failed to get auth cookie when listing matches", zap.Error(errAuth))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
+	if authInfo == nil {
+		log.L().Error("authInfo is nil when listing matches")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	matches := s.FaceitClient.ListMatches(authInfo.Faceit)
 
 	matchesJson, errJson := json.Marshal(matches)
 	if errJson != nil {

@@ -1,4 +1,4 @@
-package list
+package match
 
 type MatchInfo struct {
 	Id           string    `json:"matchId"`
