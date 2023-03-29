@@ -11,7 +11,6 @@ import (
 	"csgo-2d-demo-player/pkg/provider/faceit"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 
@@ -55,38 +54,9 @@ func handleMessages(in chan []byte, out chan []byte) {
 func server() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		// we want just /
-		if request.URL.Path != "/" {
-			http.Error(writer, "", 404)
-			return
-		}
-
-		temp, err := template.ParseFiles("templates/list.html")
-		if err != nil {
-			http.Error(writer, err.Error(), 500)
-		}
-
-		authCookie, err := auth.GetAuthCookie(auth.AuthCookieName, request, &auth.AuthInfo{})
-		if err != nil {
-			log.L().Info("some error getting the cookie, why???", zap.Error(err))
-			// http.Error(writer, err.Error(), 500)
-		}
-		// log.L().Info("auth cookie " + authCookie.String())
-
-		nickname := ""
-		if authCookie != nil {
-			nickname = authCookie.Faceit.UserInfo.Nickname
-		}
-		listData := struct {
-			AuthCookie string
-		}{
-			AuthCookie: nickname,
-		}
-		if temp.Execute(writer, listData) != nil {
-			http.Error(writer, err.Error(), 500)
-		}
-	})
+	mux.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
+	mux.Handle("/", http.FileServer(http.Dir("web/index/build")))
+	mux.Handle("/player/", http.StripPrefix("/player", http.FileServer(http.Dir("web/player/build"))))
 
 	listService := list.ListService{
 		Conf: config,
@@ -130,12 +100,6 @@ func server() {
 		}
 	})
 	mux.Handle("/faceit/api/", http.StripPrefix("/faceit/api/", faceitClient))
-
-	playerFileServer := http.FileServer(http.Dir("web/player/build"))
-	mux.Handle("/player/", http.StripPrefix("/player", playerFileServer))
-
-	assetsFileServer := http.FileServer(http.Dir("./assets"))
-	mux.Handle("/assets/", http.StripPrefix("/assets", assetsFileServer))
 
 	mux.HandleFunc("/ws", func(writer http.ResponseWriter, request *http.Request) {
 		// Upgrade our raw HTTP connection to a websocket based one
