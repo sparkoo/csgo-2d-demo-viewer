@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -163,26 +164,71 @@ func (f *FaceitClient) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (f *FaceitClient) ListMatches(authInfo *auth.FaceitAuthInfo) []match.MatchInfo {
-	return []match.MatchInfo{
-		{
-			Id:       "ahahaha",
-			DateTime: time.Now().String(),
-			Map:      "de_inferno",
-			TeamA:    "Lofu",
-			TeamB:    "Bofu",
-			ScoreA:   16,
-			ScoreB:   6,
-		},
-		{
-			Id:       "ehehe",
-			DateTime: time.Now().Add(-2 * time.Hour).String(),
-			Map:      "de_nuke",
-			TeamA:    "Lofu",
-			TeamB:    "Bofu 2",
-			ScoreA:   4,
-			ScoreB:   16,
-		},
+	matches, err := f.listMatches(authInfo.UserInfo.Guid, 30)
+	if err != nil {
+		log.L().Error("failed t olist faceit matches", zap.Error(err))
 	}
+	return matches
+}
+
+func (f *FaceitClient) listMatches(userGuid string, limit int) ([]match.MatchInfo, error) {
+	req, errReq := f.createRequest(fmt.Sprintf("%s/players/%s/history?game=csgo&limit=%d", faceitOpenApiUrlBase, userGuid, limit), true)
+	if errReq != nil {
+		return nil, fmt.Errorf("failed to create list matches request: %w", errReq)
+	}
+
+	resp, errDoReq := f.doRequest(req, 200, 3)
+	if errDoReq != nil {
+		return nil, fmt.Errorf("failed to do list matches request: %w", errDoReq)
+	}
+
+	respBody, errRead := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if errRead != nil {
+		return nil, fmt.Errorf("failed to read list matches response body: %w", errRead)
+	}
+
+	data := MatchData{}
+	errUnmarshall := json.Unmarshal(respBody, &data)
+	if errUnmarshall != nil {
+		return nil, fmt.Errorf("failed to unmarshall list matches response body: %w", errUnmarshall)
+	}
+
+	return convert(data), nil
+}
+
+func convert(matchData MatchData) []match.MatchInfo {
+	matches := []match.MatchInfo{}
+	for _, m := range matchData.Items {
+		if m.GameMode != "5v5" || m.StartedAt == m.FinishedAt {
+			continue
+		}
+		tm := time.Unix(m.StartedAt, 0)
+		match := match.MatchInfo{
+			Id:           m.MatchID,
+			Host:         "faceit",
+			DateTime:     tm.Local().Format("2006-01-02 15:04:05"),
+			Type:         m.CompetitionName,
+			TeamA:        m.Teams[TeamAKey].Nickname,
+			ScoreA:       int(m.Results.Score[TeamAKey]),
+			TeamAPlayers: mapPlayerIds(m.Teams[TeamAKey].Players),
+			TeamB:        m.Teams[TeamBKey].Nickname,
+			ScoreB:       int(m.Results.Score[TeamBKey]),
+			TeamBPlayers: mapPlayerIds(m.Teams[TeamBKey].Players),
+			MatchLink:    strings.Replace(m.FaceitURL, "{lang}", "en", 1),
+		}
+		// log.L().Info("converted", zap.Any("match", match))
+		matches = append(matches, match)
+	}
+	return matches
+}
+
+func mapPlayerIds(players []Player) []string {
+	playerIds := []string{}
+	for _, pid := range players {
+		playerIds = append(playerIds, pid.PlayerID)
+	}
+	return playerIds
 }
 
 func (f *FaceitClient) DemoStream(matchId string) (io.ReadCloser, error) {
@@ -196,11 +242,11 @@ func (f *FaceitClient) DemoStream(matchId string) (io.ReadCloser, error) {
 	if reqErr != nil {
 		return nil, reqErr
 	}
-	reader, doReqErr := f.doRequestStream(req)
+	resp, doReqErr := f.doRequest(req, 200, 3)
 	if doReqErr != nil {
 		return nil, doReqErr
 	}
-	return reader, nil
+	return resp.Body, nil
 }
 
 func (f *FaceitClient) getDemoUrl(matchId string) (string, error) {
@@ -212,7 +258,7 @@ func (f *FaceitClient) getDemoUrl(matchId string) (string, error) {
 	}
 	q := req.URL.Query()
 	req.URL.RawQuery = q.Encode()
-	resp, doReqErr := f.doRequest(req, true)
+	resp, doReqErr := f.doRequest(req, 200, 3)
 	if doReqErr != nil {
 		return "", doReqErr
 	}
@@ -247,40 +293,19 @@ func (f *FaceitClient) createRequest(url string, auth bool) (*http.Request, erro
 	return req, nil
 }
 
-func (f *FaceitClient) doRequest(req *http.Request, expect200 bool) (*http.Response, error) {
+func (f *FaceitClient) doRequest(req *http.Request, expectCode int, retries int) (*http.Response, error) {
 	var resp *http.Response
-	for i := 0; i < 3; i++ {
+	for i := 0; i < retries; i++ {
 		var err error
 		resp, err = f.httpClient.Do(req)
 		if err != nil {
 			return nil, err
 		}
-		if !expect200 {
-			break
+		if resp.StatusCode == expectCode {
+			return resp, nil
 		}
-		if resp.StatusCode == 200 {
-			break
-		}
-		log.Printf("response code '%d'", resp.StatusCode)
+		log.Printf("response code '%d' but expected '%d', trying again '%d/%d'", resp.StatusCode, expectCode, i, retries)
 	}
 
-	return resp, nil
-}
-
-func (f *FaceitClient) doRequestStream(req *http.Request) (io.ReadCloser, error) {
-	var resp *http.Response
-	for i := 0; i < 3; i++ {
-		var err error
-		resp, err = f.httpClient.Do(req)
-		if err != nil {
-			return nil, err
-		}
-		if resp.StatusCode == 200 {
-			return resp.Body, nil
-		}
-		log.Printf("failed request '%+v', resp '%+v'", req, resp)
-		resp.Body.Close()
-	}
-
-	return nil, fmt.Errorf("failed 3 times to do a request")
+	return resp, fmt.Errorf("failed request with code '%d'", resp.StatusCode)
 }
