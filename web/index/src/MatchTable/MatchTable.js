@@ -23,7 +23,7 @@ const MatchTable = (props) => {
     <table className="w3-table-all w3-centered w3-hoverable" id="matchList">
       <tbody>
         {matches.map(match => (
-          <MatchRow key={match.matchId} details={match} />
+          <MatchRow key={match.matchId} details={match} auth={props.auth} />
         ))}
       </tbody>
     </table>

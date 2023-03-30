@@ -9,24 +9,24 @@ function App() {
 
   useEffect(() => {
     if (Object.keys(auth).length > 0) {
+      setContent(<MatchTable auth={auth} serverHost={serverHost} />)
       return
     }
     setContent(<span className="material-icons w3-xxxlarge rotate">autorenew</span>)
 
-    fetch(serverHost + "/auth/whoami", {credentials: "include"})
-    .then(response => response.json())
-    .then(data => {
-      if (Object.keys(data).length > 0) {
-        setAuth(data)
-        setContent(<MatchTable auth={auth} serverHost={serverHost} />)
-      } else {
-        setContent(<span className="w3-xxxlarge rotate">Connect account first</span>)
-      }
-    })
-    .catch(err => {
-      console.log(err)
-      setContent(<span className="w3-xxxlarge rotate">failed to contact server ...</span>)
-    })
+    fetch(serverHost + "/auth/whoami", { credentials: "include" })
+      .then(response => response.json())
+      .then(data => {
+        if (Object.keys(data).length > 0) {
+          setAuth(data)
+        } else {
+          setContent(<span className="w3-xxxlarge rotate">Connect account first</span>)
+        }
+      })
+      .catch(err => {
+        console.log(err)
+        setContent(<span className="w3-xxxlarge rotate">failed to contact server ...</span>)
+      })
   }, [serverHost, auth])
 
   let loginBar = (<a href={serverHost + "/auth/faceit/login"}><img src="/assets/faceit-logo.svg" height="50" alt="faceit-logo" />Connect FACEIT account</a>)

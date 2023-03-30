@@ -1,4 +1,17 @@
 const MatchRow = (props) => {
+  let winner = false
+  let winnerTeam = []
+  if (props.details.scoreA > props.details.scoreB) {
+    winnerTeam = props.details.teamAPlayers
+  } else {
+    winnerTeam = props.details.teamBPlayers
+  }
+  winnerTeam.forEach(pId => {
+    if (pId === props.auth.faceitGuid) {
+      winner = true
+    }
+  });
+
   return (
     <tr className="w3-hover-gray w3-medium">
       <td className="w3-col l2 w3-left-align">
@@ -11,7 +24,7 @@ const MatchRow = (props) => {
       <td className="w3-col l2 w3-right-align">
         {props.details.teamA}
       </td>
-      <td className={"w3-col l1 " + (true ? "w3-green" : "w3-red")}>
+      <td className={"w3-col l1 " + (winner ? "w3-green" : "w3-red")}>
         {props.details.scoreA} : {props.details.scoreB}
       </td>
       <td className="w3-col l2 w3-left-align">
