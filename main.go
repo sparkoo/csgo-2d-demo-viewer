@@ -79,7 +79,7 @@ func server() {
 			log.L().Info("some error getting the cookie, why???", zap.Error(err))
 			// http.Error(writer, err.Error(), 500)
 		}
-		log.L().Info("cookie", zap.Any("cok", authCookie))
+		// log.L().Info("cookie", zap.Any("cok", authCookie))
 		type whoamiInfo struct {
 			FaceitNickname string `json:"faceitNickname,omitempty"`
 			FaceitGuid     string `json:"faceitGuid,omitempty"`

@@ -2,12 +2,6 @@ a:hover {
   text-shadow: 0 0 2px gray;
 }
 
-.rotate {
-  animation: rotation 1s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
 a {
   text-decoration-line: none;
 }

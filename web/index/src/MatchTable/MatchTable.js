@@ -5,15 +5,19 @@ const MatchTable = (props) => {
   const [matches, setMatches] = useState([]);
 
   useEffect(() => {
+    if (matches.length > 0) {
+      return
+    }
     fetch(props.serverHost + '/match/list', { credentials: "include" })
       .then((response) => response.json())
       .then((data) => {
+        console.log("got", data)
         setMatches(data)
       })
       .catch((err) => {
-        console.log(err.message);
+        console.log("failed to request matches", err.message);
       });
-  }, [props.serverHost, matches])
+  }, [matches, props.serverHost])
 
   return (
     <table className="w3-table-all w3-centered w3-hoverable" id="matchList">

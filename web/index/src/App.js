@@ -8,11 +8,10 @@ function App() {
   const [content, setContent] = useState([]);
 
   useEffect(() => {
-    setContent(<span className="material-icons w3-xxxlarge rotate">autorenew</span>)
-
     if (Object.keys(auth).length > 0) {
       return
     }
+    setContent(<span className="material-icons w3-xxxlarge rotate">autorenew</span>)
 
     fetch(serverHost + "/auth/whoami", {credentials: "include"})
     .then(response => response.json())

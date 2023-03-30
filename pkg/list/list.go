@@ -17,6 +17,7 @@ type ListService struct {
 }
 
 func (s *ListService) ListMatches(w http.ResponseWriter, r *http.Request) {
+	log.L().Debug("listing matches")
 	if s.Conf.Mode == conf.MODE_DEV {
 		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
