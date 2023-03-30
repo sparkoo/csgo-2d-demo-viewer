@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import MatchRow from './MatchRow';
 
 const MatchTable = (props) => {
@@ -23,7 +23,7 @@ const MatchTable = (props) => {
     <table className="w3-table-all w3-centered w3-hoverable" id="matchList">
       <tbody>
         {matches.map(match => (
-          <MatchRow key={match.matchId} details={match} auth={props.auth} />
+          <MatchRow key={match.matchId} details={match} auth={props.auth} serverHost={props.serverHost} />
         ))}
       </tbody>
     </table>

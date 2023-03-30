@@ -1,10 +1,14 @@
+import { useEffect, useState } from 'react';
+
 const MatchRow = (props) => {
+  const [match, setMatch] = useState(props.details)
+
   let winner = false
   let winnerTeam = []
-  if (props.details.scoreA > props.details.scoreB) {
-    winnerTeam = props.details.teamAPlayers
+  if (match.scoreA > match.scoreB) {
+    winnerTeam = match.teamAPlayers
   } else {
-    winnerTeam = props.details.teamBPlayers
+    winnerTeam = match.teamBPlayers
   }
   winnerTeam.forEach(pId => {
     if (pId === props.auth.faceitGuid) {
@@ -12,33 +16,49 @@ const MatchRow = (props) => {
     }
   });
 
+  console.log("tak co ?")
+  useEffect(() => {
+
+    console.log("tak cofff ?")
+    fetch(`${props.serverHost}/match/detail?platform=${match.hostPlatform}&matchId=${match.matchId}`, {
+      credentials: "include", method: "POST", body: JSON.stringify(match)
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("got", data)
+      })
+      .catch((err) => {
+        console.log("failed to request matches", err.message);
+      });
+  }, [match])
+
   return (
     <tr className="w3-hover-gray w3-medium">
       <td className="w3-col l2 w3-left-align">
         <img src="/assets/faceit-logo.svg" className="w3-margin-right" alt="faceit-logo" height="32" />
-        {props.details.dateTime}
+        {match.dateTime}
       </td>
       <td className="w3-col l2">
-        {props.details.map}
+        {match.map}
       </td>
       <td className="w3-col l2 w3-right-align">
-        {props.details.teamA}
+        {match.teamA}
       </td>
       <td className={"w3-col l1 " + (winner ? "w3-green" : "w3-red")}>
-        {props.details.scoreA} : {props.details.scoreB}
+        {match.scoreA} : {match.scoreB}
       </td>
       <td className="w3-col l2 w3-left-align">
-        {props.details.teamB}
+        {match.teamB}
       </td>
       <td className="w3-col l2 w3-centered">
-        {props.details.type}
+        {match.type}
       </td>
       <td className="w3-col l1 actionButtons w3-right-align">
-        {props.details.demoLink}
-        <a href={props.details.matchLink}
+        {match.demoLink}
+        <a href={match.matchLink}
           target="_blank" rel="noreferrer"
           className="material-icons w3-hover-text-deep-orange">table_chart</a>
-        <a href={"/player?matchId=" + props.details.matchId}
+        <a href={"/player?matchId=" + match.matchId}
           target="_blank" rel="noreferrer"
           className="material-icons w3-hover-text-amber">play_circle_outline</a>
       </td>

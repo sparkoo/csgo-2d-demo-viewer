@@ -171,6 +171,41 @@ func (f *FaceitClient) ListMatches(authInfo *auth.FaceitAuthInfo) []match.MatchI
 	return matches
 }
 
+func (f *FaceitClient) MatchDetails(reader io.ReadCloser) (*match.MatchInfo, error) {
+	matchBytes, errRead := io.ReadAll(reader)
+	defer reader.Close()
+	if errRead != nil {
+		return nil, fmt.Errorf("failed to read match detail from request: %w", errRead)
+	}
+	matchInfo := &match.MatchInfo{}
+	if errUnmarshall := json.Unmarshal(matchBytes, matchInfo); errUnmarshall != nil {
+		return nil, fmt.Errorf("failed to unmarshall match detail", errUnmarshall)
+	}
+
+	req, errReq := f.createRequest(fmt.Sprintf("%s/matches/%s/stats", faceitOpenApiUrlBase), true)
+	if errReq != nil {
+		return nil, fmt.Errorf("failed to create list matches request: %w", errReq)
+	}
+	resp, errDoReq := f.doRequest(req, 200, 3)
+	if errDoReq != nil {
+		return nil, fmt.Errorf("failed to do list matches request: %w", errDoReq)
+	}
+	respBody, errRead := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if errRead != nil {
+		return nil, fmt.Errorf("failed to read list matches response body: %w", errRead)
+	}
+
+	data := &GameStats{}
+	errUnmarshall := json.Unmarshal(respBody, data)
+	if errUnmarshall != nil {
+		return nil, fmt.Errorf("failed to unmarshall list matches response body: %w", errUnmarshall)
+	}
+	matchInfo.Map = data.Rounds[0].RoundStats.Map
+
+	return matchInfo, nil
+}
+
 func (f *FaceitClient) listMatches(userGuid string, limit int) ([]match.MatchInfo, error) {
 	req, errReq := f.createRequest(fmt.Sprintf("%s/players/%s/history?game=csgo&limit=%d", faceitOpenApiUrlBase, userGuid, limit), true)
 	if errReq != nil {

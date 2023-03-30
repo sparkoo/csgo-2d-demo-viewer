@@ -63,6 +63,7 @@ func server() {
 		FaceitClient: faceitClient,
 	}
 	mux.HandleFunc("/match/list", listService.ListMatches)
+	mux.HandleFunc("/match/detail", listService.MatchDetails)
 
 	// faceit auth
 	mux.HandleFunc("/auth/faceit/login", faceitClient.FaceitLoginHandler)
