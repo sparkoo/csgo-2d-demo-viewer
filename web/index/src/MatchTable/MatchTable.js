@@ -3,22 +3,17 @@ import MatchRow from './MatchRow';
 
 const MatchTable = (props) => {
   const [matches, setMatches] = useState([]);
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (!loaded) {
-      fetch(props.serverHost + '/match/list', {credentials: "include"})
+    fetch(props.serverHost + '/match/list', { credentials: "include" })
       .then((response) => response.json())
       .then((data) => {
-        setLoaded(true)
-        console.log(data)
         setMatches(data)
       })
       .catch((err) => {
         console.log(err.message);
       });
-    }
-  }, [loaded])
+  }, [props.serverHost, matches])
 
   return (
     <table className="w3-table-all w3-centered w3-hoverable" id="matchList">

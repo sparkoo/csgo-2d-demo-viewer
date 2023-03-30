@@ -23,9 +23,10 @@ const MatchRow = (props) => {
       <td className="w3-col l1 actionButtons w3-right-align">
         {props.details.demoLink}
         <a href={props.details.matchLink}
-          target="_blank"
+          target="_blank" rel="noreferrer"
           className="material-icons w3-hover-text-deep-orange">table_chart</a>
-        <a href={props.details.matchId} target="_blank"
+        <a href={props.details.matchId}
+          target="_blank" rel="noreferrer"
           className="material-icons w3-hover-text-amber">play_circle_outline</a>
       </td>
     </tr>

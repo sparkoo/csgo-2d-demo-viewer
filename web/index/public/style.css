@@ -7,3 +7,7 @@ a:hover {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
+
+a {
+  text-decoration-line: none;
+}
