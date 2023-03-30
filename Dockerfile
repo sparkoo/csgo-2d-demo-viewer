@@ -38,6 +38,7 @@ COPY web/index/package.json .
 COPY web/index/package-lock.json .
 RUN npm install
 
+COPY web/index/.env.production .
 COPY web/index/public public
 COPY web/index/src src
 RUN npm run build

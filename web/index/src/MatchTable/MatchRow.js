@@ -38,7 +38,7 @@ const MatchRow = (props) => {
         <a href={props.details.matchLink}
           target="_blank" rel="noreferrer"
           className="material-icons w3-hover-text-deep-orange">table_chart</a>
-        <a href={props.details.matchId}
+        <a href={"/player?matchId=" + props.details.matchId}
           target="_blank" rel="noreferrer"
           className="material-icons w3-hover-text-amber">play_circle_outline</a>
       </td>
