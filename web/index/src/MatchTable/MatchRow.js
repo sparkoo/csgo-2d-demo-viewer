@@ -4,17 +4,27 @@ const MatchRow = (props) => {
   const [match, setMatch] = useState(props.details)
 
   let winner = false
-  let winnerTeam = []
-  if (match.scoreA > match.scoreB) {
-    winnerTeam = match.teamAPlayers
-  } else {
-    winnerTeam = match.teamBPlayers
-  }
-  winnerTeam.forEach(pId => {
+  let playerTeam = ""
+  match.teamAPlayers.forEach(pId => {
     if (pId === props.auth.faceitGuid) {
+      playerTeam = "A"
+    }
+  })
+  match.teamBPlayers.forEach(pId => {
+    if (pId === props.auth.faceitGuid) {
+      playerTeam = "B"
+    }
+  })
+  
+  if (match.scoreA > match.scoreB) {
+    if (playerTeam == "A") {
       winner = true
     }
-  });
+  } else {
+    if (playerTeam == "B") {
+      winner = true
+    }
+  }
 
   useEffect(() => {
     if (match.map.length > 0) {
@@ -46,13 +56,15 @@ const MatchRow = (props) => {
         {match.map}
       </td>
       <td className="w3-col l2 w3-right-align">
-        {match.teamA}
+        {playerTeam == "A" && <b>{match.teamA}</b>}
+        {playerTeam != "A" && match.teamA}
       </td>
       <td className={"w3-col l1 " + (winner ? "w3-green" : "w3-red")}>
         {match.scoreA} : {match.scoreB}
       </td>
       <td className="w3-col l2 w3-left-align">
-        {match.teamB}
+        {playerTeam == "B" && <b>{match.teamB}</b>}
+        {playerTeam != "B" && match.teamB}
       </td>
       <td className="w3-col l1 actionButtons w3-right-align">
         {match.demoLink}
