@@ -16,21 +16,22 @@ const MatchRow = (props) => {
     }
   });
 
-  console.log("tak co ?")
   useEffect(() => {
-
-    console.log("tak cofff ?")
+    if (match.map.length > 0) {
+      return
+    }
     fetch(`${props.serverHost}/match/detail?platform=${match.hostPlatform}&matchId=${match.matchId}`, {
       credentials: "include", method: "POST", body: JSON.stringify(match)
     })
       .then((response) => response.json())
       .then((data) => {
         console.log("got", data)
+        setMatch(data)
       })
       .catch((err) => {
         console.log("failed to request matches", err.message);
       });
-  }, [match])
+  }, [match, props.serverHost])
 
   return (
     <tr className="w3-hover-gray w3-medium">

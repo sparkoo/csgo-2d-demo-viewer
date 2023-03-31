@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -179,10 +180,10 @@ func (f *FaceitClient) MatchDetails(reader io.ReadCloser) (*match.MatchInfo, err
 	}
 	matchInfo := &match.MatchInfo{}
 	if errUnmarshall := json.Unmarshal(matchBytes, matchInfo); errUnmarshall != nil {
-		return nil, fmt.Errorf("failed to unmarshall match detail", errUnmarshall)
+		return nil, fmt.Errorf("failed to unmarshall match detail: %w", errUnmarshall)
 	}
 
-	req, errReq := f.createRequest(fmt.Sprintf("%s/matches/%s/stats", faceitOpenApiUrlBase), true)
+	req, errReq := f.createRequest(fmt.Sprintf("%s/matches/%s/stats", faceitOpenApiUrlBase, matchInfo.Id), true)
 	if errReq != nil {
 		return nil, fmt.Errorf("failed to create list matches request: %w", errReq)
 	}
@@ -202,6 +203,16 @@ func (f *FaceitClient) MatchDetails(reader io.ReadCloser) (*match.MatchInfo, err
 		return nil, fmt.Errorf("failed to unmarshall list matches response body: %w", errUnmarshall)
 	}
 	matchInfo.Map = data.Rounds[0].RoundStats.Map
+	score := strings.Split(data.Rounds[0].RoundStats.Score, "/")
+	var errConv error
+	matchInfo.ScoreA, errConv = strconv.Atoi(strings.Trim(score[0], " "))
+	if errConv != nil {
+		return nil, fmt.Errorf("failed to convert score A: %w", errConv)
+	}
+	matchInfo.ScoreB, errConv = strconv.Atoi(strings.Trim(score[1], " "))
+	if errConv != nil {
+		return nil, fmt.Errorf("failed to convert score B: %w", errConv)
+	}
 
 	return matchInfo, nil
 }

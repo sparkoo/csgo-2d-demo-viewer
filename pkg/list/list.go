@@ -57,6 +57,7 @@ func (s *ListService) MatchDetails(w http.ResponseWriter, r *http.Request) {
 
 	match, errMatchDetail := s.FaceitClient.MatchDetails(r.Body)
 	if errMatchDetail != nil {
+		log.L().Error("failed to get faceit match detail", zap.Error(errMatchDetail))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
