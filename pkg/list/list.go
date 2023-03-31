@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"go.uber.org/zap"
 )
@@ -34,7 +35,19 @@ func (s *ListService) ListMatches(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	matches := s.FaceitClient.ListMatches(authInfo.Faceit)
+	limitQuery := r.URL.Query().Get("limit")
+	if limitQuery == "" {
+		limitQuery = "15"
+	}
+
+	limit, errConvLimit := strconv.Atoi(limitQuery)
+	if errConvLimit != nil {
+		log.L().Error("failed to convert limit query", zap.Error(errConvLimit))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	matches := s.FaceitClient.ListMatches(authInfo.Faceit, limit)
 
 	if errWriteJsonResponse := writeJsonResponse(w, matches); errWriteJsonResponse != nil {
 		log.L().Error("failed to write json response with list of matches", zap.Error(errWriteJsonResponse))
