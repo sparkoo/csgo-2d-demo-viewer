@@ -39,6 +39,9 @@ const MatchRow = (props) => {
         <img src="/assets/faceit-logo.svg" className="w3-margin-right" alt="faceit-logo" height="20" />
         {match.dateTime}
       </td>
+      <td className="w3-col l2 w3-centered">
+        {match.type}
+      </td>
       <td className="w3-col l2">
         {match.map}
       </td>
@@ -50,9 +53,6 @@ const MatchRow = (props) => {
       </td>
       <td className="w3-col l2 w3-left-align">
         {match.teamB}
-      </td>
-      <td className="w3-col l2 w3-centered">
-        {match.type}
       </td>
       <td className="w3-col l1 actionButtons w3-right-align">
         {match.demoLink}
