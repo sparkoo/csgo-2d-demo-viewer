@@ -36,7 +36,7 @@ const MatchRow = (props) => {
   return (
     <tr className="w3-hover-gray w3-medium">
       <td className="w3-col l2 w3-left-align">
-        <img src="/assets/faceit-logo.svg" className="w3-margin-right" alt="faceit-logo" height="32" />
+        <img src="/assets/faceit-logo.svg" className="w3-margin-right" alt="faceit-logo" height="20" />
         {match.dateTime}
       </td>
       <td className="w3-col l2">
