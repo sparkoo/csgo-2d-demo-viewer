@@ -164,8 +164,8 @@ func (f *FaceitClient) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (f *FaceitClient) ListMatches(authInfo *auth.FaceitAuthInfo) []match.MatchInfo {
-	matches, err := f.listMatches(authInfo.UserInfo.Guid, 30)
+func (f *FaceitClient) ListMatches(authInfo *auth.FaceitAuthInfo, limit int) []match.MatchInfo {
+	matches, err := f.listMatches(authInfo.UserInfo.Guid, limit)
 	if err != nil {
 		log.L().Error("failed t olist faceit matches", zap.Error(err))
 	}
