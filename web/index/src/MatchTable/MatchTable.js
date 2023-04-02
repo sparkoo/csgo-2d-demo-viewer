@@ -8,7 +8,7 @@ const MatchTable = (props) => {
     if (matches.length > 0) {
       return
     }
-    fetch(props.serverHost + '/match/list?limit=5', { credentials: "include" })
+    fetch(props.serverHost + '/match/list?limit=30', { credentials: "include" })
       .then((response) => response.json())
       .then((data) => {
         console.log("got", data)
