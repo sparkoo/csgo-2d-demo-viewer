@@ -16,6 +16,8 @@ import (
 	"strings"
 	"time"
 
+	"csgo-2d-demo-player/pkg/utils"
+
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 )
@@ -26,6 +28,7 @@ type FaceitClient struct {
 	oauthConfig *oauth2.Config
 	httpClient  *http.Client
 	apiKey      string
+	conf        *conf.Conf
 }
 
 func NewFaceitClient(config *conf.Conf) *FaceitClient {
@@ -42,6 +45,7 @@ func NewFaceitClient(config *conf.Conf) *FaceitClient {
 	return &FaceitClient{
 		oauthConfig: faceitOAuthConfig,
 		apiKey:      config.FaceitApiKey,
+		conf:        config,
 		httpClient: &http.Client{
 			Timeout: time.Second * 60,
 			Transport: &http.Transport{
@@ -121,6 +125,8 @@ func (f *FaceitClient) FaceitOAuthCallbackHandler(w http.ResponseWriter, r *http
 
 func (f *FaceitClient) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	utils.CorsDev(w, r, f.conf)
 
 	reqUrl := fmt.Sprintf("%s/%s", faceitOpenApiUrlBase, r.URL.String())
 
