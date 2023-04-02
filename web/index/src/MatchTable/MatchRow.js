@@ -75,7 +75,7 @@ const MatchRow = (props) => {
       <td className="w3-col l2 w3-centered">
         {match.type}
       </td>
-      <td className="w3-col l2">
+      <td className="w3-col l1">
         {match.map}
       </td>
       <td className="w3-col l2 w3-right-align">
@@ -89,7 +89,7 @@ const MatchRow = (props) => {
         {playerTeam === "B" && <b>{match.teamB}</b>}
         {playerTeam !== "B" && match.teamB}
       </td>
-      <td className="w3-col l1 actionButtons w3-right-align">
+      <td className="w3-col l2 actionButtons w3-right-align">
         <a href={"#"}
           onClick={(e) => {
             e.preventDefault()
