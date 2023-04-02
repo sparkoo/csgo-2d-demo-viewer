@@ -11,7 +11,7 @@ const MatchTable = (props) => {
     fetch(props.serverHost + '/match/list?limit=30', { credentials: "include" })
       .then((response) => response.json())
       .then((data) => {
-        console.log("got", data)
+        // console.log("got", data)
         setMatches(data)
       })
       .catch((err) => {
