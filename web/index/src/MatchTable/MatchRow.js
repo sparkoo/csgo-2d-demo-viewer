@@ -35,7 +35,7 @@ const MatchRow = (props) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("got", data)
+        // console.log("got", data)
         setMatch(data)
       })
       .catch((err) => {
