@@ -44,7 +44,7 @@ const MatchRow = (props) => {
   }, [match, props.serverHost])
 
   const downloadDemo = (matchId) => {
-    fetch(`http://localhost:8080/faceit/api/matches/${matchId}`)
+    fetch(props.serverHost + `/faceit/api/matches/${matchId}`)
       .then(response => {
         if (response.ok) {
           response.json()
