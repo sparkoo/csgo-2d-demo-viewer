@@ -3,13 +3,14 @@ package main
 import (
 	"compress/gzip"
 	"csgo-2d-demo-player/conf"
+	"csgo-2d-demo-player/pkg/auth"
+	"csgo-2d-demo-player/pkg/list"
 	"csgo-2d-demo-player/pkg/log"
 	"csgo-2d-demo-player/pkg/message"
 	"csgo-2d-demo-player/pkg/parser"
 	"csgo-2d-demo-player/pkg/provider/faceit"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 
@@ -31,7 +32,7 @@ func main() {
 	defer log.Close()
 
 	log.L().Debug("using config", zap.Any("config", config))
-	faceitClient = faceit.NewFaceitClient(config.FaceitApiKey)
+	faceitClient = faceit.NewFaceitClient(config)
 	// log.Printf("using config %+v", config)
 	server()
 }
@@ -53,34 +54,54 @@ func handleMessages(in chan []byte, out chan []byte) {
 func server() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		// we want just /
-		if request.URL.Path != "/" {
-			http.Error(writer, "", 404)
-			return
+	mux.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
+	mux.Handle("/", http.FileServer(http.Dir("web/index/build")))
+	mux.Handle("/player/", http.StripPrefix("/player", http.FileServer(http.Dir("web/player/build"))))
+
+	listService := list.ListService{
+		Conf:         config,
+		FaceitClient: faceitClient,
+	}
+	mux.HandleFunc("/match/list", listService.ListMatches)
+	mux.HandleFunc("/match/detail", listService.MatchDetails)
+
+	// faceit auth
+	mux.HandleFunc("/auth/faceit/login", faceitClient.FaceitLoginHandler)
+	mux.HandleFunc("/auth/faceit/callback", faceitClient.FaceitOAuthCallbackHandler)
+	mux.HandleFunc("/auth/faceit/logout", faceitClient.FaceitLogoutHandler)
+	mux.HandleFunc("/auth/whoami", func(w http.ResponseWriter, r *http.Request) {
+		if config.Mode == conf.MODE_DEV {
+			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
 
-		temp, err := template.ParseFiles("templates/list.html")
+		authCookie, err := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
 		if err != nil {
-			http.Error(writer, err.Error(), 500)
+			log.L().Info("some error getting the cookie, why???", zap.Error(err))
+			// http.Error(writer, err.Error(), 500)
+		}
+		// log.L().Info("cookie", zap.Any("cok", authCookie))
+		type whoamiInfo struct {
+			FaceitNickname string `json:"faceitNickname,omitempty"`
+			FaceitGuid     string `json:"faceitGuid,omitempty"`
+		}
+		whoami := whoamiInfo{}
+		if authCookie != nil {
+			whoami.FaceitNickname = authCookie.Faceit.UserInfo.Nickname
+			whoami.FaceitGuid = authCookie.Faceit.UserInfo.Guid
 		}
 
-		if temp.Execute(writer, nil) != nil {
-			http.Error(writer, err.Error(), 500)
+		if whoamiJson, errMarshal := json.Marshal(whoami); errMarshal != nil {
+			log.L().Error("failed to marshall whoami info", zap.Error(errMarshal))
+		} else {
+			_, errWrite := w.Write(whoamiJson)
+			if errWrite != nil {
+				log.L().Error("failed to write response", zap.Error(errWrite))
+				w.WriteHeader(http.StatusServiceUnavailable)
+			}
 		}
 	})
-
-	mux.HandleFunc("/faceitClientKey", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte(config.FaceitClientApiKey))
-	})
-
-	playerFileServer := http.FileServer(http.Dir("web/player/build"))
-	mux.Handle("/player/", http.StripPrefix("/player", playerFileServer))
-
-	assetsFileServer := http.FileServer(http.Dir("./assets"))
-	mux.Handle("/assets/", http.StripPrefix("/assets", assetsFileServer))
+	mux.Handle("/faceit/api/", http.StripPrefix("/faceit/api/", faceitClient))
 
 	mux.HandleFunc("/ws", func(writer http.ResponseWriter, request *http.Request) {
 		// Upgrade our raw HTTP connection to a websocket based one

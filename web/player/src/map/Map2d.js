@@ -1,11 +1,11 @@
+import { Component } from "react";
+import { MSG_PLAY_CHANGE } from "../constants";
+import KillFeed from "./KillFeed";
 import './Map.css';
-import {Component} from "react";
+import MapBomb from "./MapBomb";
+import MapNade from "./MapNade";
 import MapPlayer from "./MapPlayer";
 import MapShot from "./MapShot";
-import {MSG_PLAY_CHANGE} from "../constants";
-import MapNade from "./MapNade";
-import MapBomb from "./MapBomb";
-import KillFeed from "./KillFeed";
 
 class Map2d extends Component {
   constructor(props) {
@@ -89,7 +89,7 @@ class Map2d extends Component {
 
   render() {
     const style = {
-      backgroundImage: `url("https://raw.githubusercontent.com/zoidbergwill/csgo-overviews/master/overviews/${this.state.mapName}.jpg")`,
+      backgroundImage: `url("https://raw.githubusercontent.com/sparkoo/csgo-overviews/master/overviews/${this.state.mapName}.jpg")`,
     }
     const playerComponents = []
     if (this.state.players && this.state.players.length > 0) {

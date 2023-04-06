@@ -132,6 +132,7 @@ var WeaponsEqType = map[common.EquipmentType]string{
 	common.EqAUG:    "aug",
 	common.EqSG553:  "sg556",
 	common.EqScar20: "scar",
+	common.EqG3SG1:  "g3sg1",
 
 	// nades
 	common.EqDecoy:      "decoy",

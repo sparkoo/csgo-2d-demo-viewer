@@ -11,11 +11,9 @@
 
   <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
-
-  <!--  <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>-->
-  <!--  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>-->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="/assets/list.js" type="text/babel"></script>
+
 </head>
 <body>
 <span class="material-icons preload">autorenew</span>
@@ -25,10 +23,17 @@
       <br>
     </div>
     <div class="w3-col l8">
-      <div class="w3-row w3-card-4 w3-margin w3-center w3-round" id="searchBar">
+      <div class="w3-container w3-xlarge w3-light-grey">
+        <div>
+        {{if .AuthCookie}}
+            <a href="https://www.faceit.com/en/players/{{.AuthCookie}}" target="_blank"><img src="/assets/faceit-logo.svg" height="50" /><span id="faceitNickname">{{.AuthCookie}}</span></a>
+            <a class="material-icons w3-large" href="/auth/faceit/logout">logout</a>
+        {{else}}
+          <a href="/auth/faceit/login"><img src="/assets/faceit-logo.svg" height="50" />Connect FACEIT account</a>
+        {{end}}
+        </div>
       </div>
       <div id="searchNote" class="w3-margin w3-container w3-center loader w3-xlarge">
-
       </div>
       <table class="w3-table-all w3-centered w3-hoverable" id="matchList">
       </table>
