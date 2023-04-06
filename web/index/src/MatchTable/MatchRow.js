@@ -90,7 +90,7 @@ const MatchRow = (props) => {
         {playerTeam !== "B" && match.teamB}
       </td>
       <td className="w3-col l2 actionButtons w3-right-align">
-        <a href={"#"}
+        <a href={"/#"}
           onClick={(e) => {
             e.preventDefault()
             downloadDemo(match.matchId)
