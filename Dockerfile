@@ -46,7 +46,6 @@ RUN npm run build
 
 FROM debian:buster-slim
 COPY --from=builderGo /csgo-2d-demo-player/_output/main /csgo-2d-demo-player/
-# COPY --from=builderGo /csgo-2d-demo-player/templates/ /csgo-2d-demo-player/templates/
 COPY --from=builderGo /csgo-2d-demo-player/assets/ /csgo-2d-demo-player/assets/
 COPY --from=builderNpmPlayer /csgo-2d-demo-player/build/ /csgo-2d-demo-player/web/player/build/
 COPY --from=builderNpmIndex /csgo-2d-demo-player/build/ /csgo-2d-demo-player/web/index/build/
