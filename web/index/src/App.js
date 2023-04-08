@@ -1,5 +1,5 @@
+import { useEffect, useState } from 'react';
 import './App.css';
-import { useState, useEffect } from 'react';
 import MatchTable from './MatchTable/MatchTable';
 
 function App() {
@@ -29,12 +29,22 @@ function App() {
       })
   }, [serverHost, auth])
 
-  let loginBar = (<a href={serverHost + "/auth/faceit/login"}><img src="/assets/faceit-logo.svg" height="50" alt="faceit-logo" />Connect FACEIT account</a>)
+  let faceitAuth = (
+    <div className='faceitAuth'>
+      <a href={serverHost + "/auth/faceit/login"}>
+        <img src="/assets/faceit-logo.svg" height="32" alt="faceit-logo" />Connect FACEIT account
+      </a>
+    </div>)
+    let steamAuth = (
+      <div className='steamAuth'>
+        <a href={serverHost + "/auth/steam/login"}><img src='https://steamcdn-a.akamaihd.net/steamcommunity/public/images/steamworks_docs/english/sits_small.png' alt="steam-login" /></a>
+      </div>
+    )
   if (Object.keys(auth).length > 0) {
-    loginBar = (
-      <div>
+    faceitAuth = (
+      <div className='faceitAuth'>
         <a href={"https://www.faceit.com/en/players/" + auth.faceitNickname} target="_blank" rel="noreferrer">
-          <img src="/assets/faceit-logo.svg" alt="faceit-logo" height="50" /><span id="faceitNickname">{auth.faceitNickname}</span>
+          <img src="/assets/faceit-logo.svg" alt="faceit-logo" height="32" /><span id="faceitNickname">{auth.faceitNickname}</span>
         </a>
         <a className="material-icons w3-large" href={serverHost + "/auth/faceit/logout"}>logout</a>
       </div>
@@ -58,7 +68,8 @@ function App() {
                   &nbsp;
                 </div>
                 <div className="w3-col l4 w3-right-align">
-                  {loginBar}
+                  <div className='faceit'>{faceitAuth}</div>
+                  <div className='steam'>{steamAuth}</div>
                 </div>
               </div>
             </div>

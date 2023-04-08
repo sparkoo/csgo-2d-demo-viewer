@@ -9,6 +9,7 @@ import (
 	"csgo-2d-demo-player/pkg/message"
 	"csgo-2d-demo-player/pkg/parser"
 	"csgo-2d-demo-player/pkg/provider/faceit"
+	"csgo-2d-demo-player/pkg/provider/steam"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -23,6 +24,7 @@ import (
 
 var config *conf.Conf
 var faceitClient *faceit.FaceitClient
+var steamClient *steam.SteamClient
 
 func main() {
 	config = &conf.Conf{}
@@ -33,6 +35,7 @@ func main() {
 
 	log.L().Debug("using config", zap.Any("config", config))
 	faceitClient = faceit.NewFaceitClient(config)
+	steamClient = steam.NewSteamClient(config)
 	// log.Printf("using config %+v", config)
 	server()
 }
@@ -66,9 +69,16 @@ func server() {
 	mux.HandleFunc("/match/detail", listService.MatchDetails)
 
 	// faceit auth
-	mux.HandleFunc("/auth/faceit/login", faceitClient.FaceitLoginHandler)
-	mux.HandleFunc("/auth/faceit/callback", faceitClient.FaceitOAuthCallbackHandler)
-	mux.HandleFunc("/auth/faceit/logout", faceitClient.FaceitLogoutHandler)
+	mux.HandleFunc("/auth/faceit/login", faceitClient.LoginHandler)
+	mux.HandleFunc("/auth/faceit/callback", faceitClient.OAuthCallbackHandler)
+	mux.HandleFunc("/auth/faceit/logout", faceitClient.LogoutHandler)
+	mux.Handle("/faceit/api/", http.StripPrefix("/faceit/api/", faceitClient))
+
+	// steam auth
+	mux.HandleFunc("/auth/steam/login", steamClient.LoginHandler)
+	mux.HandleFunc("/auth/steam/callback", steamClient.OAuthCallbackHandler)
+	mux.HandleFunc("/auth/steam/logout", steamClient.LogoutHandler)
+
 	mux.HandleFunc("/auth/whoami", func(w http.ResponseWriter, r *http.Request) {
 		if config.Mode == conf.MODE_DEV {
 			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
@@ -101,7 +111,6 @@ func server() {
 			}
 		}
 	})
-	mux.Handle("/faceit/api/", http.StripPrefix("/faceit/api/", faceitClient))
 
 	mux.HandleFunc("/ws", func(writer http.ResponseWriter, request *http.Request) {
 		// Upgrade our raw HTTP connection to a websocket based one

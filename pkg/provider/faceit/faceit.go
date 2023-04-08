@@ -62,20 +62,20 @@ type matchDemo struct {
 
 var ErrorNoDemo = errors.New("no demo found for this match")
 
-func (f *FaceitClient) FaceitLogoutHandler(w http.ResponseWriter, r *http.Request) {
+func (f *FaceitClient) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	auth.ClearCookie(auth.AuthCookieName, w)
-	http.Redirect(w, r, r.Header.Get("Referer"), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, r.Header.Get("Referer"), http.StatusSeeOther)
 }
 
-func (f *FaceitClient) FaceitLoginHandler(w http.ResponseWriter, r *http.Request) {
+func (f *FaceitClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	url := f.oauthConfig.AuthCodeURL(r.Header.Get("Referer"))
 	url += "&redirect_popup=true"
 	fmt.Printf("Visit the URL for the auth dialog: %v", url)
 
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
-func (f *FaceitClient) FaceitOAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
+func (f *FaceitClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	// we need to set insecure here, because faceit is using some weird CA
 	// would be nice to fix, but who kers now (haha)
 	ctx := context.WithValue(r.Context(), oauth2.HTTPClient, &http.Client{
@@ -120,7 +120,7 @@ func (f *FaceitClient) FaceitOAuthCallbackHandler(w http.ResponseWriter, r *http
 	if errCookie != nil {
 		log.L().Error("failed to set the auth cookie", zap.Error(errCookie))
 	}
-	http.Redirect(w, r, r.URL.Query().Get("state"), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, r.URL.Query().Get("state"), http.StatusSeeOther)
 }
 
 func (f *FaceitClient) ServeHTTP(w http.ResponseWriter, r *http.Request) {
