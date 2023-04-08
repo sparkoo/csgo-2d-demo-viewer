@@ -35,7 +35,7 @@ func (s *SteamClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.L().Info("got", zap.String("params", r.URL.Query().Encode()))
-	openid.Verify()
+	// openid.Verify()
 	http.Redirect(w, r, "http://localhost:3001", http.StatusSeeOther)
 }
 
