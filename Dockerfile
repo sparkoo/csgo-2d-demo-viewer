@@ -44,6 +44,9 @@ RUN npm run build
 
 
 FROM debian:buster-slim
+
+apt-get install -y ca-certificates
+
 COPY --from=builderGo /csgo-2d-demo-player/_output/main /csgo-2d-demo-player/
 COPY --from=builderGo /csgo-2d-demo-player/assets/ /csgo-2d-demo-player/assets/
 COPY --from=builderNpm /csgo-2d-demo-player/player/build/ /csgo-2d-demo-player/web/player/build/
