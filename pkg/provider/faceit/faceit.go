@@ -1,8 +1,6 @@
 package faceit
 
 import (
-	"context"
-	"crypto/tls"
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/auth"
 	"csgo-2d-demo-player/pkg/list/match"
@@ -48,11 +46,7 @@ func NewFaceitClient(config *conf.Conf) *FaceitClient {
 		conf:        config,
 		httpClient: &http.Client{
 			Timeout: time.Second * 60,
-			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{
-					InsecureSkipVerify: true,
-				},
-			}},
+		},
 	}
 }
 
@@ -76,14 +70,7 @@ func (f *FaceitClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (f *FaceitClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
-	// we need to set insecure here, because faceit is using some weird CA
-	// would be nice to fix, but who kers now (haha)
-	ctx := context.WithValue(r.Context(), oauth2.HTTPClient, &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-		}})
+	ctx := r.Context()
 
 	code := r.URL.Query().Get("code")
 	tok, err := f.oauthConfig.Exchange(ctx, code)
