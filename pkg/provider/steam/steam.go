@@ -78,7 +78,7 @@ func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	log.L().Info("red", zap.String("referer", r.Header.Get("Referer")))
-	redirectUrl := "https" + r.Host
+	redirectUrl := s.hostScheme + r.Host
 	if s.conf.Mode == conf.MODE_DEV {
 		redirectUrl = "http://localhost:3001"
 	}
