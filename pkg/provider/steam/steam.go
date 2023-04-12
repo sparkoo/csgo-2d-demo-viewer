@@ -97,7 +97,8 @@ func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (s *SteamClient) getSteamUsername(userId string) (*Player, error) {
-	resp, errReq := s.httpClient.Get(fmt.Sprintf("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s", s.webKey, userId))
+	steamUserDetailUrl := fmt.Sprintf("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s", s.webKey, userId)
+	resp, errReq := s.httpClient.Get(steamUserDetailUrl)
 	if errReq != nil {
 		return nil, fmt.Errorf("failed to request steam user details: %w", errReq)
 	}
@@ -111,6 +112,7 @@ func (s *SteamClient) getSteamUsername(userId string) (*Player, error) {
 	userDetailsResponse := &SteamUserDetailsResponse{}
 	errUnmarshall := json.Unmarshal(body, userDetailsResponse)
 	if errUnmarshall != nil {
+		log.L().Error("failed response from steam user detail", zap.String("body", string(body)), zap.String("url", steamUserDetailUrl))
 		return nil, fmt.Errorf("failed to unmarshall response from steam: %w", errUnmarshall)
 	}
 
