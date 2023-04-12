@@ -94,11 +94,18 @@ func server() {
 		type whoamiInfo struct {
 			FaceitNickname string `json:"faceitNickname,omitempty"`
 			FaceitGuid     string `json:"faceitGuid,omitempty"`
+			SteamId        string `json:"steamId,omitempty"`
 		}
 		whoami := whoamiInfo{}
 		if authCookie != nil {
-			whoami.FaceitNickname = authCookie.Faceit.UserInfo.Nickname
-			whoami.FaceitGuid = authCookie.Faceit.UserInfo.Guid
+			if authCookie.Faceit != nil {
+				whoami.FaceitNickname = authCookie.Faceit.UserInfo.Nickname
+				whoami.FaceitGuid = authCookie.Faceit.UserInfo.Guid
+			}
+
+			if authCookie.Steam != nil {
+				whoami.SteamId = authCookie.Steam.UserId
+			}
 		}
 
 		if whoamiJson, errMarshal := json.Marshal(whoami); errMarshal != nil {

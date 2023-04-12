@@ -5,16 +5,22 @@ import (
 	"csgo-2d-demo-player/pkg/auth"
 	"csgo-2d-demo-player/pkg/log"
 	"net/http"
+	"strings"
 
 	"github.com/yohcop/openid-go"
 	"go.uber.org/zap"
 )
 
 type SteamClient struct {
+	nonceStore     openid.NonceStore
+	discoveryCache openid.DiscoveryCache
 }
 
 func NewSteamClient(config *conf.Conf) *SteamClient {
-	return &SteamClient{}
+	return &SteamClient{
+		nonceStore:     openid.NewSimpleNonceStore(),
+		discoveryCache: openid.NewSimpleDiscoveryCache(),
+	}
 }
 
 func (s *SteamClient) LogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,8 +41,41 @@ func (s *SteamClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.L().Info("got", zap.String("params", r.URL.Query().Encode()))
-	// openid.Verify()
+	fullUrl := "http://localhost:8080" + r.URL.String()
+	id, errOpenidVerify := openid.Verify(fullUrl, s.discoveryCache, s.nonceStore)
+	if errOpenidVerify != nil {
+		log.L().Error("failed to verify steam openid", zap.Error(errOpenidVerify))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	log.L().Info("steam openid", zap.String("id", id))
+	userSteamId, _ := parseSteamId(id)
+
+	authInfo, errCookie := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
+	if errCookie != nil {
+		log.L().Error("failed to get auth cookie")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if authInfo == nil {
+		authInfo = &auth.AuthInfo{}
+	}
+	authInfo.Steam = &auth.SteamAuthInfo{UserId: userSteamId}
+	errCookieWrite := auth.SetAuthCookie(auth.AuthCookieName, authInfo, w)
+	if errCookieWrite != nil {
+		log.L().Error("failed to set auth cookie", zap.Error(errCookieWrite))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	http.Redirect(w, r, "http://localhost:3001", http.StatusSeeOther)
+}
+
+func parseSteamId(idUrl string) (string, error) {
+	id := idUrl[strings.LastIndex(idUrl, "/")+1:]
+	log.L().Info("user", zap.String("id", id))
+	return id, nil
 }
 
 // https://steamcommunity.com/openid/.well-known/openid-configuration/

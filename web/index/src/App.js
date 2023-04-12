@@ -32,23 +32,37 @@ function App() {
   let faceitAuth = (
     <div className='faceitAuth'>
       <a href={serverHost + "/auth/faceit/login"}>
-        <img src="/assets/faceit-logo.svg" height="32" alt="faceit-logo" />Connect FACEIT account
+        Connect FACEIT <img src="https://upload.wikimedia.org/wikipedia/commons/5/52/Cib-faceit_%28CoreUI_Icons_v1.0.0%29.svg" height="32" alt="faceit-logo" />
       </a>
     </div>)
-    let steamAuth = (
-      <div className='steamAuth'>
-        <a href={serverHost + "/auth/steam/login"}><img src='https://steamcdn-a.akamaihd.net/steamcommunity/public/images/steamworks_docs/english/sits_small.png' alt="steam-login" /></a>
-      </div>
-    )
+  let steamAuth = (
+    <div className='steamAuth'>
+      <a href={serverHost + "/auth/steam/login"}>
+        Connect Steam <img src='https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg' height="32" alt="steam-login" />
+      </a>
+    </div>
+  )
   if (Object.keys(auth).length > 0) {
-    faceitAuth = (
-      <div className='faceitAuth'>
-        <a href={"https://www.faceit.com/en/players/" + auth.faceitNickname} target="_blank" rel="noreferrer">
-          <img src="/assets/faceit-logo.svg" alt="faceit-logo" height="32" /><span id="faceitNickname">{auth.faceitNickname}</span>
-        </a>
-        <a className="material-icons w3-large" href={serverHost + "/auth/faceit/logout"}>logout</a>
-      </div>
-    )
+    if (auth.faceitNickname) {
+      faceitAuth = (
+        <div className='faceitAuth'>
+          <a href={"https://www.faceit.com/en/players/" + auth.faceitNickname} target="_blank" rel="noreferrer">
+            <img src="/assets/faceit-logo.svg" alt="faceit-logo" height="32" /><span id="faceitNickname">{auth.faceitNickname}</span>
+          </a>
+          <a className="material-icons w3-large" href={serverHost + "/auth/faceit/logout"}>logout</a>
+        </div>
+      )
+    }
+    if (auth.steamId) {
+      steamAuth = (
+        <div className='steamAuth'>
+          <a href={"https://www.faceit.com/en/players/" + auth.faceitNickname} target="_blank" rel="noreferrer">
+          <img src='https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg' height="32" alt="steam-login" /><span id="steamNickname">{auth.steamId}</span>
+          </a>
+          <a className="material-icons w3-large" href={serverHost + "/auth/steam/logout"}>logout</a>
+        </div>
+      )
+    }
   }
 
   return (

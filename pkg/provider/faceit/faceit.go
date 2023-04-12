@@ -109,16 +109,26 @@ func (f *FaceitClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Reque
 		log.L().Error("failed to unmarshall user info", zap.Error(errUnmarshalUserInfo))
 	}
 
-	authInfo := &auth.AuthInfo{
-		Faceit: &auth.FaceitAuthInfo{
-			Token:    tok,
-			UserInfo: userInfo,
-		},
+	authInfo, errCookie := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
+	if errCookie != nil {
+		log.L().Error("failed to get auth cookie")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if authInfo == nil {
+		authInfo = &auth.AuthInfo{}
 	}
 
-	errCookie := auth.SetAuthCookie(auth.AuthCookieName, authInfo, w)
-	if errCookie != nil {
-		log.L().Error("failed to set the auth cookie", zap.Error(errCookie))
+	authInfo.Faceit = &auth.FaceitAuthInfo{
+		Token:    tok,
+		UserInfo: userInfo,
+	}
+
+	errCookieWrite := auth.SetAuthCookie(auth.AuthCookieName, authInfo, w)
+	if errCookieWrite != nil {
+		log.L().Error("failed to set the auth cookie", zap.Error(errCookieWrite))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	http.Redirect(w, r, r.URL.Query().Get("state"), http.StatusSeeOther)
 }
