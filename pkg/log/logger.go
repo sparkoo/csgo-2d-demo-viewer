@@ -31,7 +31,7 @@ func Close() {
 
 func L() *zap.Logger {
 	if logger == nil {
-		panic("logger is not initialized, first call 'log.Init(*conf.Conf)'")
+		Init(&conf.Conf{Mode: conf.MODE_DEV})
 	}
 	return logger
 }
