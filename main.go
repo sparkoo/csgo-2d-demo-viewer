@@ -95,6 +95,8 @@ func server() {
 			FaceitNickname string `json:"faceitNickname,omitempty"`
 			FaceitGuid     string `json:"faceitGuid,omitempty"`
 			SteamId        string `json:"steamId,omitempty"`
+			SteamName      string `json:"steamUsername,omitempty"`
+			SteamAvatar    string `json:"steamAvatar,omitempty"`
 		}
 		whoami := whoamiInfo{}
 		if faceitAuth != nil {
@@ -109,6 +111,8 @@ func server() {
 		}
 		if steamAuth != nil {
 			whoami.SteamId = steamAuth.UserId
+			whoami.SteamName = steamAuth.Username
+			whoami.SteamAvatar = steamAuth.AvatarUrl
 		}
 
 		if whoamiJson, errMarshal := json.Marshal(whoami); errMarshal != nil {

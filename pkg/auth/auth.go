@@ -17,5 +17,7 @@ type FaceitUserInfo struct {
 }
 
 type SteamAuthInfo struct {
-	UserId string `json:"user_id"`
+	UserId    string `json:"user_id"`
+	Username  string `json:"username"`
+	AvatarUrl string `json:"avatarUrl"`
 }

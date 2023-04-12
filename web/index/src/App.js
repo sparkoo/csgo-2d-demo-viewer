@@ -56,8 +56,8 @@ function App() {
     if (auth.steamId) {
       steamAuth = (
         <div className='steamAuth'>
-          <a href={"https://www.faceit.com/en/players/" + auth.faceitNickname} target="_blank" rel="noreferrer">
-          <img src='https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg' height="32" alt="steam-login" /><span id="steamNickname">{auth.steamId}</span>
+          <a href={"https://steamcommunity.com/profiles/" + auth.steamId} target="_blank" rel="noreferrer">
+          <img src={auth.steamAvatar} height="32" alt="steam-login" /><span id="steamNickname">{auth.steamUsername}</span>
           </a>
           <a className="material-icons w3-large" href={serverHost + "/auth/steam/logout"}>logout</a>
         </div>

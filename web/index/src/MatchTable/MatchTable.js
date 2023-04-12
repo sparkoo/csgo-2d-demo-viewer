@@ -19,15 +19,19 @@ const MatchTable = (props) => {
       });
   }, [matches, props.serverHost])
 
-  return (
-    <table className="w3-table-all w3-centered w3-hoverable" id="matchList">
+  let table = (<span className="material-icons w3-xxxlarge rotate">autorenew</span>)
+  console.log(matches)
+  if (matches) {
+    table = (<table className="w3-table-all w3-centered w3-hoverable" id="matchList">
       <tbody>
         {matches.map(match => (
           <MatchRow key={match.matchId} details={match} auth={props.auth} serverHost={props.serverHost} />
         ))}
       </tbody>
-    </table>
-  )
+    </table>)
+  }
+
+  return table
 }
 
 export default MatchTable;
