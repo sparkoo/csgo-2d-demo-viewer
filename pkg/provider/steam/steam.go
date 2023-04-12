@@ -14,12 +14,20 @@ import (
 type SteamClient struct {
 	nonceStore     openid.NonceStore
 	discoveryCache openid.DiscoveryCache
+	hostScheme     string
+	conf           *conf.Conf
 }
 
 func NewSteamClient(config *conf.Conf) *SteamClient {
+	hostScheme := "https://"
+	if config.Mode == conf.MODE_DEV {
+		hostScheme = "http://"
+	}
 	return &SteamClient{
 		nonceStore:     openid.NewSimpleNonceStore(),
 		discoveryCache: openid.NewSimpleDiscoveryCache(),
+		conf:           config,
+		hostScheme:     hostScheme,
 	}
 }
 
@@ -29,7 +37,7 @@ func (s *SteamClient) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *SteamClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	url, errOpenid := openid.RedirectURL("http://steamcommunity.com/openid", "http://localhost:8080/auth/steam/callback", "http://localhost:8080")
+	url, errOpenid := openid.RedirectURL("https://steamcommunity.com/openid", s.hostScheme+r.Host+"/auth/steam/callback", s.hostScheme+r.Host)
 	if errOpenid != nil {
 		log.L().Error("failed to create steam openid url", zap.Error(errOpenid))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -41,7 +49,7 @@ func (s *SteamClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.L().Info("got", zap.String("params", r.URL.Query().Encode()))
-	fullUrl := "http://localhost:8080" + r.URL.String()
+	fullUrl := s.hostScheme + r.Host + r.URL.String()
 	id, errOpenidVerify := openid.Verify(fullUrl, s.discoveryCache, s.nonceStore)
 	if errOpenidVerify != nil {
 		log.L().Error("failed to verify steam openid", zap.Error(errOpenidVerify))
@@ -69,7 +77,12 @@ func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	http.Redirect(w, r, "http://localhost:3001", http.StatusSeeOther)
+	log.L().Info("red", zap.String("referer", r.Header.Get("Referer")))
+	redirectUrl := "https" + r.Host
+	if s.conf.Mode == conf.MODE_DEV {
+		redirectUrl = "http://localhost:3001"
+	}
+	http.Redirect(w, r, redirectUrl, http.StatusSeeOther)
 }
 
 func parseSteamId(idUrl string) (string, error) {
