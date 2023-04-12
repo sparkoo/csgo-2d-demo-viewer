@@ -59,6 +59,7 @@ func (s *SteamClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
 func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.L().Info("got", zap.String("params", r.URL.Query().Encode()))
 	fullUrl := s.hostScheme + r.Host + r.URL.String()
+	log.L().Info("verify steam openid", zap.String("url", fullUrl))
 	id, errOpenidVerify := openid.Verify(fullUrl, s.discoveryCache, s.nonceStore)
 	if errOpenidVerify != nil {
 		log.L().Error("failed to verify steam openid", zap.Error(errOpenidVerify))
