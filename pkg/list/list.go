@@ -3,6 +3,7 @@ package list
 import (
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/auth"
+	"csgo-2d-demo-player/pkg/list/match"
 	"csgo-2d-demo-player/pkg/log"
 	"csgo-2d-demo-player/pkg/provider/faceit"
 	"csgo-2d-demo-player/pkg/utils"
@@ -23,17 +24,7 @@ func (s *ListService) ListMatches(w http.ResponseWriter, r *http.Request) {
 	log.L().Debug("listing matches")
 	utils.CorsDev(w, r, s.Conf)
 
-	authInfo, errAuth := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
-	if errAuth != nil {
-		log.L().Error("failed to get auth cookie when listing matches", zap.Error(errAuth))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if authInfo == nil {
-		log.L().Error("authInfo is nil when listing matches")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	matches := []match.MatchInfo{}
 
 	limitQuery := r.URL.Query().Get("limit")
 	if limitQuery == "" {
@@ -47,7 +38,19 @@ func (s *ListService) ListMatches(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	matches := s.FaceitClient.ListMatches(authInfo.Faceit, limit)
+	faceitAuthInfo, errAuth := auth.GetAuthCookie(faceit.FaceitAuthCookieName, r, &auth.FaceitAuthInfo{})
+	if errAuth != nil {
+		log.L().Error("failed to get auth cookie when listing matches", zap.Error(errAuth))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if faceitAuthInfo != nil {
+		matches = append(matches, s.FaceitClient.ListMatches(faceitAuthInfo, limit)...)
+	} else {
+		log.L().Error("authInfo is nil when listing matches")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	if errWriteJsonResponse := writeJsonResponse(w, matches); errWriteJsonResponse != nil {
 		log.L().Error("failed to write json response with list of matches", zap.Error(errWriteJsonResponse))

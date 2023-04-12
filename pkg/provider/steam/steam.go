@@ -11,6 +11,8 @@ import (
 	"go.uber.org/zap"
 )
 
+const SteamAuthCookieName = "authSteam"
+
 type SteamClient struct {
 	nonceStore     openid.NonceStore
 	discoveryCache openid.DiscoveryCache
@@ -32,7 +34,7 @@ func NewSteamClient(config *conf.Conf) *SteamClient {
 }
 
 func (s *SteamClient) LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	auth.ClearCookie(auth.AuthCookieName, w)
+	auth.ClearCookie(SteamAuthCookieName, w)
 	http.Redirect(w, r, r.Header.Get("Referer"), http.StatusSeeOther)
 }
 
@@ -60,17 +62,8 @@ func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Reques
 	log.L().Info("steam openid", zap.String("id", id))
 	userSteamId, _ := parseSteamId(id)
 
-	authInfo, errCookie := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
-	if errCookie != nil {
-		log.L().Error("failed to get auth cookie")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if authInfo == nil {
-		authInfo = &auth.AuthInfo{}
-	}
-	authInfo.Steam = &auth.SteamAuthInfo{UserId: userSteamId}
-	errCookieWrite := auth.SetAuthCookie(auth.AuthCookieName, authInfo, w)
+	authInfo := &auth.SteamAuthInfo{UserId: userSteamId}
+	errCookieWrite := auth.SetAuthCookie(SteamAuthCookieName, authInfo, w)
 	if errCookieWrite != nil {
 		log.L().Error("failed to set auth cookie", zap.Error(errCookieWrite))
 		w.WriteHeader(http.StatusInternalServerError)

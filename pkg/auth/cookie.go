@@ -7,8 +7,6 @@ import (
 	"net/http"
 )
 
-const AuthCookieName = "auth"
-
 func GetAuthCookie[T any](name string, r *http.Request, objType *T) (*T, error) {
 	authCookie, err := r.Cookie(name)
 	if err != nil {

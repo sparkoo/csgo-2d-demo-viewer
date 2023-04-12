@@ -85,7 +85,7 @@ func server() {
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
 
-		authCookie, err := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
+		faceitAuth, err := auth.GetAuthCookie(faceit.FaceitAuthCookieName, r, &auth.FaceitAuthInfo{})
 		if err != nil {
 			log.L().Info("some error getting the cookie, why???", zap.Error(err))
 			// http.Error(writer, err.Error(), 500)
@@ -97,15 +97,18 @@ func server() {
 			SteamId        string `json:"steamId,omitempty"`
 		}
 		whoami := whoamiInfo{}
-		if authCookie != nil {
-			if authCookie.Faceit != nil {
-				whoami.FaceitNickname = authCookie.Faceit.UserInfo.Nickname
-				whoami.FaceitGuid = authCookie.Faceit.UserInfo.Guid
-			}
+		if faceitAuth != nil {
+			whoami.FaceitNickname = faceitAuth.UserInfo.Nickname
+			whoami.FaceitGuid = faceitAuth.UserInfo.Guid
+		}
 
-			if authCookie.Steam != nil {
-				whoami.SteamId = authCookie.Steam.UserId
-			}
+		steamAuth, err := auth.GetAuthCookie(steam.SteamAuthCookieName, r, &auth.SteamAuthInfo{})
+		if err != nil {
+			log.L().Info("some error getting the cookie, why???", zap.Error(err))
+			// http.Error(writer, err.Error(), 500)
+		}
+		if steamAuth != nil {
+			whoami.SteamId = steamAuth.UserId
 		}
 
 		if whoamiJson, errMarshal := json.Marshal(whoami); errMarshal != nil {

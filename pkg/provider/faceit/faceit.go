@@ -23,6 +23,7 @@ import (
 )
 
 const faceitOpenApiUrlBase = "https://open.faceit.com/data/v4"
+const FaceitAuthCookieName = "authFaceit"
 
 type FaceitClient struct {
 	oauthConfig *oauth2.Config
@@ -63,7 +64,7 @@ type matchDemo struct {
 var ErrorNoDemo = errors.New("no demo found for this match")
 
 func (f *FaceitClient) LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	auth.ClearCookie(auth.AuthCookieName, w)
+	auth.ClearCookie(FaceitAuthCookieName, w)
 	http.Redirect(w, r, r.Header.Get("Referer"), http.StatusSeeOther)
 }
 
@@ -109,22 +110,12 @@ func (f *FaceitClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Reque
 		log.L().Error("failed to unmarshall user info", zap.Error(errUnmarshalUserInfo))
 	}
 
-	authInfo, errCookie := auth.GetAuthCookie(auth.AuthCookieName, r, &auth.AuthInfo{})
-	if errCookie != nil {
-		log.L().Error("failed to get auth cookie")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if authInfo == nil {
-		authInfo = &auth.AuthInfo{}
-	}
-
-	authInfo.Faceit = &auth.FaceitAuthInfo{
+	authInfo := &auth.FaceitAuthInfo{
 		Token:    tok,
 		UserInfo: userInfo,
 	}
 
-	errCookieWrite := auth.SetAuthCookie(auth.AuthCookieName, authInfo, w)
+	errCookieWrite := auth.SetAuthCookie(FaceitAuthCookieName, authInfo, w)
 	if errCookieWrite != nil {
 		log.L().Error("failed to set the auth cookie", zap.Error(errCookieWrite))
 		w.WriteHeader(http.StatusInternalServerError)
