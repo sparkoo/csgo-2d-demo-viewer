@@ -16,41 +16,44 @@ import (
 
 const SteamAuthCookieName = "authSteam"
 
-type SteamClient struct {
+type SteamProvider struct {
 	nonceStore     openid.NonceStore
 	discoveryCache openid.DiscoveryCache
 	hostScheme     string
 	conf           *conf.Conf
 	httpClient     *http.Client
 	webKey         string
+	client         *steamClient
 }
 
-func NewSteamClient(config *conf.Conf) *SteamClient {
+func NewSteamClient(config *conf.Conf) *SteamProvider {
 	hostScheme := "https://"
 	if config.Mode == conf.MODE_DEV {
 		hostScheme = "http://"
 	}
-	return &SteamClient{
+	client := newSteamClient(config)
+	return &SteamProvider{
 		nonceStore:     openid.NewSimpleNonceStore(),
 		discoveryCache: openid.NewSimpleDiscoveryCache(),
 		conf:           config,
 		hostScheme:     hostScheme,
 		httpClient:     &http.Client{},
 		webKey:         config.SteamWebApiKey,
+		client:         client,
 	}
 }
 
-func (s *SteamClient) DemoStream(matchId string) (io.ReadCloser, error) {
+func (s *SteamProvider) DemoStream(matchId string) (io.ReadCloser, error) {
 	log.L().Debug("obtaining steam demo", zap.String("matchId", matchId))
-	return nil, fmt.Errorf("steam not supported yet")
+	return nil, fmt.Errorf("steam is not supported yet")
 }
 
-func (s *SteamClient) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+func (s *SteamProvider) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	auth.ClearCookie(SteamAuthCookieName, w)
 	http.Redirect(w, r, r.Header.Get("Referer"), http.StatusSeeOther)
 }
 
-func (s *SteamClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
+func (s *SteamProvider) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	url, errOpenid := openid.RedirectURL("https://steamcommunity.com/openid", s.hostScheme+r.Host+"/auth/steam/callback", s.hostScheme+r.Host)
 	if errOpenid != nil {
 		log.L().Error("failed to create steam openid url", zap.Error(errOpenid))
@@ -61,7 +64,7 @@ func (s *SteamClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
-func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
+func (s *SteamProvider) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.L().Info("got", zap.String("params", r.URL.Query().Encode()))
 	fullUrl := s.hostScheme + r.Host + r.URL.String()
 	log.L().Info("verify steam openid", zap.String("url", fullUrl))
@@ -101,7 +104,7 @@ func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, redirectUrl, http.StatusSeeOther)
 }
 
-func (s *SteamClient) getSteamUsername(userId string) (*Player, error) {
+func (s *SteamProvider) getSteamUsername(userId string) (*Player, error) {
 	steamUserDetailUrl := fmt.Sprintf("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s", s.webKey, userId)
 	resp, errReq := s.httpClient.Get(steamUserDetailUrl)
 	if errReq != nil {

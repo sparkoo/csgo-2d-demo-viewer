@@ -19,7 +19,7 @@ class Map2d extends Component {
       bomb: {x: -100, y: -100},
     }
 
-    props.messageBus.listen([4, 13], this.onMessage.bind(this))
+    props.messageBus.listen([4], this.onMessage.bind(this))
     props.messageBus.listen([1], this.tickUpdate.bind(this))
     props.messageBus.listen([9], this.handleShot.bind(this))
     props.messageBus.listen([MSG_PLAY_CHANGE], function () {

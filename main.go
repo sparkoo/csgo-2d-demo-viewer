@@ -25,7 +25,7 @@ import (
 
 var config *conf.Conf
 var faceitClient *faceit.FaceitClient
-var steamClient *steam.SteamClient
+var steamClient *steam.SteamProvider
 var uploadQue map[string]chan io.ReadCloser
 
 func main() {
