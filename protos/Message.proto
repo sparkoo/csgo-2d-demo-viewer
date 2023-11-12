@@ -141,5 +141,11 @@ message RoundTime {
 }
 
 message Demo {
+  enum DemoPlatformType {
+    Upload = 0;
+    Faceit = 1;
+    Steam = 2;
+  }
   string MatchId = 1;
+  DemoPlatformType Platform = 2;
 }

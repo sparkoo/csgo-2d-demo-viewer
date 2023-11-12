@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/auth"
+	"csgo-2d-demo-player/pkg/demoupload"
 	"csgo-2d-demo-player/pkg/list"
 	"csgo-2d-demo-player/pkg/log"
 	"csgo-2d-demo-player/pkg/message"
@@ -25,6 +26,7 @@ import (
 var config *conf.Conf
 var faceitClient *faceit.FaceitClient
 var steamClient *steam.SteamClient
+var uploadQue map[string]chan io.ReadCloser
 
 func main() {
 	config = &conf.Conf{}
@@ -32,6 +34,8 @@ func main() {
 
 	log.Init(config)
 	defer log.Close()
+
+	uploadQue = make(map[string]chan io.ReadCloser)
 
 	log.L().Debug("using config", zap.Any("config", config))
 	faceitClient = faceit.NewFaceitClient(config)
@@ -43,13 +47,13 @@ func main() {
 func handleMessages(in chan []byte, out chan []byte) {
 	for msg := range in {
 		var messageObj message.Message
-		err := json.Unmarshal(msg, &messageObj)
+		err := proto.Unmarshal(msg, &messageObj)
 		if err != nil {
 			log.Print("failed unmarshal websocket message", err)
 		}
 		switch messageObj.MsgType {
 		case message.Message_PlayRequestType:
-			go playDemo(out, messageObj.Demo.MatchId)
+			go playDemo(out, messageObj.Demo)
 		}
 	}
 }
@@ -60,6 +64,13 @@ func server() {
 	mux.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 	mux.Handle("/", http.FileServer(http.Dir("web/index/build")))
 	mux.Handle("/player/", http.StripPrefix("/player", http.FileServer(http.Dir("web/player/build"))))
+
+	demoUploadSvc := demoupload.DemoUploadSvc{
+		Conf:  config,
+		UpQue: uploadQue,
+	}
+
+	mux.HandleFunc("/demo/upload", demoUploadSvc.HandleUpload)
 
 	listService := list.ListService{
 		Conf:         config,
@@ -188,13 +199,13 @@ func server() {
 	log.L().Fatal("failed to listen", zap.Error(listenErr))
 }
 
-func playDemo(out chan []byte, matchId string) {
-	log.L().Info("playing faceit demo", zap.String("matchId", matchId))
-	if matchId == "" {
+func playDemo(out chan []byte, demo *message.Demo) {
+	log.L().Info("playing demo", zap.String("matchId", demo.MatchId), zap.String("platform", demo.Platform.String()))
+	if demo.MatchId == "" {
 		sendError("no matchId", out)
 		return
 	}
-	demoFile, closers, err := obtainDemoFile(matchId)
+	demoFile, closers, err := obtainDemoFile(demo)
 	if err != nil {
 		sendError(err.Error(), out)
 		return
@@ -202,7 +213,7 @@ func playDemo(out chan []byte, matchId string) {
 	defer func() {
 		for _, c := range closers {
 			if closeErr := c.Close(); closeErr != nil {
-				log.Printf("[%s] failed to close resource. %s", matchId, closeErr)
+				log.Printf("[%s] failed to close resource. %s", demo.MatchId, closeErr)
 			}
 		}
 	}()
@@ -227,10 +238,22 @@ func sendError(errorMessage string, out chan []byte) {
 	out <- []byte(fmt.Sprintf("{\"msgType\": %d, \"error\": {\"message\": \"%s\"}}", message.Message_ErrorType, errorMessage))
 }
 
-func obtainDemoFile(matchId string) (io.Reader, []io.Closer, error) {
+func obtainDemoFile(demo *message.Demo) (io.Reader, []io.Closer, error) {
 	closers := make([]io.Closer, 0)
 
-	demoFileReader, streamErr := faceitClient.DemoStream(matchId)
+	var demoFileReader io.ReadCloser
+	var streamErr error
+	switch demo.Platform {
+	case message.Demo_Faceit:
+		demoFileReader, streamErr = faceitClient.DemoStream(demo.MatchId)
+	case message.Demo_Upload:
+		var ok bool
+		demoFileReader, ok = <-uploadQue[demo.MatchId]
+		log.L().Debug("reading from upload channel", zap.Bool("success", ok))
+	default:
+		return nil, closers, fmt.Errorf("unknown demo platform %s", demo.Platform)
+	}
+
 	if streamErr != nil {
 		return nil, closers, streamErr
 	}
@@ -238,7 +261,7 @@ func obtainDemoFile(matchId string) (io.Reader, []io.Closer, error) {
 
 	gzipReader, gzipErr := gzip.NewReader(demoFileReader)
 	if gzipErr != nil {
-		log.Printf("[%s] Failed to create gzip reader from demo. %s", matchId, gzipErr)
+		log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, gzipErr)
 		return nil, closers, gzipErr
 	}
 	closers = append(closers, gzipReader)

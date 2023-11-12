@@ -24,6 +24,7 @@ var global = (function() {
 goog.exportSymbol('proto.csgo.Bomb', null, global);
 goog.exportSymbol('proto.csgo.Bomb.BombState', null, global);
 goog.exportSymbol('proto.csgo.Demo', null, global);
+goog.exportSymbol('proto.csgo.Demo.DemoPlatformType', null, global);
 goog.exportSymbol('proto.csgo.Frag', null, global);
 goog.exportSymbol('proto.csgo.Grenade', null, global);
 goog.exportSymbol('proto.csgo.Init', null, global);
@@ -4214,7 +4215,8 @@ proto.csgo.Demo.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.Demo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    matchid: jspb.Message.getFieldWithDefault(msg, 1, "")
+    matchid: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    platform: jspb.Message.getFieldWithDefault(msg, 2, 0)
   };
 
   if (includeInstance) {
@@ -4255,6 +4257,10 @@ proto.csgo.Demo.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setMatchid(value);
       break;
+    case 2:
+      var value = /** @type {!proto.csgo.Demo.DemoPlatformType} */ (reader.readEnum());
+      msg.setPlatform(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -4291,8 +4297,24 @@ proto.csgo.Demo.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getPlatform();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      2,
+      f
+    );
+  }
 };
 
+
+/**
+ * @enum {number}
+ */
+proto.csgo.Demo.DemoPlatformType = {
+  UPLOAD: 0,
+  FACEIT: 1,
+  STEAM: 2
+};
 
 /**
  * optional string MatchId = 1;
@@ -4309,6 +4331,24 @@ proto.csgo.Demo.prototype.getMatchid = function() {
  */
 proto.csgo.Demo.prototype.setMatchid = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional DemoPlatformType Platform = 2;
+ * @return {!proto.csgo.Demo.DemoPlatformType}
+ */
+proto.csgo.Demo.prototype.getPlatform = function() {
+  return /** @type {!proto.csgo.Demo.DemoPlatformType} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/**
+ * @param {!proto.csgo.Demo.DemoPlatformType} value
+ * @return {!proto.csgo.Demo} returns this
+ */
+proto.csgo.Demo.prototype.setPlatform = function(value) {
+  return jspb.Message.setProto3EnumField(this, 2, value);
 };
 
 

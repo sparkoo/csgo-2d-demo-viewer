@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import MatchTable from './MatchTable/MatchTable';
+import Uploader from './Uploader/Uploader';
 
 function App() {
   const [auth, setAuth] = useState([]);
@@ -20,7 +21,7 @@ function App() {
         if (Object.keys(data).length > 0) {
           setAuth(data)
         } else {
-          setContent(<span className="w3-xxxlarge rotate">Connect account first</span>)
+          setContent(<span className="w3-xxxlarge rotate">Connect account or upload demo file</span>)
         }
       })
       .catch(err => {
@@ -82,13 +83,14 @@ function App() {
                   &nbsp;
                 </div>
                 <div className="w3-col l4 w3-right-align">
-                  <div className='faceit'>{faceitAuth}</div>
-                  <div className='steam'>{steamAuth}</div>
+                  {/* <div className='faceit'>{faceitAuth}</div>
+                  <div className='steam'>{steamAuth}</div> */}
                 </div>
               </div>
             </div>
             <div id="searchNote" className="w3-margin w3-container w3-center loader w3-xlarge">
             </div>
+            <Uploader />
             {content}
           </div>
           <div className="w3-col l2">
