@@ -5,3 +5,7 @@ a:hover {
 a {
   text-decoration-line: none;
 }
+
+body {
+  background-image: url("https://media3.giphy.com/media/toXKzaJP3WIgM/giphy.gif?cid=ecf05e478tqmsss7kgqovsqp0a8qbkfcf72svqjievr53jp2");
+}
