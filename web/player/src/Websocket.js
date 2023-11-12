@@ -17,7 +17,7 @@ function Connect(messageBus) {
 
     const demo = new proto.Demo()
       .setMatchid(urlParams.get("matchId"))
-      .setPlatform(proto.Demo.DemoPlatformType[urlParams.get("platform")]);
+      .setPlatform(proto.Demo.DemoPlatformType[urlParams.get("platform").toUpperCase()]);
 
     const playRequestMessage = new proto.Message()
       .setMsgtype(proto.Message.MessageType.PLAYREQUESTTYPE)

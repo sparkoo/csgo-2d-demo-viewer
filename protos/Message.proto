@@ -33,6 +33,7 @@ message Message {
   optional Frag frag = 10;
   optional Demo demo = 11;
   optional Grenade grenadeEvent = 12;
+  optional string message = 13;
 }
 
 message Player {

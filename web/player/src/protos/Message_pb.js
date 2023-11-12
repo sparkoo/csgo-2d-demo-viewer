@@ -353,7 +353,8 @@ proto.csgo.Message.toObject = function(includeInstance, msg) {
     shot: (f = msg.getShot()) && proto.csgo.Shot.toObject(includeInstance, f),
     frag: (f = msg.getFrag()) && proto.csgo.Frag.toObject(includeInstance, f),
     demo: (f = msg.getDemo()) && proto.csgo.Demo.toObject(includeInstance, f),
-    grenadeevent: (f = msg.getGrenadeevent()) && proto.csgo.Grenade.toObject(includeInstance, f)
+    grenadeevent: (f = msg.getGrenadeevent()) && proto.csgo.Grenade.toObject(includeInstance, f),
+    message: jspb.Message.getFieldWithDefault(msg, 13, "")
   };
 
   if (includeInstance) {
@@ -447,6 +448,10 @@ proto.csgo.Message.deserializeBinaryFromReader = function(msg, reader) {
       var value = new proto.csgo.Grenade;
       reader.readMessage(value,proto.csgo.Grenade.deserializeBinaryFromReader);
       msg.setGrenadeevent(value);
+      break;
+    case 13:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setMessage(value);
       break;
     default:
       reader.skipField();
@@ -569,6 +574,13 @@ proto.csgo.Message.serializeBinaryToWriter = function(message, writer) {
       12,
       f,
       proto.csgo.Grenade.serializeBinaryToWriter
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 13));
+  if (f != null) {
+    writer.writeString(
+      13,
+      f
     );
   }
 };
@@ -997,6 +1009,42 @@ proto.csgo.Message.prototype.clearGrenadeevent = function() {
  */
 proto.csgo.Message.prototype.hasGrenadeevent = function() {
   return jspb.Message.getField(this, 12) != null;
+};
+
+
+/**
+ * optional string message = 13;
+ * @return {string}
+ */
+proto.csgo.Message.prototype.getMessage = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.csgo.Message} returns this
+ */
+proto.csgo.Message.prototype.setMessage = function(value) {
+  return jspb.Message.setField(this, 13, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.csgo.Message} returns this
+ */
+proto.csgo.Message.prototype.clearMessage = function() {
+  return jspb.Message.setField(this, 13, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.csgo.Message.prototype.hasMessage = function() {
+  return jspb.Message.getField(this, 13) != null;
 };
 
 

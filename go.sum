@@ -1,3 +1,5 @@
+github.com/Philipp15b/go-steam v1.0.0 h1:nBGLVJRyDukX9dfcMFKbQbE2g6doh7e/IZFDDP3S9pY=
+github.com/Philipp15b/go-steam v1.0.0/go.mod h1:HuVM+sZFzumUdKPWiz+IlCMb4RdsKdT3T+nQBKL+sYg=
 github.com/alexflint/go-arg v1.4.3 h1:9rwwEBpMXfKQKceuZfYcwuc/7YY7tWJbFsgG5cAU/uo=
 github.com/alexflint/go-arg v1.4.3/go.mod h1:3PZ/wp/8HuqRZMUUgu7I+e1qcpUbvmS258mRXkFH4IA=
 github.com/alexflint/go-scalar v1.1.0 h1:aaAouLLzI9TChcPXotr6gUhq+Scr8rl0P9P4PnltbhM=

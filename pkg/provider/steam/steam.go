@@ -40,6 +40,11 @@ func NewSteamClient(config *conf.Conf) *SteamClient {
 	}
 }
 
+func (s *SteamClient) DemoStream(matchId string) (io.ReadCloser, error) {
+	log.L().Debug("obtaining steam demo", zap.String("matchId", matchId))
+	return nil, fmt.Errorf("steam not supported yet")
+}
+
 func (s *SteamClient) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	auth.ClearCookie(SteamAuthCookieName, w)
 	http.Redirect(w, r, r.Header.Get("Referer"), http.StatusSeeOther)

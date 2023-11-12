@@ -235,7 +235,11 @@ func sendMessage(msg *message.Message, out chan []byte) {
 
 func sendError(errorMessage string, out chan []byte) {
 	log.Printf("sending error to client: '%s'", errorMessage)
-	out <- []byte(fmt.Sprintf("{\"msgType\": %d, \"error\": {\"message\": \"%s\"}}", message.Message_ErrorType, errorMessage))
+	msg := &message.Message{
+		MsgType: message.Message_ErrorType,
+		Message: &errorMessage,
+	}
+	sendMessage(msg, out)
 }
 
 func obtainDemoFile(demo *message.Demo) (io.Reader, []io.Closer, error) {
@@ -246,6 +250,8 @@ func obtainDemoFile(demo *message.Demo) (io.Reader, []io.Closer, error) {
 	switch demo.Platform {
 	case message.Demo_Faceit:
 		demoFileReader, streamErr = faceitClient.DemoStream(demo.MatchId)
+	case message.Demo_Steam:
+		demoFileReader, streamErr = steamClient.DemoStream(demo.MatchId)
 	case message.Demo_Upload:
 		var ok bool
 		demoFileReader, ok = <-uploadQue[demo.MatchId]
