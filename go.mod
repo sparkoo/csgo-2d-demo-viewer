@@ -1,13 +1,15 @@
 module csgo-2d-demo-player
 
-go 1.20
+go 1.21
+
+toolchain go1.21.4
 
 require (
-	github.com/Philipp15b/go-steam/v3 v3.0.0
 	github.com/alexflint/go-arg v1.4.3
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551
 	github.com/gorilla/websocket v1.5.0
 	github.com/markus-wa/demoinfocs-golang/v3 v3.1.0
+	github.com/sparkoo/go-steam v0.0.0-20231112203532-968479d66868
 	github.com/stretchr/testify v1.8.2
 	github.com/yohcop/openid-go v1.0.1
 	go.uber.org/zap v1.23.0

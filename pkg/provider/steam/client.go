@@ -7,10 +7,10 @@ import (
 	"log"
 	"sync"
 
-	sclient "github.com/Philipp15b/go-steam/v3"
-	csgoproto "github.com/Philipp15b/go-steam/v3/csgo/protocol/protobuf"
-	"github.com/Philipp15b/go-steam/v3/protocol/gamecoordinator"
-	"github.com/Philipp15b/go-steam/v3/protocol/steamlang"
+	sclient "github.com/sparkoo/go-steam"
+	csgoproto "github.com/sparkoo/go-steam/csgo/protocol/protobuf"
+	"github.com/sparkoo/go-steam/protocol/gamecoordinator"
+	"github.com/sparkoo/go-steam/protocol/steamlang"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -65,9 +65,9 @@ func newSteamClient(conf *conf.Conf) *steamClient {
 				client.GC.SetGamesPlayed(730)
 
 				// time.Sleep(3 * time.Second)
-				client.GC.Write(gamecoordinator.NewGCMsgProtobuf(730, uint32(csgoproto.EGCBaseClientMsg_k_EMsgGCClientHello), &csgoproto.CMsgClientHello{
-					Version: Ptr(uint32(1)),
-				}))
+				// client.GC.Write(gamecoordinator.NewGCMsgProtobuf(730, uint32(csgoproto.EGCBaseClientMsg_k_EMsgGCClientHello), &csgoproto.CMsgClientHello{
+				// 	Version: Ptr(uint32(1)),
+				// }))
 				// time.Sleep(3 * time.Second)
 				// fmt.Println("sending some message to some black hole")
 				// client.GC.Write(gamecoordinator.NewGCMsgProtobuf(csgoAppId, uint32(csgoproto.ECsgoGCMsg_k_EMsgGCCStrike15_v2_MatchListRequestFullGameInfo), &csgoproto.CMsgGCCStrike15V2_MatchListRequestFullGameInfo{
