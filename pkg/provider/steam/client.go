@@ -3,25 +3,27 @@ package steam
 import (
 	"csgo-2d-demo-player/conf"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"sync"
+	"time"
+
+	"csgo-2d-demo-player/pkg/log"
 
 	sclient "github.com/sparkoo/go-steam"
 	csgoproto "github.com/sparkoo/go-steam/csgo/protocol/protobuf"
 	"github.com/sparkoo/go-steam/protocol/gamecoordinator"
 	"github.com/sparkoo/go-steam/protocol/steamlang"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )
 
-// Your Steam Web API Key: 4272CD0C6DBFEFC0ED2D509E4EFE6165
-
 // https://api.steampowered.com/ICSGOPlayers_730/GetNextMatchSharingCode/v1?key=4272CD0C6DBFEFC0ED2D509E4EFE6165&steamid=76561197979904892&steamidkey=73YF-MQ2HM-ZAKP&knowncode=CSGO-YaLAL-2Ornh-UE8pP-bhQVr-Q4zAC
+
+// steam://rungame/730/76561202255233023/+csgo_download_match%20CSGO-dK84y-25MFt-5zT4m-XzjS3-8LhWA
 
 const (
 	csgoAppId = 730
 
-	matchId = "CSGO-YaLAL-2Ornh-UE8pP-bhQVr-Q4zAC" // sparko
+	// matchId = "CSGO-YaLAL-2Ornh-UE8pP-bhQVr-Q4zAC" // sparko
+	matchId = "CSGO-dK84y-25MFt-5zT4m-XzjS3-8LhWA" // CS2 game
 )
 
 type steamClient struct {
@@ -39,65 +41,50 @@ func newSteamClient(conf *conf.Conf) *steamClient {
 		panic(errConnect)
 	}
 
-	var connected sync.WaitGroup
-	connected.Add(1)
 	go func() {
 
 		for event := range client.Events() {
-			fmt.Printf("received event '%T' => '%+v'\n", event, event)
+			// fmt.Printf("received event '%T' => '%+v'\n", event, event)
 			switch e := event.(type) {
 			case *sclient.ConnectedEvent:
 				client.Auth.LogOn(loginInfo)
-				// CMsgGCCStrike15_v2_MatchListRequestFullGameInfo
-				// client.GC.Write(&protobuf.CMsgGCCStrike15V2_MatchListRequestRecentUserGames{})
-				// client.GC.Write(&protobuf.CMsgGCCStrike15V2_MatchListRequestFullGameInfo{})
-				// var accId uint32 = 19639164
-				// client.GC.Write(gamecoordinator.NewGCMsg(730, uint32(protobuf.ECsgoGCMsg_k_EMsgGCCStrike15_v2_MatchListRequestRecentUserGames), &mesidz{
-				// 	msg: protobuf.CMsgGCCStrike15V2_MatchListRequestRecentUserGames{
-				// 		Accountid: &accId,
-				// 	},
-				// }))
-			case *sclient.MachineAuthUpdateEvent:
-				ioutil.WriteFile("sentry", e.Hash, 0666)
+			// case *sclient.MachineAuthUpdateEvent:
+			// 	ioutil.WriteFile("sentry", e.Hash, 0666)
 			case *sclient.LoggedOnEvent:
 				client.Social.SetPersonaState(steamlang.EPersonaState_Online)
 				client.GC.RegisterPacketHandler(&handler{})
 				client.GC.SetGamesPlayed(730)
 
-				// time.Sleep(3 * time.Second)
-				// client.GC.Write(gamecoordinator.NewGCMsgProtobuf(730, uint32(csgoproto.EGCBaseClientMsg_k_EMsgGCClientHello), &csgoproto.CMsgClientHello{
-				// 	Version: Ptr(uint32(1)),
-				// }))
-				// time.Sleep(3 * time.Second)
+				time.Sleep(3 * time.Second)
+				client.GC.Write(gamecoordinator.NewGCMsgProtobuf(730, uint32(csgoproto.EGCBaseClientMsg_k_EMsgGCClientHello), &csgoproto.CMsgClientHello{
+					Version: Ptr(uint32(1)),
+				}))
+				time.Sleep(3 * time.Second)
 				// fmt.Println("sending some message to some black hole")
-				// client.GC.Write(gamecoordinator.NewGCMsgProtobuf(csgoAppId, uint32(csgoproto.ECsgoGCMsg_k_EMsgGCCStrike15_v2_MatchListRequestFullGameInfo), &csgoproto.CMsgGCCStrike15V2_MatchListRequestFullGameInfo{
-				// 	Matchid:   &matchData.MatchID,
-				// 	Outcomeid: &matchData.OutcomeID,
-				// 	Token:     &matchData.Token,
-				// }))
-				// client.GC.Write(gamecoordinator.NewGCMsgProtobuf(csgoAppId, uint32(csgoproto.ECsgoGCMsg_k_EMsgGCCStrike15_v2_MatchListRequestRecentUserGames),
-				// 	&csgoproto.CMsgGCCStrike15V2_MatchListRequestRecentUserGames{Accountid: accountId(steamid)}))
-
-				// client.GC.Write(gamecoordinator.NewGCMsgProtobuf(csgoAppId, uint32(csgoproto.ECsgoGCMsg_k_EMsgGCCStrike15_v2_MatchListRequestRecentUserGames),
-				// &csgoproto.CMsgGCCStrike15V2_MatchListRequestRecentUserGames{Accountid: accountId(steamid)}))
+				matchData, decodeErr := decode(matchId)
+				if decodeErr != nil {
+					panic(decodeErr)
+				}
+				client.GC.Write(gamecoordinator.NewGCMsgProtobuf(csgoAppId, uint32(csgoproto.ECsgoGCMsg_k_EMsgGCCStrike15_v2_MatchListRequestFullGameInfo), &csgoproto.CMsgGCCStrike15V2_MatchListRequestFullGameInfo{
+					Matchid:   &matchData.MatchID,
+					Outcomeid: &matchData.OutcomeID,
+					Token:     &matchData.Token,
+				}))
 
 			case *sclient.LogOnFailedEvent:
 				fmt.Printf("eh? %+v\n", e)
 			case sclient.FatalErrorEvent:
-				log.Print(e)
+				log.L().Error("steam client failed with FatalErrorEvent", zap.Error(e))
 			case error:
-				log.Print(e)
+				log.L().Error("steam client failed hard", zap.Error(e))
 			}
 		}
 	}()
-	connected.Wait()
 
 	return &steamClient{
 		client: client,
 	}
 }
-
-var steamid uint64 = 76561197979904892
 
 type handler struct {
 }
@@ -106,10 +93,7 @@ func (h *handler) HandleGCPacket(packet *gamecoordinator.GCPacket) {
 	switch packet.MsgType {
 	case uint32(csgoproto.EGCBaseClientMsg_k_EMsgGCClientWelcome):
 		{
-			// var msg protobuf.CMsgClientWelcome
-			// packet.ReadProtoMsg(&msg)
-			fmt.Println("Welcome")
-			// fmt.Printf("message ??? co coco ??? %+v", msg)
+			log.L().Debug("Steam client connected ...")
 		}
 	case uint32(csgoproto.ECsgoGCMsg_k_EMsgGCCStrike15_v2_MatchList):
 		{
@@ -126,10 +110,10 @@ func (h *handler) HandleGCPacket(packet *gamecoordinator.GCPacket) {
 		}
 	case uint32(csgoproto.ECsgoGCMsg_k_EMsgGCCStrike15_v2_GC2ClientGlobalStats):
 		{
-			fmt.Printf(">>> %+v\n", packet)
-			var msg csgoproto.GlobalStatistics
-			packet.ReadProtoMsg(&msg)
-			fmt.Printf("hm? %+v", msg)
+			// fmt.Printf(">>> %+v\n", packet)
+			// var msg csgoproto.GlobalStatistics
+			// packet.ReadProtoMsg(&msg)
+			// fmt.Printf("hm? %+v\n", msg)
 		}
 	case uint32(csgoproto.EGCBaseClientMsg_k_EMsgGCClientConnectionStatus):
 		{

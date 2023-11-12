@@ -45,7 +45,22 @@ func NewSteamClient(config *conf.Conf) *SteamProvider {
 
 func (s *SteamProvider) DemoStream(matchId string) (io.ReadCloser, error) {
 	log.L().Debug("obtaining steam demo", zap.String("matchId", matchId))
-	return nil, fmt.Errorf("steam is not supported yet")
+	// demoUrl, urlErr := s.getDemoUrl(matchId)
+	// if urlErr != nil {
+	// 	return nil, urlErr
+	// }
+	demoUrl := "http://replay271.valve.net/730/003649983419980447965_1042911274.dem.bz2"
+
+	// log.Printf("Reading file '%s'", demoUrl)
+	req, reqErr := s.createRequest(demoUrl, false)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	resp, doReqErr := s.doRequest(req, 200, 3)
+	if doReqErr != nil {
+		return nil, doReqErr
+	}
+	return resp.Body, nil
 }
 
 func (s *SteamProvider) LogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -158,4 +173,30 @@ type Response struct {
 
 type SteamUserDetailsResponse struct {
 	Response Response `json:"response"`
+}
+
+func (s *SteamProvider) createRequest(url string, auth bool) (*http.Request, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func (s *SteamProvider) doRequest(req *http.Request, expectCode int, retries int) (*http.Response, error) {
+	var resp *http.Response
+	for i := 0; i < retries; i++ {
+		var err error
+		resp, err = s.httpClient.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		if resp.StatusCode == expectCode {
+			return resp, nil
+		}
+		log.Printf("response code '%d' but expected '%d', trying again '%d/%d'", resp.StatusCode, expectCode, i, retries)
+	}
+
+	return resp, fmt.Errorf("failed request with code '%d'", resp.StatusCode)
 }

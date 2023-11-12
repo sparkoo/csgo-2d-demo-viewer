@@ -1,6 +1,7 @@
 package main
 
 import (
+	"compress/bzip2"
 	"compress/gzip"
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/auth"
@@ -245,13 +246,37 @@ func sendError(errorMessage string, out chan []byte) {
 func obtainDemoFile(demo *message.Demo) (io.Reader, []io.Closer, error) {
 	closers := make([]io.Closer, 0)
 
-	var demoFileReader io.ReadCloser
-	var streamErr error
+	var demoFileReader io.Reader
 	switch demo.Platform {
 	case message.Demo_Faceit:
-		demoFileReader, streamErr = faceitClient.DemoStream(demo.MatchId)
+		var faceitDemoReader io.ReadCloser
+		var streamErr error
+		faceitDemoReader, streamErr = faceitClient.DemoStream(demo.MatchId)
+		closers = append(closers, faceitDemoReader)
+		if streamErr != nil {
+			log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, streamErr)
+			return nil, closers, streamErr
+		}
+
+		var gzipReader io.ReadCloser
+		gzipReader, streamErr = gzip.NewReader(faceitDemoReader)
+		demoFileReader = gzipReader
+		closers = append(closers, gzipReader)
+		if streamErr != nil {
+			log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, streamErr)
+			return nil, closers, streamErr
+		}
 	case message.Demo_Steam:
-		demoFileReader, streamErr = steamClient.DemoStream(demo.MatchId)
+		var steamDemoReader io.ReadCloser
+		var streamErr error
+		steamDemoReader, streamErr = steamClient.DemoStream(demo.MatchId)
+		closers = append(closers, steamDemoReader)
+
+		if streamErr != nil {
+			log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, streamErr)
+			return nil, closers, streamErr
+		}
+		demoFileReader = bzip2.NewReader(demoFileReader)
 	case message.Demo_Upload:
 		var ok bool
 		demoFileReader, ok = <-uploadQue[demo.MatchId]
@@ -260,16 +285,5 @@ func obtainDemoFile(demo *message.Demo) (io.Reader, []io.Closer, error) {
 		return nil, closers, fmt.Errorf("unknown demo platform %s", demo.Platform)
 	}
 
-	if streamErr != nil {
-		return nil, closers, streamErr
-	}
-	closers = append(closers, demoFileReader)
-
-	gzipReader, gzipErr := gzip.NewReader(demoFileReader)
-	if gzipErr != nil {
-		log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, gzipErr)
-		return nil, closers, gzipErr
-	}
-	closers = append(closers, gzipReader)
-	return gzipReader, closers, gzipErr
+	return demoFileReader, closers, nil
 }
