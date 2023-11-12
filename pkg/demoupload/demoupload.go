@@ -19,6 +19,7 @@ func (s *DemoUploadSvc) HandleUpload(w http.ResponseWriter, r *http.Request) {
 	utils.CorsDev(w, r, s.Conf)
 
 	if r.Method != "POST" {
+		w.Write([]byte("1234"))
 		return
 	}
 

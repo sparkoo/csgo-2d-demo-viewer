@@ -17,6 +17,8 @@ const Uploader = (props) => {
     allowMultiple={false}
     maxFiles={1}
     server={serverHost + "/demo/upload?matchId=" + uuid}
+    chunkSize={10000000}
+    chunkUploads={true}
     name="files"
     labelIdle='Drop your demo file here or <span class="filepond--label-action">Browse</span>. GZ format required'
     credits={false}
