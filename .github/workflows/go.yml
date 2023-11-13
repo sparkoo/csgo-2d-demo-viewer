@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: [ "master", "dev" ]
 
+env:
+  GOLANG_PROTOBUF_REGISTRATION_CONFLICT: warn
+
 jobs:
 
   build:
