@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/golang/geo/r3"
-	dem "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
+	dem "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 	"go.uber.org/zap"
 )
 
@@ -277,10 +277,11 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 			}
 		}
 		if g.WeaponInstance.Type == common.EqDecoy {
-			vel := g.Velocity()
-			if vel.Distance(zeroVector) <= velocityDelta {
-				action = "explode"
-			}
+			// TODO: fix decoy firing when not moving
+			// vel := g.Velocity()
+			// if vel.Distance(zeroVector) <= velocityDelta {
+			// 	action = "explode"
+			// }
 		}
 		x, y := translatePosition(g.Position(), mapCS)
 		nades = append(nades, &message.Grenade{

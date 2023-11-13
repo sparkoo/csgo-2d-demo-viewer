@@ -19,7 +19,7 @@ import (
 
 	"github.com/alexflint/go-arg"
 	"github.com/gorilla/websocket"
-	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )
@@ -211,6 +211,7 @@ func playDemo(out chan []byte, demo *message.Demo) {
 		sendError(err.Error(), out)
 		return
 	}
+
 	defer func() {
 		for _, c := range closers {
 			if closeErr := c.Close(); closeErr != nil {
@@ -276,7 +277,7 @@ func obtainDemoFile(demo *message.Demo) (io.Reader, []io.Closer, error) {
 			log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, streamErr)
 			return nil, closers, streamErr
 		}
-		demoFileReader = bzip2.NewReader(demoFileReader)
+		demoFileReader = bzip2.NewReader(steamDemoReader)
 	case message.Demo_Upload:
 		var ok bool
 		demoFileReader, ok = <-uploadQue[demo.MatchId]

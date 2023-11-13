@@ -6,27 +6,28 @@ toolchain go1.21.4
 
 require (
 	github.com/alexflint/go-arg v1.4.3
-	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551
+	github.com/golang/geo v0.0.0-20230421003525-6adc56603217
 	github.com/gorilla/websocket v1.5.0
-	github.com/markus-wa/demoinfocs-golang/v3 v3.1.0
+	github.com/markus-wa/demoinfocs-golang/v4 v4.0.0-beta.5.0.20231112113756-0c777326b942
 	github.com/sparkoo/go-steam v0.0.0-20231112203532-968479d66868
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.4
 	github.com/yohcop/openid-go v1.0.1
 	go.uber.org/zap v1.23.0
 	golang.org/x/oauth2 v0.6.0
-	google.golang.org/protobuf v1.30.0
+	google.golang.org/protobuf v1.31.0
 )
 
 require (
 	github.com/alexflint/go-scalar v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/markus-wa/go-unassert v0.1.2 // indirect
+	github.com/markus-wa/go-unassert v0.1.3 // indirect
 	github.com/markus-wa/gobitread v0.2.3 // indirect
 	github.com/markus-wa/godispatch v1.4.1 // indirect
-	github.com/markus-wa/ice-cipher-go v0.0.0-20220126215401-a6adadccc817 // indirect
-	github.com/markus-wa/quickhull-go/v2 v2.1.0 // indirect
+	github.com/markus-wa/ice-cipher-go v0.0.0-20230901094113-348096939ba7 // indirect
+	github.com/markus-wa/quickhull-go/v2 v2.2.0 // indirect
 	github.com/oklog/ulid/v2 v2.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
