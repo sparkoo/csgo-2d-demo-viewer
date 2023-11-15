@@ -23,7 +23,6 @@ type SteamProvider struct {
 	conf           *conf.Conf
 	httpClient     *http.Client
 	webKey         string
-	client         *steamClient
 }
 
 func NewSteamClient(config *conf.Conf) *SteamProvider {
@@ -31,7 +30,6 @@ func NewSteamClient(config *conf.Conf) *SteamProvider {
 	if config.Mode == conf.MODE_DEV {
 		hostScheme = "http://"
 	}
-	client := newSteamClient(config)
 	return &SteamProvider{
 		nonceStore:     openid.NewSimpleNonceStore(),
 		discoveryCache: openid.NewSimpleDiscoveryCache(),
@@ -39,7 +37,6 @@ func NewSteamClient(config *conf.Conf) *SteamProvider {
 		hostScheme:     hostScheme,
 		httpClient:     &http.Client{},
 		webKey:         config.SteamWebApiKey,
-		client:         client,
 	}
 }
 

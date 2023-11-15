@@ -1,4 +1,4 @@
-package steam
+package steamsvc
 
 import (
 	"csgo-2d-demo-player/conf"
@@ -26,11 +26,13 @@ const (
 	matchId = "CSGO-dK84y-25MFt-5zT4m-XzjS3-8LhWA" // CS2 game
 )
 
+var connectErr chan error
+
 type steamClient struct {
 	client *sclient.Client
 }
 
-func newSteamClient(conf *conf.Conf) *steamClient {
+func NewSteamClient(conf *conf.ConfSteamSvc) (*steamClient, error) {
 	loginInfo := &sclient.LogOnDetails{
 		Username: conf.SteamUsername,
 		Password: conf.SteamPassword,
@@ -41,8 +43,8 @@ func newSteamClient(conf *conf.Conf) *steamClient {
 		panic(errConnect)
 	}
 
+	connectErr = make(chan error)
 	go func() {
-
 		for event := range client.Events() {
 			// fmt.Printf("received event '%T' => '%+v'\n", event, event)
 			switch e := event.(type) {
@@ -80,9 +82,14 @@ func newSteamClient(conf *conf.Conf) *steamClient {
 			}
 		}
 	}()
+	err := <-connectErr
 
-	return &steamClient{
-		client: client,
+	if err != nil {
+		return nil, err
+	} else {
+		return &steamClient{
+			client: client,
+		}, nil
 	}
 }
 
@@ -94,6 +101,7 @@ func (h *handler) HandleGCPacket(packet *gamecoordinator.GCPacket) {
 	case uint32(csgoproto.EGCBaseClientMsg_k_EMsgGCClientWelcome):
 		{
 			log.L().Debug("Steam client connected ...")
+			connectErr <- nil
 		}
 	case uint32(csgoproto.ECsgoGCMsg_k_EMsgGCCStrike15_v2_MatchList):
 		{

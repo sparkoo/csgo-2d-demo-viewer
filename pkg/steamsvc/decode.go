@@ -1,4 +1,4 @@
-package steam
+package steamsvc
 
 import (
 	"math/big"

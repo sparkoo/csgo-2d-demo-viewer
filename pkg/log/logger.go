@@ -9,8 +9,8 @@ import (
 
 var logger *zap.Logger
 
-func Init(config *conf.Conf) {
-	switch config.Mode {
+func Init(mode conf.Mode) {
+	switch mode {
 	case conf.MODE_DEV:
 		logger = zap.Must(zap.NewDevelopment())
 		logger.Info("initialized development logger")
@@ -31,7 +31,7 @@ func Close() {
 
 func L() *zap.Logger {
 	if logger == nil {
-		Init(&conf.Conf{Mode: conf.MODE_DEV})
+		Init(conf.MODE_DEV)
 	}
 	return logger
 }

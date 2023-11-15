@@ -33,7 +33,7 @@ func main() {
 	config = &conf.Conf{}
 	arg.MustParse(config)
 
-	log.Init(config)
+	log.Init(config.Mode)
 	defer log.Close()
 
 	uploadQue = make(map[string]chan io.ReadCloser)

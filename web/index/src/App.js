@@ -36,14 +36,14 @@ function App() {
   //       Connect FACEIT <img src="https://upload.wikimedia.org/wikipedia/commons/5/52/Cib-faceit_%28CoreUI_Icons_v1.0.0%29.svg" height="32" alt="faceit-logo" />
   //     </a>
   //   </div>)
-  // let steamAuth = (
-  //   <div className='steamAuth'>
-  //     <a href={serverHost + "/auth/steam/login"}>
-  //       Connect Steam <img src='https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg' height="32" alt="steam-login" />
-  //     </a>
-  //   </div>
-  // )
-  // if (Object.keys(auth).length > 0) {
+  let steamAuth = (
+    <div className='steamAuth'>
+      <a href={serverHost + "/auth/steam/login"}>
+        Connect Steam <img src='https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg' height="32" alt="steam-login" />
+      </a>
+    </div>
+  )
+  if (Object.keys(auth).length > 0) {
   //   if (auth.faceitNickname) {
   //     faceitAuth = (
   //       <div className='faceitAuth'>
@@ -54,17 +54,17 @@ function App() {
   //       </div>
   //     )
   //   }
-  //   if (auth.steamId) {
-  //     steamAuth = (
-  //       <div className='steamAuth'>
-  //         <a href={"https://steamcommunity.com/profiles/" + auth.steamId} target="_blank" rel="noreferrer">
-  //         <img src={auth.steamAvatar} height="32" alt="steam-login" /><span id="steamNickname">{auth.steamUsername}</span>
-  //         </a>
-  //         <a className="material-icons w3-large" href={serverHost + "/auth/steam/logout"}>logout</a>
-  //       </div>
-  //     )
-  //   }
-  // }
+    if (auth.steamId) {
+      steamAuth = (
+        <div className='steamAuth'>
+          <a href={"https://steamcommunity.com/profiles/" + auth.steamId} target="_blank" rel="noreferrer">
+          <img src={auth.steamAvatar} height="32" alt="steam-login" /><span id="steamNickname">{auth.steamUsername}</span>
+          </a>
+          <a className="material-icons w3-large" href={serverHost + "/auth/steam/logout"}>logout</a>
+        </div>
+      )
+    }
+  }
 
   return (
     <div className="App">
@@ -83,8 +83,8 @@ function App() {
                   &nbsp;
                 </div>
                 <div className="w3-col l4 w3-right-align">
-                  {/* <div className='faceit'>{faceitAuth}</div>
-                  <div className='steam'>{steamAuth}</div> */}
+                  {/* <div className='faceit'>{faceitAuth}</div> */}
+                  <div className='steam'>{steamAuth}</div>
                 </div>
               </div>
             </div>
