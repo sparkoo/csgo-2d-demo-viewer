@@ -8,13 +8,13 @@ require (
 	github.com/alexflint/go-arg v1.4.3
 	github.com/golang/geo v0.0.0-20230421003525-6adc56603217
 	github.com/gorilla/websocket v1.5.0
-	github.com/markus-wa/demoinfocs-golang/v4 v4.0.0-beta.5.0.20231112113756-0c777326b942
+	github.com/markus-wa/demoinfocs-golang/v4 v4.2.6
 	github.com/sparkoo/go-steam v0.0.0-20231112203532-968479d66868
 	github.com/stretchr/testify v1.8.4
 	github.com/yohcop/openid-go v1.0.1
 	go.uber.org/zap v1.23.0
 	golang.org/x/oauth2 v0.6.0
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.34.2
 )
 
 require (
