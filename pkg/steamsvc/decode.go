@@ -1,3 +1,4 @@
+//nolint:golint,unused // this is unused for now, but keeping it here because it might be useful when implementing steam again
 package steamsvc
 
 import (
