@@ -61,6 +61,10 @@ func handleMessages(in chan []byte, out chan []byte) {
 func server() {
 	mux := http.NewServeMux()
 
+	if config.Mode == conf.MODE_DEV {
+		mux.Handle("/test_demos/", http.StripPrefix("/test_demos", http.FileServer(http.Dir("test_demos"))))
+	}
+
 	mux.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 	mux.Handle("/", http.FileServer(http.Dir("web/index/build")))
 	mux.Handle("/player/", http.StripPrefix("/player", http.FileServer(http.Dir("web/player/build"))))
