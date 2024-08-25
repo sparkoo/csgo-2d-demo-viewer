@@ -44,21 +44,21 @@ function App() {
     </div>
   )
   if (Object.keys(auth).length > 0) {
-  //   if (auth.faceitNickname) {
-  //     faceitAuth = (
-  //       <div className='faceitAuth'>
-  //         <a href={"https://www.faceit.com/en/players/" + auth.faceitNickname} target="_blank" rel="noreferrer">
-  //           <img src="/assets/faceit-logo.svg" alt="faceit-logo" height="32" /><span id="faceitNickname">{auth.faceitNickname}</span>
-  //         </a>
-  //         <a className="material-icons w3-large" href={serverHost + "/auth/faceit/logout"}>logout</a>
-  //       </div>
-  //     )
-  //   }
+    //   if (auth.faceitNickname) {
+    //     faceitAuth = (
+    //       <div className='faceitAuth'>
+    //         <a href={"https://www.faceit.com/en/players/" + auth.faceitNickname} target="_blank" rel="noreferrer">
+    //           <img src="/assets/faceit-logo.svg" alt="faceit-logo" height="32" /><span id="faceitNickname">{auth.faceitNickname}</span>
+    //         </a>
+    //         <a className="material-icons w3-large" href={serverHost + "/auth/faceit/logout"}>logout</a>
+    //       </div>
+    //     )
+    //   }
     if (auth.steamId) {
       steamAuth = (
         <div className='steamAuth'>
           <a href={"https://steamcommunity.com/profiles/" + auth.steamId} target="_blank" rel="noreferrer">
-          <img src={auth.steamAvatar} height="32" alt="steam-login" /><span id="steamNickname">{auth.steamUsername}</span>
+            <img src={auth.steamAvatar} height="32" alt="steam-login" /><span id="steamNickname">{auth.steamUsername}</span>
           </a>
           <a className="material-icons w3-large" href={serverHost + "/auth/steam/logout"}>logout</a>
         </div>
@@ -90,8 +90,31 @@ function App() {
             </div>
             <div id="searchNote" className="w3-margin w3-container w3-center loader w3-xlarge">
             </div>
-            <Uploader />
             {content}
+            <h3>Test links</h3>
+            <ul>
+              <li>
+                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-c26b4e22-66ac-4904-87cc-3b2b65a67ddb-1-1.dem.gz" target="_blank">Test Vertigo</a>
+              </li>
+              <li>
+                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-01b60b8a-0b9c-4fe1-bea2-f9e612523112-1-1.dem.gz" target="_blank">Demo 2</a>
+              </li>
+              <li>
+                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-2ca03eac-ea19-4ea6-9d2c-dfae175ff16c-1-1.dem.gz" target="_blank">Demo 3</a>
+              </li>
+              <li>
+                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-2d177174-727c-4529-b2af-d156d6457da2-1-1.dem.gz" target="_blank">Demo 4</a>
+              </li>
+              <li>
+                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-72fbfe3f-a924-446d-ae8b-03965920425c-1-1.dem.gz" target="_blank">Demo 5</a>
+              </li>
+              <li>
+                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-81f43518-aacc-45ac-a391-b2ada5e6ce53-1-1.dem.gz" target="_blank">Demo 6</a>
+              </li>
+              <li>
+                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-a7190a93-3116-41bf-9253-977abaa5cd13-1-1.dem.gz" target="_blank">Demo 7</a>
+              </li>
+            </ul>
           </div>
           <div className="w3-col l2">
             <br />
