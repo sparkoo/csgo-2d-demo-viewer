@@ -276,13 +276,13 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 				action = "explode"
 			}
 		}
-		if g.WeaponInstance.Type == common.EqDecoy {
-			// TODO: fix decoy firing when not moving
-			// vel := g.Velocity()
-			// if vel.Distance(zeroVector) <= velocityDelta {
-			// 	action = "explode"
-			// }
-		}
+		// if g.WeaponInstance.Type == common.EqDecoy {
+		// TODO: fix decoy firing when not moving
+		// vel := g.Velocity()
+		// if vel.Distance(zeroVector) <= velocityDelta {
+		// 	action = "explode"
+		// }
+		// }
 		x, y := translatePosition(g.Position(), mapCS)
 		nades = append(nades, &message.Grenade{
 			Id:     int32(g.Entity.ID()),

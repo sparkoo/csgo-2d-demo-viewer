@@ -128,7 +128,7 @@ func (h *handler) HandleGCPacket(packet *gamecoordinator.GCPacket) {
 		{
 			var msg csgoproto.CMsgConnectionStatus
 			packet.ReadProtoMsg(&msg)
-			fmt.Printf("connection status '%+v' \n", msg)
+			// fmt.Printf("connection status '%+v' \n", msg)
 		}
 	default:
 		fmt.Printf("received unknown message type %d\n", packet.MsgType)
