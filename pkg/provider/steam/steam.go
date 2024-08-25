@@ -4,6 +4,7 @@ import (
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/auth"
 	"csgo-2d-demo-player/pkg/log"
+	"csgo-2d-demo-player/pkg/utils"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,11 +50,11 @@ func (s *SteamProvider) DemoStream(matchId string) (io.ReadCloser, error) {
 	demoUrl := "http://replay271.valve.net/730/003649983419980447965_1042911274.dem.bz2"
 
 	// log.Printf("Reading file '%s'", demoUrl)
-	req, reqErr := s.createRequest(demoUrl, false)
+	req, reqErr := utils.CreateRequest(demoUrl, "")
 	if reqErr != nil {
 		return nil, reqErr
 	}
-	resp, doReqErr := s.doRequest(req, 200, 3)
+	resp, doReqErr := utils.DoRequest(s.httpClient, req, 200, 3)
 	if doReqErr != nil {
 		return nil, doReqErr
 	}
@@ -170,30 +171,4 @@ type Response struct {
 
 type SteamUserDetailsResponse struct {
 	Response Response `json:"response"`
-}
-
-func (s *SteamProvider) createRequest(url string, auth bool) (*http.Request, error) {
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-func (s *SteamProvider) doRequest(req *http.Request, expectCode int, retries int) (*http.Response, error) {
-	var resp *http.Response
-	for i := 0; i < retries; i++ {
-		var err error
-		resp, err = s.httpClient.Do(req)
-		if err != nil {
-			return nil, err
-		}
-		if resp.StatusCode == expectCode {
-			return resp, nil
-		}
-		log.Printf("response code '%d' but expected '%d', trying again '%d/%d'", resp.StatusCode, expectCode, i, retries)
-	}
-
-	return resp, fmt.Errorf("failed request with code '%d'", resp.StatusCode)
 }

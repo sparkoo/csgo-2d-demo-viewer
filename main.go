@@ -12,6 +12,7 @@ import (
 	"csgo-2d-demo-player/pkg/parser"
 	"csgo-2d-demo-player/pkg/provider/faceit"
 	"csgo-2d-demo-player/pkg/provider/steam"
+	"csgo-2d-demo-player/pkg/provider/upload"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -27,6 +28,7 @@ import (
 var config *conf.Conf
 var faceitClient *faceit.FaceitClient
 var steamClient *steam.SteamProvider
+var uploadClient *upload.UploadProvider
 var uploadQue map[string]chan io.ReadCloser
 
 func main() {
@@ -41,6 +43,7 @@ func main() {
 	log.L().Debug("using config", zap.Any("config", config))
 	faceitClient = faceit.NewFaceitClient(config)
 	steamClient = steam.NewSteamClient(config)
+	uploadClient = upload.NewUploadClient()
 	// log.Printf("using config %+v", config)
 	server()
 }
@@ -279,9 +282,23 @@ func obtainDemoFile(demo *message.Demo) (io.Reader, []io.Closer, error) {
 		}
 		demoFileReader = bzip2.NewReader(steamDemoReader)
 	case message.Demo_Upload:
-		var ok bool
-		demoFileReader, ok = <-uploadQue[demo.MatchId]
-		log.L().Debug("reading from upload channel", zap.Bool("success", ok))
+		var faceitDemoReader io.ReadCloser
+		var streamErr error
+		faceitDemoReader, streamErr = uploadClient.DemoStream(demo.MatchId)
+		closers = append(closers, faceitDemoReader)
+		if streamErr != nil {
+			log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, streamErr)
+			return nil, closers, streamErr
+		}
+
+		var gzipReader io.ReadCloser
+		gzipReader, streamErr = gzip.NewReader(faceitDemoReader)
+		demoFileReader = gzipReader
+		closers = append(closers, gzipReader)
+		if streamErr != nil {
+			log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, streamErr)
+			return nil, closers, streamErr
+		}
 	default:
 		return nil, closers, fmt.Errorf("unknown demo platform %s", demo.Platform)
 	}
