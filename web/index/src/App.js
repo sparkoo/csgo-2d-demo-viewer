@@ -13,21 +13,21 @@ function App() {
       setContent(<MatchTable auth={auth} serverHost={serverHost} />)
       return
     }
-    setContent(<span className="material-icons w3-xxxlarge rotate">autorenew</span>)
+    // setContent(<span className="material-icons w3-xxxlarge rotate">autorenew</span>)
 
-    fetch(serverHost + "/auth/whoami", { credentials: "include" })
-      .then(response => response.json())
-      .then(data => {
-        if (Object.keys(data).length > 0) {
-          setAuth(data)
-        } else {
-          setContent(<span className="w3-xxxlarge rotate">Connect account or upload demo file</span>)
-        }
-      })
-      .catch(err => {
-        console.log(err)
-        setContent(<span className="w3-xxxlarge rotate">failed to contact server ...</span>)
-      })
+    // fetch(serverHost + "/auth/whoami", { credentials: "include" })
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     if (Object.keys(data).length > 0) {
+    //       setAuth(data)
+    //     } else {
+    //       setContent(<span className="w3-xxxlarge rotate">Connect account or upload demo file</span>)
+    //     }
+    //   })
+    //   .catch(err => {
+    //     console.log(err)
+    //     setContent(<span className="w3-xxxlarge rotate">failed to contact server ...</span>)
+    //   })
   }, [serverHost, auth])
 
   // let faceitAuth = (
@@ -36,13 +36,13 @@ function App() {
   //       Connect FACEIT <img src="https://upload.wikimedia.org/wikipedia/commons/5/52/Cib-faceit_%28CoreUI_Icons_v1.0.0%29.svg" height="32" alt="faceit-logo" />
   //     </a>
   //   </div>)
-  let steamAuth = (
-    <div className='steamAuth'>
-      <a href={serverHost + "/auth/steam/login"}>
-        Connect Steam <img src='https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg' height="32" alt="steam-login" />
-      </a>
-    </div>
-  )
+  // let steamAuth = (
+  //   <div className='steamAuth'>
+  //     <a href={serverHost + "/auth/steam/login"}>
+  //       Connect Steam <img src='https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg' height="32" alt="steam-login" />
+  //     </a>
+  //   </div>
+  // )
   if (Object.keys(auth).length > 0) {
     //   if (auth.faceitNickname) {
     //     faceitAuth = (
@@ -54,16 +54,16 @@ function App() {
     //       </div>
     //     )
     //   }
-    if (auth.steamId) {
-      steamAuth = (
-        <div className='steamAuth'>
-          <a href={"https://steamcommunity.com/profiles/" + auth.steamId} target="_blank" rel="noreferrer">
-            <img src={auth.steamAvatar} height="32" alt="steam-login" /><span id="steamNickname">{auth.steamUsername}</span>
-          </a>
-          <a className="material-icons w3-large" href={serverHost + "/auth/steam/logout"}>logout</a>
-        </div>
-      )
-    }
+    // if (auth.steamId) {
+    //   steamAuth = (
+    //     <div className='steamAuth'>
+    //       <a href={"https://steamcommunity.com/profiles/" + auth.steamId} target="_blank" rel="noreferrer">
+    //         <img src={auth.steamAvatar} height="32" alt="steam-login" /><span id="steamNickname">{auth.steamUsername}</span>
+    //       </a>
+    //       <a className="material-icons w3-large" href={serverHost + "/auth/steam/logout"}>logout</a>
+    //     </div>
+    //   )
+    // }
   }
 
   return (
@@ -84,7 +84,7 @@ function App() {
                 </div>
                 <div className="w3-col l4 w3-right-align">
                   {/* <div className='faceit'>{faceitAuth}</div> */}
-                  <div className='steam'>{steamAuth}</div>
+                  {/* <div className='steam'>{steamAuth}</div> */}
                 </div>
               </div>
             </div>
