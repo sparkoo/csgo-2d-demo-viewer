@@ -5,7 +5,6 @@ import (
 	"compress/gzip"
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/auth"
-	"csgo-2d-demo-player/pkg/demoupload"
 	"csgo-2d-demo-player/pkg/list"
 	"csgo-2d-demo-player/pkg/log"
 	"csgo-2d-demo-player/pkg/message"
@@ -29,7 +28,6 @@ var config *conf.Conf
 var faceitClient *faceit.FaceitClient
 var steamClient *steam.SteamProvider
 var uploadClient *upload.UploadProvider
-var uploadQue map[string]chan io.ReadCloser
 
 func main() {
 	config = &conf.Conf{}
@@ -37,8 +35,6 @@ func main() {
 
 	log.Init(config.Mode)
 	defer log.Close()
-
-	uploadQue = make(map[string]chan io.ReadCloser)
 
 	log.L().Debug("using config", zap.Any("config", config))
 	faceitClient = faceit.NewFaceitClient(config)
@@ -68,13 +64,6 @@ func server() {
 	mux.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 	mux.Handle("/", http.FileServer(http.Dir("web/index/build")))
 	mux.Handle("/player/", http.StripPrefix("/player", http.FileServer(http.Dir("web/player/build"))))
-
-	demoUploadSvc := demoupload.DemoUploadSvc{
-		Conf:  config,
-		UpQue: uploadQue,
-	}
-
-	mux.HandleFunc("/demo/upload", demoUploadSvc.HandleUpload)
 
 	listService := list.ListService{
 		Conf:         config,
