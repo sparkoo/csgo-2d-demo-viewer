@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import MatchTable from './MatchTable/MatchTable';
-import Uploader from './Uploader/Uploader';
+// import Uploader from './Uploader/Uploader';
 
 function App() {
-  const [auth, setAuth] = useState([]);
+  const [auth/*, setAuth*/] = useState([]);
   const [serverHost] = useState(window.location.host.includes("localhost") ? "http://localhost:8080" : "")
   const [content, setContent] = useState([]);
 
