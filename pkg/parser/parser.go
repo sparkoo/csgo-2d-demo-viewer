@@ -22,7 +22,7 @@ var zeroVector = r3.Vector{
 	Z: 0,
 }
 
-const velocityDelta = 0.000001
+const velocityDelta = 0.000001 //nolint:golint,unused // unused now
 
 type RoundTimer struct {
 	lastRoundStart time.Duration

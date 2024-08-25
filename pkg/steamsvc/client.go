@@ -1,3 +1,4 @@
+//nolint:golint,unused,staticcheck // unused for now, might be useful later
 package steamsvc
 
 import (
