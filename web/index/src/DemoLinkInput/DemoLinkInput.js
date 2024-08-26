@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const DemoLinkInput = (props) => {
   const [validationMessage, setValidationMessage] = useState([]);
@@ -11,6 +11,7 @@ const DemoLinkInput = (props) => {
       const playerLink = window.location.origin + "/player?platform=upload&matchId=" + demoLink
       // console.log(playerLink)
       window.open(playerLink)
+      event.target.demoLinkInput.value = ""
     } else {
       setValidationMessage("this does not look like demo link")
     }
@@ -18,7 +19,7 @@ const DemoLinkInput = (props) => {
   return (
     <div className='w3-container'>
       <form className="w3-container w3-card-8" onSubmit={onChange}>
-        <input type='text' name='demoLinkInput' className='w3-input w3-border w3-xlarge' placeholder='Paste link to demo here' />
+        <input type='text' name='demoLinkInput' className='w3-input w3-border w3-xlarge' placeholder='Paste link to demo here and press Enter' />
       </form>
       {validationMessage.length > 0 &&
         <div className='w3-panel w3-pale-red w3-leftbar w3-border-red'>
