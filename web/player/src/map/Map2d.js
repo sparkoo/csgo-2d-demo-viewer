@@ -89,7 +89,7 @@ class Map2d extends Component {
 
   render() {
     const style = {
-      backgroundImage: `url("https://raw.githubusercontent.com/sparkoo/csgo-overviews/master/overviews/${this.state.mapName}.jpg")`,
+      backgroundImage: `url("https://raw.githubusercontent.com/zoidyzoidzoid/csgo-overviews/master/overviews/${this.state.mapName}.png")`,
     }
     const playerComponents = []
     if (this.state.players && this.state.players.length > 0) {
