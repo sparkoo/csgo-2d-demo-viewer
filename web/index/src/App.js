@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import MatchTable from './MatchTable/MatchTable';
+import DemoLinkInput from './DemoLinkInput/DemoLinkInput';
 // import Uploader from './Uploader/Uploader';
 
 function App() {
@@ -91,6 +92,8 @@ function App() {
             <div id="searchNote" className="w3-margin w3-container w3-center loader w3-xlarge">
             </div>
             {content}
+            <DemoLinkInput />
+            <hr />
             <h3>Test demos</h3>
             <ul>
               <li>
