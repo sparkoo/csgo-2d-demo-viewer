@@ -56,7 +56,8 @@ func (s *ListService) gcpStorage() ([]match.MatchInfo, error) {
 		if err != nil {
 			log.Println("err when listing files in GCP storage bucket", err)
 		}
-		matches = append(matches, match.MatchInfo{DemoLink: attrs.Name, TeamA: attrs.Metadata["teamA"]})
+		log.Printf("got file: %+v", attrs)
+		matches = append(matches, match.MatchInfo{DemoLink: attrs.Name})
 	}
 
 	return matches, nil
