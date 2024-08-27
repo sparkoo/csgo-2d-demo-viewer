@@ -47,13 +47,7 @@ func NewFaceitClient(config *conf.Conf) *FaceitClient {
 		oauthConfig: faceitOAuthConfig,
 		apiKey:      config.FaceitApiKey,
 		conf:        config,
-		httpClient: &http.Client{
-			Timeout: time.Second * 60,
-			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{
-					InsecureSkipVerify: true,
-				},
-			}},
+		httpClient:  utils.CreateHttpClient(),
 	}
 }
 
@@ -190,11 +184,11 @@ func (f *FaceitClient) MatchDetails(reader io.ReadCloser) (*match.MatchInfo, err
 		return nil, fmt.Errorf("failed to unmarshall match detail: %w", errUnmarshall)
 	}
 
-	req, errReq := f.createRequest(fmt.Sprintf("%s/matches/%s/stats", faceitOpenApiUrlBase, matchInfo.Id), true)
+	req, errReq := utils.CreateRequest(fmt.Sprintf("%s/matches/%s/stats", faceitOpenApiUrlBase, matchInfo.Id), f.apiKey)
 	if errReq != nil {
 		return nil, fmt.Errorf("failed to create list matches request: %w", errReq)
 	}
-	resp, errDoReq := f.doRequest(req, 200, 3)
+	resp, errDoReq := utils.DoRequest(f.httpClient, req, 200, 3)
 	if errDoReq != nil {
 		return nil, fmt.Errorf("failed to do list matches request: %w", errDoReq)
 	}
@@ -225,12 +219,12 @@ func (f *FaceitClient) MatchDetails(reader io.ReadCloser) (*match.MatchInfo, err
 }
 
 func (f *FaceitClient) listMatches(userGuid string, limit int) ([]match.MatchInfo, error) {
-	req, errReq := f.createRequest(fmt.Sprintf("%s/players/%s/history?game=csgo&limit=%d", faceitOpenApiUrlBase, userGuid, limit), true)
+	req, errReq := utils.CreateRequest(fmt.Sprintf("%s/players/%s/history?game=csgo&limit=%d", faceitOpenApiUrlBase, userGuid, limit), f.apiKey)
 	if errReq != nil {
 		return nil, fmt.Errorf("failed to create list matches request: %w", errReq)
 	}
 
-	resp, errDoReq := f.doRequest(req, 200, 3)
+	resp, errDoReq := utils.DoRequest(f.httpClient, req, 200, 3)
 	if errDoReq != nil {
 		return nil, fmt.Errorf("failed to do list matches request: %w", errDoReq)
 	}
@@ -291,11 +285,11 @@ func (f *FaceitClient) DemoStream(matchId string) (io.ReadCloser, error) {
 	}
 
 	// log.Printf("Reading file '%s'", demoUrl)
-	req, reqErr := f.createRequest(demoUrl, false)
+	req, reqErr := utils.CreateRequest(demoUrl, f.apiKey)
 	if reqErr != nil {
 		return nil, reqErr
 	}
-	resp, doReqErr := f.doRequest(req, 200, 3)
+	resp, doReqErr := utils.DoRequest(f.httpClient, req, 200, 3)
 	if doReqErr != nil {
 		return nil, doReqErr
 	}
@@ -305,13 +299,13 @@ func (f *FaceitClient) DemoStream(matchId string) (io.ReadCloser, error) {
 func (f *FaceitClient) getDemoUrl(matchId string) (string, error) {
 	url := fmt.Sprintf("%s/matches/%s", faceitOpenApiUrlBase, matchId)
 	// log.Printf("requesting url '%s'", url)
-	req, reqErr := f.createRequest(url, true)
+	req, reqErr := utils.CreateRequest(url, f.apiKey)
 	if reqErr != nil {
 		return "", reqErr
 	}
 	q := req.URL.Query()
 	req.URL.RawQuery = q.Encode()
-	resp, doReqErr := f.doRequest(req, 200, 3)
+	resp, doReqErr := utils.DoRequest(f.httpClient, req, 200, 3)
 	if doReqErr != nil {
 		return "", doReqErr
 	}
@@ -332,33 +326,4 @@ func (f *FaceitClient) getDemoUrl(matchId string) (string, error) {
 	}
 
 	return demo.DemoUrl[0], nil
-}
-
-func (f *FaceitClient) createRequest(url string, auth bool) (*http.Request, error) {
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	if auth && f.apiKey != "" {
-		req.Header.Set("Authorization", "Bearer "+f.apiKey)
-	}
-
-	return req, nil
-}
-
-func (f *FaceitClient) doRequest(req *http.Request, expectCode int, retries int) (*http.Response, error) {
-	var resp *http.Response
-	for i := 0; i < retries; i++ {
-		var err error
-		resp, err = f.httpClient.Do(req)
-		if err != nil {
-			return nil, err
-		}
-		if resp.StatusCode == expectCode {
-			return resp, nil
-		}
-		log.Printf("response code '%d' but expected '%d', trying again '%d/%d'", resp.StatusCode, expectCode, i, retries)
-	}
-
-	return resp, fmt.Errorf("failed request with code '%d'", resp.StatusCode)
 }

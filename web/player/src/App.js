@@ -1,11 +1,11 @@
+import { Component } from "react";
 import './App.css';
-import {Component} from "react";
+import ErrorBoundary from "./Error";
+import MessageBus from "./MessageBus";
+import Player from "./Player";
 import Connect from "./Websocket";
 import Map2d from "./map/Map2d";
-import MessageBus from "./MessageBus";
 import InfoPanel from "./panel/InfoPanel";
-import Player from "./Player";
-import ErrorBoundary from "./Error";
 
 class App extends Component {
   constructor(props) {
@@ -13,7 +13,7 @@ class App extends Component {
     this.messageBus = new MessageBus()
     this.player = new Player(this.messageBus)
     this.messageBus.listen([13], function (msg) {
-      alert(msg.error.message)
+      alert(msg.message)
     })
     Connect(this.messageBus)
   }

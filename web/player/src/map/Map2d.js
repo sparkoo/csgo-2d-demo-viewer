@@ -19,7 +19,7 @@ class Map2d extends Component {
       bomb: {x: -100, y: -100},
     }
 
-    props.messageBus.listen([4, 13], this.onMessage.bind(this))
+    props.messageBus.listen([4], this.onMessage.bind(this))
     props.messageBus.listen([1], this.tickUpdate.bind(this))
     props.messageBus.listen([9], this.handleShot.bind(this))
     props.messageBus.listen([MSG_PLAY_CHANGE], function () {
@@ -89,7 +89,7 @@ class Map2d extends Component {
 
   render() {
     const style = {
-      backgroundImage: `url("https://raw.githubusercontent.com/sparkoo/csgo-overviews/master/overviews/${this.state.mapName}.jpg")`,
+      backgroundImage: `url("https://raw.githubusercontent.com/zoidyzoidzoid/csgo-overviews/master/overviews/${this.state.mapName}.png")`,
     }
     const playerComponents = []
     if (this.state.players && this.state.players.length > 0) {

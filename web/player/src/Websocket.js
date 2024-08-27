@@ -14,13 +14,15 @@ function Connect(messageBus) {
   socket.onopen = function (e) {
     console.log("[open] Connection established");
     const urlParams = new URLSearchParams(window.location.search);
-    socket.send(JSON.stringify(
-        {
-          "msgtype": 12,
-          "demo": {
-            "matchId": urlParams.get("matchId")
-          }
-        }));
+
+    const demo = new proto.Demo()
+      .setMatchid(urlParams.get("matchId"))
+      .setPlatform(proto.Demo.DemoPlatformType[urlParams.get("platform").toUpperCase()]);
+
+    const playRequestMessage = new proto.Message()
+      .setMsgtype(proto.Message.MessageType.PLAYREQUESTTYPE)
+      .setDemo(demo);
+    socket.send(playRequestMessage.serializeBinary());
   };
 
   socket.onclose = function (event) {

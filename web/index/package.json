@@ -4,9 +4,11 @@
   "private": true,
   "dependencies": {
     "dotenv": "^16.0.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "web-vitals": "^2.1.4"
+    "filepond": "^4.30.4",
+    "react-filepond": "^7.1.2",
+    "web-vitals": "^3.5.0",
+    "react": "npm:@preact/compat",
+    "react-dom": "npm:@preact/compat"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",

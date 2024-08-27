@@ -4,6 +4,7 @@ import (
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/auth"
 	"csgo-2d-demo-player/pkg/log"
+	"csgo-2d-demo-player/pkg/utils"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -16,7 +17,7 @@ import (
 
 const SteamAuthCookieName = "authSteam"
 
-type SteamClient struct {
+type SteamProvider struct {
 	nonceStore     openid.NonceStore
 	discoveryCache openid.DiscoveryCache
 	hostScheme     string
@@ -25,12 +26,12 @@ type SteamClient struct {
 	webKey         string
 }
 
-func NewSteamClient(config *conf.Conf) *SteamClient {
+func NewSteamClient(config *conf.Conf) *SteamProvider {
 	hostScheme := "https://"
 	if config.Mode == conf.MODE_DEV {
 		hostScheme = "http://"
 	}
-	return &SteamClient{
+	return &SteamProvider{
 		nonceStore:     openid.NewSimpleNonceStore(),
 		discoveryCache: openid.NewSimpleDiscoveryCache(),
 		conf:           config,
@@ -40,12 +41,32 @@ func NewSteamClient(config *conf.Conf) *SteamClient {
 	}
 }
 
-func (s *SteamClient) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+func (s *SteamProvider) DemoStream(matchId string) (io.ReadCloser, error) {
+	log.L().Debug("obtaining steam demo", zap.String("matchId", matchId))
+	// demoUrl, urlErr := s.getDemoUrl(matchId)
+	// if urlErr != nil {
+	// 	return nil, urlErr
+	// }
+	demoUrl := "http://replay271.valve.net/730/003649983419980447965_1042911274.dem.bz2"
+
+	// log.Printf("Reading file '%s'", demoUrl)
+	req, reqErr := utils.CreateRequest(demoUrl, "")
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	resp, doReqErr := utils.DoRequest(s.httpClient, req, 200, 3)
+	if doReqErr != nil {
+		return nil, doReqErr
+	}
+	return resp.Body, nil
+}
+
+func (s *SteamProvider) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	auth.ClearCookie(SteamAuthCookieName, w)
 	http.Redirect(w, r, r.Header.Get("Referer"), http.StatusSeeOther)
 }
 
-func (s *SteamClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
+func (s *SteamProvider) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	url, errOpenid := openid.RedirectURL("https://steamcommunity.com/openid", s.hostScheme+r.Host+"/auth/steam/callback", s.hostScheme+r.Host)
 	if errOpenid != nil {
 		log.L().Error("failed to create steam openid url", zap.Error(errOpenid))
@@ -56,7 +77,7 @@ func (s *SteamClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
-func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
+func (s *SteamProvider) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.L().Info("got", zap.String("params", r.URL.Query().Encode()))
 	fullUrl := s.hostScheme + r.Host + r.URL.String()
 	log.L().Info("verify steam openid", zap.String("url", fullUrl))
@@ -96,7 +117,7 @@ func (s *SteamClient) OAuthCallbackHandler(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, redirectUrl, http.StatusSeeOther)
 }
 
-func (s *SteamClient) getSteamUsername(userId string) (*Player, error) {
+func (s *SteamProvider) getSteamUsername(userId string) (*Player, error) {
 	steamUserDetailUrl := fmt.Sprintf("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s", s.webKey, userId)
 	resp, errReq := s.httpClient.Get(steamUserDetailUrl)
 	if errReq != nil {

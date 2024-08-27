@@ -33,6 +33,7 @@ message Message {
   optional Frag frag = 10;
   optional Demo demo = 11;
   optional Grenade grenadeEvent = 12;
+  optional string message = 13;
 }
 
 message Player {
@@ -141,5 +142,11 @@ message RoundTime {
 }
 
 message Demo {
+  enum DemoPlatformType {
+    Upload = 0;
+    Faceit = 1;
+    Steam = 2;
+  }
   string MatchId = 1;
+  DemoPlatformType Platform = 2;
 }

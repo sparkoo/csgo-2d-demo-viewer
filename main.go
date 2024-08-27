@@ -1,6 +1,7 @@
 package main
 
 import (
+	"compress/bzip2"
 	"compress/gzip"
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/auth"
@@ -10,6 +11,7 @@ import (
 	"csgo-2d-demo-player/pkg/parser"
 	"csgo-2d-demo-player/pkg/provider/faceit"
 	"csgo-2d-demo-player/pkg/provider/steam"
+	"csgo-2d-demo-player/pkg/provider/upload"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,25 +19,27 @@ import (
 
 	"github.com/alexflint/go-arg"
 	"github.com/gorilla/websocket"
-	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )
 
 var config *conf.Conf
 var faceitClient *faceit.FaceitClient
-var steamClient *steam.SteamClient
+var steamClient *steam.SteamProvider
+var uploadClient *upload.UploadProvider
 
 func main() {
 	config = &conf.Conf{}
 	arg.MustParse(config)
 
-	log.Init(config)
+	log.Init(config.Mode)
 	defer log.Close()
 
 	log.L().Debug("using config", zap.Any("config", config))
 	faceitClient = faceit.NewFaceitClient(config)
 	steamClient = steam.NewSteamClient(config)
+	uploadClient = upload.NewUploadClient()
 	// log.Printf("using config %+v", config)
 	server()
 }
@@ -43,19 +47,23 @@ func main() {
 func handleMessages(in chan []byte, out chan []byte) {
 	for msg := range in {
 		var messageObj message.Message
-		err := json.Unmarshal(msg, &messageObj)
+		err := proto.Unmarshal(msg, &messageObj)
 		if err != nil {
 			log.Print("failed unmarshal websocket message", err)
 		}
 		switch messageObj.MsgType {
 		case message.Message_PlayRequestType:
-			go playDemo(out, messageObj.Demo.MatchId)
+			go playDemo(out, messageObj.Demo)
 		}
 	}
 }
 
 func server() {
 	mux := http.NewServeMux()
+
+	if config.Mode == conf.MODE_DEV {
+		mux.Handle("/test_demos/", http.StripPrefix("/test_demos", http.FileServer(http.Dir("test_demos"))))
+	}
 
 	mux.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 	mux.Handle("/", http.FileServer(http.Dir("web/index/build")))
@@ -188,21 +196,22 @@ func server() {
 	log.L().Fatal("failed to listen", zap.Error(listenErr))
 }
 
-func playDemo(out chan []byte, matchId string) {
-	log.L().Info("playing faceit demo", zap.String("matchId", matchId))
-	if matchId == "" {
+func playDemo(out chan []byte, demo *message.Demo) {
+	log.L().Info("playing demo", zap.String("matchId", demo.MatchId), zap.String("platform", demo.Platform.String()))
+	if demo.MatchId == "" {
 		sendError("no matchId", out)
 		return
 	}
-	demoFile, closers, err := obtainDemoFile(matchId)
+	demoFile, closers, err := obtainDemoFile(demo)
 	if err != nil {
 		sendError(err.Error(), out)
 		return
 	}
+
 	defer func() {
 		for _, c := range closers {
 			if closeErr := c.Close(); closeErr != nil {
-				log.Printf("[%s] failed to close resource. %s", matchId, closeErr)
+				log.Printf("[%s] failed to close resource. %s", demo.MatchId, closeErr)
 			}
 		}
 	}()
@@ -224,23 +233,68 @@ func sendMessage(msg *message.Message, out chan []byte) {
 
 func sendError(errorMessage string, out chan []byte) {
 	log.Printf("sending error to client: '%s'", errorMessage)
-	out <- []byte(fmt.Sprintf("{\"msgType\": %d, \"error\": {\"message\": \"%s\"}}", message.Message_ErrorType, errorMessage))
+	msg := &message.Message{
+		MsgType: message.Message_ErrorType,
+		Message: &errorMessage,
+	}
+	sendMessage(msg, out)
 }
 
-func obtainDemoFile(matchId string) (io.Reader, []io.Closer, error) {
+func obtainDemoFile(demo *message.Demo) (io.Reader, []io.Closer, error) {
 	closers := make([]io.Closer, 0)
 
-	demoFileReader, streamErr := faceitClient.DemoStream(matchId)
-	if streamErr != nil {
-		return nil, closers, streamErr
-	}
-	closers = append(closers, demoFileReader)
+	var demoFileReader io.Reader
+	switch demo.Platform {
+	case message.Demo_Faceit:
+		var faceitDemoReader io.ReadCloser
+		var streamErr error
+		faceitDemoReader, streamErr = faceitClient.DemoStream(demo.MatchId)
+		closers = append(closers, faceitDemoReader)
+		if streamErr != nil {
+			log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, streamErr)
+			return nil, closers, streamErr
+		}
 
-	gzipReader, gzipErr := gzip.NewReader(demoFileReader)
-	if gzipErr != nil {
-		log.Printf("[%s] Failed to create gzip reader from demo. %s", matchId, gzipErr)
-		return nil, closers, gzipErr
+		var gzipReader io.ReadCloser
+		gzipReader, streamErr = gzip.NewReader(faceitDemoReader)
+		demoFileReader = gzipReader
+		closers = append(closers, gzipReader)
+		if streamErr != nil {
+			log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, streamErr)
+			return nil, closers, streamErr
+		}
+	case message.Demo_Steam:
+		var steamDemoReader io.ReadCloser
+		var streamErr error
+		steamDemoReader, streamErr = steamClient.DemoStream(demo.MatchId)
+		closers = append(closers, steamDemoReader)
+
+		if streamErr != nil {
+			log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, streamErr)
+			return nil, closers, streamErr
+		}
+		demoFileReader = bzip2.NewReader(steamDemoReader)
+	case message.Demo_Upload:
+		var faceitDemoReader io.ReadCloser
+		var streamErr error
+		faceitDemoReader, streamErr = uploadClient.DemoStream(demo.MatchId)
+		closers = append(closers, faceitDemoReader)
+		if streamErr != nil {
+			log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, streamErr)
+			return nil, closers, streamErr
+		}
+
+		var gzipReader io.ReadCloser
+		gzipReader, streamErr = gzip.NewReader(faceitDemoReader)
+		demoFileReader = gzipReader
+		closers = append(closers, gzipReader)
+		if streamErr != nil {
+			log.Printf("[%s] Failed to create gzip reader from demo. %s", demo.MatchId, streamErr)
+			return nil, closers, streamErr
+		}
+	default:
+		return nil, closers, fmt.Errorf("unknown demo platform %s", demo.Platform)
 	}
-	closers = append(closers, gzipReader)
-	return gzipReader, closers, gzipErr
+
+	return demoFileReader, closers, nil
 }

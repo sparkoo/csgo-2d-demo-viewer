@@ -1,6 +1,6 @@
-import "./RoundNav.css"
-import {Component} from "react";
-import {MSG_INIT_ROUNDS, MSG_PLAY, MSG_PLAY_ROUND_UPDATE} from "../constants";
+import { Component } from "react";
+import { MSG_INIT_ROUNDS, MSG_PLAY, MSG_PLAY_ROUND_UPDATE } from "../constants";
+import "./RoundNav.css";
 
 class RoundNav extends Component {
   constructor(props) {
@@ -14,9 +14,9 @@ class RoundNav extends Component {
       msg.rounds.forEach(r => {
         rounds.push(<Round key={`round${r.roundno}`} winner={r.winner} roundNo={r.roundno}
                            messageBus={this.messageBus}/>)
-        if (r.roundno <= 30 && r.roundno % 15 === 0) {
+        if (r.roundno <= 24 && r.roundno % 12 === 0) {
           rounds.push(<br key={`break${r.roundno}`}/>)
-        } else if (r.roundno > 30 && r.roundno % 6 === 0) {
+        } else if (r.roundno > 24 && r.roundno % 6 === 0) {
           rounds.push(<br key={`break${r.roundno}`}/>)
         }
       })
