@@ -70,11 +70,9 @@ func server() {
 	mux.Handle("/player/", http.StripPrefix("/player", http.FileServer(http.Dir("web/player/build"))))
 
 	listService := list.ListService{
-		Conf:         config,
-		FaceitClient: faceitClient,
+		Conf: config,
 	}
 	mux.HandleFunc("/match/list", listService.ListMatches)
-	mux.HandleFunc("/match/detail", listService.MatchDetails)
 
 	// faceit auth
 	mux.HandleFunc("/auth/faceit/login", faceitClient.LoginHandler)
