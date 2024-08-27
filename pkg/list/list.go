@@ -42,7 +42,7 @@ func (s *ListService) gcpStorage() ([]match.MatchInfo, error) {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create GCP storage client", err)
+		return nil, fmt.Errorf("failed to create GCP storage client: %w", err)
 	}
 	bucket := client.Bucket("2d-sparko-demostorage")
 
