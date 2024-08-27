@@ -3,6 +3,7 @@ package main
 import (
 	"compress/bzip2"
 	"compress/gzip"
+	"context"
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/auth"
 	"csgo-2d-demo-player/pkg/list"
@@ -30,6 +31,7 @@ var steamClient *steam.SteamProvider
 var uploadClient *upload.UploadProvider
 
 func main() {
+	ctx := context.Background()
 	config = &conf.Conf{}
 	arg.MustParse(config)
 
@@ -41,7 +43,7 @@ func main() {
 	steamClient = steam.NewSteamClient(config)
 	uploadClient = upload.NewUploadClient()
 	// log.Printf("using config %+v", config)
-	server()
+	server(ctx)
 }
 
 func handleMessages(in chan []byte, out chan []byte) {
@@ -58,21 +60,20 @@ func handleMessages(in chan []byte, out chan []byte) {
 	}
 }
 
-func server() {
+func server(ctx context.Context) {
 	mux := http.NewServeMux()
-
-	if config.Mode == conf.MODE_DEV {
-		mux.Handle("/test_demos/", http.StripPrefix("/test_demos", http.FileServer(http.Dir("test_demos"))))
-	}
 
 	mux.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
 	mux.Handle("/", http.FileServer(http.Dir("web/index/build")))
 	mux.Handle("/player/", http.StripPrefix("/player", http.FileServer(http.Dir("web/player/build"))))
 
-	listService := list.ListService{
-		Conf: config,
+	listService, listServiceErr := list.NewListService(ctx, config)
+	if listServiceErr != nil {
+		log.L().Error("failed to create match list service. /match endpoint won't work", zap.Error(listServiceErr))
+	} else {
+		mux.HandleFunc("/match", listService.ListMatches)
+		mux.HandleFunc("/match/upload", listService.UploadMatch)
 	}
-	mux.HandleFunc("/match/list", listService.ListMatches)
 
 	// faceit auth
 	mux.HandleFunc("/auth/faceit/login", faceitClient.LoginHandler)

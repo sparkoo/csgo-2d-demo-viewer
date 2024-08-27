@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import MatchTable from './MatchTable/MatchTable';
 import DemoLinkInput from './DemoLinkInput/DemoLinkInput';
+import Uploader from './Uploader/Uploader';
 // import Uploader from './Uploader/Uploader';
 
 function App() {
@@ -93,6 +94,7 @@ function App() {
             </div>
             {content}
             <DemoLinkInput />
+            <Uploader />
             <hr />
             <h3>Test demos</h3>
             <ul>

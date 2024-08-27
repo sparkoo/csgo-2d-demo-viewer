@@ -14,6 +14,7 @@ type Conf struct {
 	Listen                  string `arg:"--listen, env:LISTEN" default:"127.0.0.1"`
 	Port                    int    `arg:"--port, env:PORT" default:"8080" help:"Server port"`
 	Mode                    Mode   `arg:"--mode, env:MODE" default:"dev" help:"Runtime environment mode, one of 'dev', 'prod'"`
+	GcpStorageSAKey         string `arg:"--gcpStorageKey, env:GCP_STORAGE_KEY" help:"Path to file with GCP cloud storage key."`
 }
 
 type ConfSteamSvc struct {
