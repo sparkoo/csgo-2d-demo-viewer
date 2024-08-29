@@ -61,11 +61,11 @@ func (s *ListService) UploadMatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method != "POST" {
-		log.L().Info("unexpected upload request method", zap.Any("request", *r))
+		log.L().Info("unexpected upload request method", zap.Any("request", r.Method))
 		return
 	}
 
-	// r.ParseMultipartForm(100 << 20)
+	log.L().Debug("uploading file ...")
 	file, handler, err := r.FormFile("demoFile")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error Retrieving the File [%s]", err.Error()), http.StatusBadRequest)
@@ -73,29 +73,23 @@ func (s *ListService) UploadMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	log.L().Info("uploading file", zap.String("filename", handler.Filename), zap.Int64("filesize", handler.Size), zap.Any("mime", handler.Header))
+	log.L().Debug("uploading file", zap.String("filename", handler.Filename), zap.Int64("filesize", handler.Size), zap.Any("mime", handler.Header))
 	sampleRegex := regexp.MustCompile(`.dem.gz_[0-9]$`)
 	if !sampleRegex.Match([]byte(handler.Filename)) {
 		http.Error(w, fmt.Sprintf("unexpected file type [%s]", handler.Filename), http.StatusBadRequest)
 		return
 	}
 	objHandle := s.gcpBucket.Object(handler.Filename)
-	log.L().Info("1")
 	objWriter := objHandle.NewWriter(r.Context())
-	log.L().Info("2")
 	// Copy the uploaded file to the created file on the filesystem
 	if _, err := io.Copy(objWriter, file); err != nil {
-
-		log.L().Info("3")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if err := objWriter.Close(); err != nil {
 		log.L().Error("fail to close gcp object writer", zap.Error(err))
 	}
-
-	log.L().Info("4")
-
+	log.L().Debug("file uploaded", zap.String("filename", handler.Filename))
 	fmt.Fprintf(w, "Successfully Uploaded File\n")
 }
 
