@@ -7,9 +7,57 @@ const Uploader = (props) => {
   const onUpload = function (event) {
     console.log("file upload", event)
   }
+
+  const uploadHandler = function ({ files }) {
+    const [file] = files;
+    let formData = new FormData();
+    formData.append('demoFile', file);
+
+    fetch(serverHost + "/match/upload",
+      {
+        method: 'POST',
+        body: formData
+      },
+    ).catch(err => {
+      console.log("failed to upload")
+    })
+
+    // const fileReader = new FileReader();
+    // fileReader.onload = (e) => {
+    //   uploadDemo(e.target.result);
+    // };
+    // fileReader.readAsDataURL(file);
+  }
+
+  const uploadDemo = async (demoFile) => {
+    let formData = new FormData();
+    formData.append('demoFile', demoFile);
+
+    const response = await fetch(serverHost + "/match/upload",
+      {
+        method: 'POST',
+        body: formData
+      },
+    );
+    console.log(response)
+  };
+  const onProgress = (event) => {
+    console.log("progress", event)
+  }
+
   return (
     <div>
-      <FileUpload mode="basic" name="demo[]" url={serverHost + "/match/upload"} accept="application/*" maxFileSize={10000000} onUpload={onUpload} auto />
+      <FileUpload
+        mode="basic"
+        name="demoFile"
+        url={serverHost + "/match/upload"}
+        accept="application/*"
+        maxFileSize={200_000_000}
+        onUpload={onUpload}
+        onProgress={onProgress}
+        // customUpload={true}
+        // uploadHandler={uploadHandler}
+        auto />
     </div>
   )
 }

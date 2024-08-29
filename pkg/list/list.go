@@ -10,8 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
-	"path/filepath"
+	"strings"
 
 	"cloud.google.com/go/storage"
 	"go.uber.org/zap"
@@ -61,38 +60,42 @@ func (s *ListService) UploadMatch(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 	}
 
-	n := r.Form.Get("name")
-	// Retrieve the file from form data
-	f, h, err := r.FormFile("fileupload")
-	if err != nil {
-		log.L().Error("something wrong", zap.Error(err))
+	if r.Method != "POST" {
+		log.L().Info("unexpected upload request method", zap.Any("request", *r))
+		return
 	}
-	defer f.Close()
-	path := filepath.Join(".", "files")
-	_ = os.MkdirAll(path, os.ModePerm)
-	fullPath := path + "/" + n
-	file, err := os.OpenFile(fullPath, os.O_WRONLY|os.O_CREATE, os.ModePerm)
+
+	// r.ParseMultipartForm(100 << 20)
+	file, handler, err := r.FormFile("demoFile")
 	if err != nil {
-		log.L().Error("something else wrong", zap.Error(err))
+		// fmt.Println("Error Retrieving the File")
+		fmt.Println(err)
+		return
 	}
 	defer file.Close()
-	// Copy the file to the destination path
-	_, err = io.Copy(file, f)
-	if err != nil {
-		log.L().Error("something else even more wrongwrong", zap.Error(err))
+	if !strings.HasSuffix(handler.Filename, ".dem.gz") {
+		http.Error(w, fmt.Sprintf("unexpected file type [%s]", handler.Filename), http.StatusBadRequest)
+		return
 	}
-	log.L().Info("finally uploadd", zap.String("file", n+filepath.Ext(h.Filename)))
+	log.L().Info("uploading file", zap.String("filename", handler.Filename), zap.Int64("filesize", handler.Size), zap.Any("mime", handler.Header))
+	objHandle := s.gcpBucket.Object(handler.Filename)
+	log.L().Info("1")
+	objWriter := objHandle.NewWriter(r.Context())
+	log.L().Info("2")
+	// Copy the uploaded file to the created file on the filesystem
+	if _, err := io.Copy(objWriter, file); err != nil {
 
-	// obj := s.gcpBucket.Object("test")
-	// writer := obj.NewWriter(r.Context())
-	// if _, writeErr := fmt.Fprintf(writer, "This is test upload file 2"); writeErr != nil {
-	// 	http.Error(w, writeErr.Error(), http.StatusInternalServerError)
-	// 	log.L().Error("failed to write to gcp file", zap.Error(writeErr))
-	// }
-	// if err := writer.Close(); err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	log.L().Error("failed to close gcp filewriter", zap.Error(err))
-	// }
+		log.L().Info("3")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if err := objWriter.Close(); err != nil {
+		log.L().Error("fail to close gcp object writer", zap.Error(err))
+	}
+
+	log.L().Info("4")
+
+	fmt.Fprintf(w, "Successfully Uploaded File\n")
 }
 
 func (s *ListService) gcpStorage(ctx context.Context) ([]match.MatchInfo, error) {
