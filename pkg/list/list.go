@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
+	"regexp"
 
 	"cloud.google.com/go/storage"
 	"go.uber.org/zap"
@@ -68,16 +68,17 @@ func (s *ListService) UploadMatch(w http.ResponseWriter, r *http.Request) {
 	// r.ParseMultipartForm(100 << 20)
 	file, handler, err := r.FormFile("demoFile")
 	if err != nil {
-		// fmt.Println("Error Retrieving the File")
-		fmt.Println(err)
+		http.Error(w, fmt.Sprintf("Error Retrieving the File [%s]", err.Error()), http.StatusBadRequest)
+		log.L().Error("failed upload file request", zap.Error(err))
 		return
 	}
 	defer file.Close()
-	if !strings.HasSuffix(handler.Filename, ".dem.gz") {
+	log.L().Info("uploading file", zap.String("filename", handler.Filename), zap.Int64("filesize", handler.Size), zap.Any("mime", handler.Header))
+	sampleRegex := regexp.MustCompile(`.dem.gz_[0-9]$`)
+	if !sampleRegex.Match([]byte(handler.Filename)) {
 		http.Error(w, fmt.Sprintf("unexpected file type [%s]", handler.Filename), http.StatusBadRequest)
 		return
 	}
-	log.L().Info("uploading file", zap.String("filename", handler.Filename), zap.Int64("filesize", handler.Size), zap.Any("mime", handler.Header))
 	objHandle := s.gcpBucket.Object(handler.Filename)
 	log.L().Info("1")
 	objWriter := objHandle.NewWriter(r.Context())

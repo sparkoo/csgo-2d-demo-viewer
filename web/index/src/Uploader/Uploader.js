@@ -8,41 +8,37 @@ const Uploader = (props) => {
     console.log("file upload", event)
   }
 
-  const uploadHandler = function ({ files }) {
-    const [file] = files;
-    let formData = new FormData();
-    formData.append('demoFile', file);
-
-    fetch(serverHost + "/match/upload",
-      {
-        method: 'POST',
-        body: formData
-      },
-    ).catch(err => {
-      console.log("failed to upload")
-    })
-
-    // const fileReader = new FileReader();
-    // fileReader.onload = (e) => {
-    //   uploadDemo(e.target.result);
-    // };
-    // fileReader.readAsDataURL(file);
-  }
-
-  const uploadDemo = async (demoFile) => {
-    let formData = new FormData();
-    formData.append('demoFile', demoFile);
-
-    const response = await fetch(serverHost + "/match/upload",
-      {
-        method: 'POST',
-        body: formData
-      },
-    );
-    console.log(response)
-  };
   const onProgress = (event) => {
     console.log("progress", event)
+  }
+
+  const uploadHandler = function ({ files }) {
+
+    const uploadChunk = function (chunk, filename) {
+      console.log("uploading chunk", filename)
+
+      let formData = new FormData();
+      formData.append("demoFile", chunk, filename);
+
+      let xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', onProgress);
+      xhr.onreadystatechange = (xhr, event) => {
+        console.log("onreadystatechange", xhr, event)
+      };
+      xhr.open('POST', serverHost + "/match/upload", true);
+      xhr.withCredentials = props.withCredentials;
+      xhr.send(formData);
+    }
+
+    const [file] = files;
+    const chunkSize = 1024 * 1024 * 30; // 30MB
+
+    let start = 0;
+    let chunkNo = 0;
+    while (start < file.size) {
+      uploadChunk(file.slice(start, start + chunkSize), file.name + "_" + chunkNo++);
+      start += chunkSize;
+    }
   }
 
   return (
@@ -55,8 +51,8 @@ const Uploader = (props) => {
         maxFileSize={200_000_000}
         onUpload={onUpload}
         onProgress={onProgress}
-        // customUpload={true}
-        // uploadHandler={uploadHandler}
+        customUpload={true}
+        uploadHandler={uploadHandler}
         auto />
     </div>
   )
