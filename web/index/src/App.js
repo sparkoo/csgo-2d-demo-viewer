@@ -111,7 +111,6 @@ function App() {
             <DemoLinkInput />
             <Uploader />
             <hr />
-            <button onClick={testWasm}>Test WASM</button>
             <h3>Test demos</h3>
             <ul>
               <li>
@@ -144,11 +143,6 @@ function App() {
       </div>
     </div>
   );
-}
-
-function testWasm() {
-  console.log("clicked");
-  window.testt(2)
 }
 
 export default App;

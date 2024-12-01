@@ -7,7 +7,6 @@
     "primereact": "^10.8.2",
     "react": "npm:@preact/compat",
     "react-dom": "npm:@preact/compat",
-    "react-filepond": "^7.1.2",
     "web-vitals": "^3.5.0"
   },
   "devDependencies": {
