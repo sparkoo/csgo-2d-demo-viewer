@@ -1,6 +1,7 @@
 import { React } from 'react';
 import './Uploader.css';
 import { FileUpload } from 'primereact/fileupload';
+import { ProgressBar } from 'primereact/progressbar';
 
 const Uploader = (props) => {
   // const [serverHost] = useState(window.location.host.includes("localhost") ? "http://localhost:8080" : "")
