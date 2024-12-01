@@ -1,1 +1,0 @@
-http://localhost:3000/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-01b60b8a-0b9c-4fe1-bea2-f9e612523112-1-1.dem.gz
