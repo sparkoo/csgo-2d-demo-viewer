@@ -21,10 +21,11 @@ func main() {
 }
 
 func testt(this js.Value, args []js.Value) interface{} {
-	input := make([]byte, args[0].Get("length").Int())
+	fmt.Printf("testt: +%v\n", args[0].Get("size"))
+	input := make([]byte, args[0].Get("size"))
 	js.CopyBytesToGo(input, args[0])
 
-	fmt.Println(args[0].Get("length").Int())
+	fmt.Println("fer")
 
 	gzipReader, streamErr := gzip.NewReader(bytes.NewReader(input))
 	if streamErr != nil {
