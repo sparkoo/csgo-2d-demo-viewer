@@ -5,9 +5,9 @@ import MessageBus from "./MessageBus";
 import Player from "./Player";
 import Map2d from "./map/Map2d";
 import InfoPanel from "./panel/InfoPanel";
-import './wasm_exec.js';
+import '../libs/wasm_exec.js';
 
-function App() {
+export function PlayerApp() {
   const [messageBus] = useState(new MessageBus())
   const [player] = useState(new Player(messageBus))
   const [serverHost] = useState(window.location.host.includes("localhost") ? "http://localhost:8080" : "");
@@ -70,5 +70,3 @@ function App() {
       </div>
     </ErrorBoundary>);
 }
-
-export default App;

@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import './App.css';
+import './Home.css';
 import MatchTable from './MatchTable/MatchTable';
 import DemoLinkInput from './DemoLinkInput/DemoLinkInput';
 import Uploader from './Uploader/Uploader';
-import './wasm_exec.js';
 
-function App() {
+export function Home() {
   const [auth/*, setAuth*/] = useState([]);
   const [serverHost] = useState(window.location.host.includes("localhost") ? "http://localhost:8080" : "");
   const [content, setContent] = useState([]);
@@ -13,22 +12,22 @@ function App() {
   const [isWasmLoaded, setIsWasmLoaded] = useState(false);
 
   useEffect(() => {
-    if (Object.keys(auth).length > 0) {
-      setContent(<MatchTable auth={auth} serverHost={serverHost} />)
-      return
-    }
+  //   if (Object.keys(auth).length > 0) {
+  //     setContent(<MatchTable auth={auth} serverHost={serverHost} />)
+  //     return
+  //   }
 
-    async function loadWasm() {
-      const go = new window.Go();
-      WebAssembly.instantiateStreaming(fetch(serverHost + "/wasm"), go.importObject)
-        .then((result) => {
-          go.run(result.instance);
-          setIsWasmLoaded(true);
-        });
-    }
-    if (!isWasmLoaded) {
-      loadWasm();
-    }
+  //   async function loadWasm() {
+  //     const go = new window.Go();
+  //     WebAssembly.instantiateStreaming(fetch(serverHost + "/wasm"), go.importObject)
+  //       .then((result) => {
+  //         go.run(result.instance);
+  //         setIsWasmLoaded(true);
+  //       });
+  //   }
+  //   if (!isWasmLoaded) {
+  //     loadWasm();
+  //   }
 
     // setContent(<span className="material-icons w3-xxxlarge rotate">autorenew</span>)
 
@@ -144,5 +143,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
