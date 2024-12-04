@@ -11,6 +11,7 @@ function App() {
   const [messageBus] = useState(new MessageBus())
   const [player] = useState(new Player(messageBus))
   const [serverHost] = useState(window.location.host.includes("localhost") ? "http://localhost:8080" : "");
+  const proto = require("./protos/Message_pb");
 
   useEffect(() => {
     console.log("run run run")
@@ -25,13 +26,28 @@ function App() {
         .then((result) => {
           go.run(result.instance);
 
-          
+          // window.withDownload("https://corsproxy.io/?" + encodeURIComponent("https://github.com/sparkoo/csgo-2d-demo-viewer/raw/refs/heads/master/test_demos/1-c26b4e22-66ac-4904-87cc-3b2b65a67ddb-1-1.dem.gz"))
           fetch("https://corsproxy.io/?" + encodeURIComponent("https://github.com/sparkoo/csgo-2d-demo-viewer/raw/refs/heads/master/test_demos/1-c26b4e22-66ac-4904-87cc-3b2b65a67ddb-1-1.dem.gz"))
           .then((result) => {
             console.log(result)
-            result.blob().then(b => {
-              console.log(b)
-              window.testt(b)
+            result.arrayBuffer().then(b => {
+              const data = new Uint8Array(b)
+              console.log(data)
+              window.testt(data, function (data) {
+                if(data instanceof Uint8Array) {
+                  const msg = proto.Message.deserializeBinary(data).toObject()
+                  messageBus.emit(msg)
+                } else {
+                  // text frame
+                  // console.log(event.data);
+                  console.log("[message] text data received from server, this is weird. We're using protobufs ?!?!?", data);
+                  messageBus.emit(JSON.parse(data))
+                }
+            
+                // console.log(`[message] Data received from server: ${event.data}`);
+                // let msg = JSON.parse(event.data)
+                // messageBus.emit(msg)
+              })
             })
           })
           .catch(err => console.log(err))
