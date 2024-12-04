@@ -11,7 +11,7 @@ export function PlayerApp() {
   const [messageBus] = useState(new MessageBus())
   const [player] = useState(new Player(messageBus))
   const [serverHost] = useState(window.location.host.includes("localhost") ? "http://localhost:8080" : "");
-  const proto = require("./protos/Message_pb");
+  const proto = require("./protos/Message_pb.js");
 
   useEffect(() => {
     console.log("run run run")

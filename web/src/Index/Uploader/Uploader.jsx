@@ -1,4 +1,3 @@
-import { React } from 'react';
 import './Uploader.css';
 import { FileUpload } from 'primereact/fileupload';
 import { ProgressBar } from 'primereact/progressbar';
