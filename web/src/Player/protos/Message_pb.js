@@ -10,16 +10,17 @@
 // GENERATED CODE -- DO NOT EDIT!
 /* eslint-disable */
 // @ts-nocheck
+import jspb from 'google-protobuf'
 
-var jspb = require('google-protobuf');
+// var jspb = require('google-protobuf');
 var goog = jspb;
-var global = (function() {
-  if (this) { return this; }
-  if (typeof window !== 'undefined') { return window; }
-  if (typeof global !== 'undefined') { return global; }
-  if (typeof self !== 'undefined') { return self; }
-  return Function('return this')();
-}.call(null));
+var global =
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    (typeof window !== 'undefined' && window) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof self !== 'undefined' && self) ||
+    (function () { return this; }).call(null) ||
+    Function('return this')();
 
 goog.exportSymbol('proto.csgo.Bomb', null, global);
 goog.exportSymbol('proto.csgo.Bomb.BombState', null, global);
@@ -4400,4 +4401,4 @@ proto.csgo.Demo.prototype.setPlatform = function(value) {
 };
 
 
-goog.object.extend(exports, proto.csgo);
+goog.object.extend(window.proto = window.proto || {}, proto.csgo);
