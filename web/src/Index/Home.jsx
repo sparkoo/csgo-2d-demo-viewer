@@ -110,6 +110,7 @@ export function Home() {
             <DemoLinkInput />
             <Uploader />
             <hr />
+            <button onClick={clickeeedd}>Testt</button>
             <h3>Test demos</h3>
             <ul>
               <li>
@@ -142,4 +143,14 @@ export function Home() {
       </div>
     </div>
   );
+}
+
+function clickeeedd() {
+  console.log("fjasklfjklas")
+  window.open("/player", '_blank').focus();
+  const channel = new BroadcastChannel("my-channel");
+  setTimeout(() => {
+    channel.postMessage("Hey, how's it going mate? I'm from a different tab!");
+  }, 100)
+  
 }

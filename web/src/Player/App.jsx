@@ -15,6 +15,12 @@ export function PlayerApp() {
 
   useEffect(() => {
     console.log("run run run")
+    // subscribe to the same channel, "my-channel"
+    const channel = new BroadcastChannel("my-channel");
+
+    channel.addEventListener("message", e => {
+        alert(e.data)
+    });
     messageBus.listen([13], function (msg) {
       alert(msg.message)
     })
@@ -54,7 +60,7 @@ export function PlayerApp() {
         });
     }
 
-    loadWasm();
+    // loadWasm();
   }, [])
 
 
