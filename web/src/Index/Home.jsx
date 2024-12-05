@@ -44,7 +44,7 @@ export function Home() {
     //     console.log(err)
     //     setContent(<span className="w3-xxxlarge rotate">failed to contact server ...</span>)
     //   })
-  }, [serverHost, auth, isWasmLoaded])
+  }, [serverHost, auth])
 
   // let faceitAuth = (
   //   <div className='faceitAuth'>
@@ -146,9 +146,9 @@ export function Home() {
 }
 
 function clickeeedd() {
-  console.log("fjasklfjklas")
-  window.open("/player", '_blank').focus();
-  const channel = new BroadcastChannel("my-channel");
+  const uuid = crypto.randomUUID()
+  window.open("/player?platform=upload&uuid=" + uuid, '_blank').focus();
+  const channel = new BroadcastChannel(uuid);
   setTimeout(() => {
     channel.postMessage("Hey, how's it going mate? I'm from a different tab!");
   }, 100)

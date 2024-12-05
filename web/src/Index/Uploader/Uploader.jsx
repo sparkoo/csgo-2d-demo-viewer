@@ -26,7 +26,12 @@ const Uploader = (props) => {
       const arrayBuffer = e.target.result;
       const byteArray = new Uint8Array(arrayBuffer);
 
-      window.testt(byteArray)
+      const uuid = crypto.randomUUID()
+      window.open("/player?platform=upload&uuid=" + uuid, '_blank').focus();
+      const channel = new BroadcastChannel(uuid);
+      setTimeout(() => {
+        channel.postMessage(byteArray);
+      }, 1000)
     };
     reader.readAsArrayBuffer(file);
   }

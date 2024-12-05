@@ -1,6 +1,6 @@
 import { LocationProvider, Router, Route, lazy } from 'preact-iso';
 import { Home } from './Index/Home'
-import { PlayerApp } from './Player/App'
+import { PlayerApp } from './Player/PlayerApp'
 
 export function App() {
 	return <LocationProvider>
