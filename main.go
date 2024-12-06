@@ -63,7 +63,7 @@ func handleMessages(in chan []byte, out chan []byte) {
 func server(ctx context.Context) {
 	mux := http.NewServeMux()
 
-	mux.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./assets"))))
+	mux.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./web/dist/assets"))))
 	mux.HandleFunc("/wasm", func(w http.ResponseWriter, r *http.Request) {
 		if config.Mode == conf.MODE_DEV {
 			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
@@ -72,8 +72,9 @@ func server(ctx context.Context) {
 		}
 		http.ServeFile(w, r, "./wasm/main.wasm")
 	})
-	mux.Handle("/", http.FileServer(http.Dir("web/dist")))
-	mux.Handle("/player/", http.FileServer(http.Dir("web/dist")))
+	fs := http.FileServer(http.Dir("web/dist"))
+	mux.Handle("/", fs)
+	mux.Handle("/player", http.StripPrefix("/player", fs))
 	// mux.Handle("/player/", http.StripPrefix("/player", http.FileServer(http.Dir("web/player/build"))))
 
 	listService, listServiceErr := list.NewListService(ctx, config)
