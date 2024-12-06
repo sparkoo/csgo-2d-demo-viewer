@@ -1,5 +1,5 @@
 # backend build
-FROM golang:1.23 as builderGo
+FROM golang:1.23 AS builder_go
 
 USER root
 WORKDIR /csgo-2d-demo-player
@@ -16,7 +16,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build \
   main.go
 
 # web build
-FROM node:lts-slim as builderNpm
+FROM node:lts-slim AS builder_npm
 
 USER root
 
@@ -26,6 +26,8 @@ COPY web/package.json .
 COPY web/package-lock.json .
 RUN npm install
 
+COPY web/index.html .
+COPY web/vite.config.js .
 COPY web/.env.production .
 COPY web/public public
 COPY web/src src
