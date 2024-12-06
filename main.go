@@ -73,6 +73,7 @@ func server(ctx context.Context) {
 		http.ServeFile(w, r, "./wasm/main.wasm")
 	})
 	mux.Handle("/", http.FileServer(http.Dir("web/dist")))
+	mux.Handle("/player/", http.FileServer(http.Dir("web/dist")))
 	// mux.Handle("/player/", http.StripPrefix("/player", http.FileServer(http.Dir("web/player/build"))))
 
 	listService, listServiceErr := list.NewListService(ctx, config)
