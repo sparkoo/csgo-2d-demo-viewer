@@ -15,6 +15,12 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build \
   -asmflags all=-trimpath=/ \
   main.go
 
+RUN CGO_ENABLED=0 GOOS=js GOARCH=wasm GO111MODULE=on go build \
+  -a -o _output/main.wasm \
+  -gcflags all=-trimpath=/ \
+  -asmflags all=-trimpath=/ \
+  cmd/wasm/wasm.go
+
 # web build
 FROM node:lts-slim AS builder_npm
 
@@ -39,6 +45,7 @@ FROM debian:buster-slim
 RUN apt-get update && apt-get install -y ca-certificates
 
 COPY --from=builder_go /csgo-2d-demo-player/_output/main /csgo-2d-demo-player/
+COPY --from=builder_go /csgo-2d-demo-player/_output/main.wasm /csgo-2d-demo-player/wasm/
 COPY --from=builder_npm /csgo-2d-demo-player/web/dist/assets/. /csgo-2d-demo-player/assets/
 COPY --from=builder_npm /csgo-2d-demo-player/web/dist/ /csgo-2d-demo-player/web/dist/
 
