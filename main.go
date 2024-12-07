@@ -20,7 +20,7 @@ import (
 
 	"github.com/alexflint/go-arg"
 	"github.com/gorilla/websocket"
-	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )

@@ -24,24 +24,18 @@ export function PlayerApp() {
 
     const urlParams = new URLSearchParams(window.location.search);
     const channel = new BroadcastChannel(urlParams.get("uuid"));
-    channel.addEventListener("message", e => {
-      console.log("received", e, isWasmLoaded)
-      window.testt(e.data, function (data) {
+    channel.onmessage = (event) => {
+      console.log("received", event, isWasmLoaded)
+      window.testt(event.data, function (data) {
         if (data instanceof Uint8Array) {
           const msg = proto.Message.deserializeBinary(data).toObject()
           messageBus.emit(msg)
         } else {
-          // text frame
-          // console.log(event.data);
           console.log("[message] text data received from server, this is weird. We're using protobufs ?!?!?", data);
           messageBus.emit(JSON.parse(data))
         }
-
-        // console.log(`[message] Data received from server: ${event.data}`);
-        // let msg = JSON.parse(event.data)
-        // messageBus.emit(msg)
       })
-    });
+    };
     messageBus.listen([13], function (msg) {
       alert(msg.message)
       // window.testt(byteArray)
@@ -55,36 +49,9 @@ export function PlayerApp() {
           go.run(result.instance);
           console.log("should be loaded now")
           setIsWasmLoaded(true)
-          // window.withDownload("https://corsproxy.io/?" + encodeURIComponent("https://github.com/sparkoo/csgo-2d-demo-viewer/raw/refs/heads/master/test_demos/1-c26b4e22-66ac-4904-87cc-3b2b65a67ddb-1-1.dem.gz"))
-          // fetch("https://corsproxy.io/?" + encodeURIComponent("https://github.com/sparkoo/csgo-2d-demo-viewer/raw/refs/heads/master/test_demos/1-c26b4e22-66ac-4904-87cc-3b2b65a67ddb-1-1.dem.gz"))
-          // .then((result) => {
-          //   console.log(result)
-          //   result.arrayBuffer().then(b => {
-          //     const data = new Uint8Array(b)
-          //     console.log(data)
-          //     window.testt(data, function (data) {
-          //       if(data instanceof Uint8Array) {
-          //         const msg = proto.Message.deserializeBinary(data).toObject()
-          //         messageBus.emit(msg)
-          //       } else {
-          //         // text frame
-          //         // console.log(event.data);
-          //         console.log("[message] text data received from server, this is weird. We're using protobufs ?!?!?", data);
-          //         messageBus.emit(JSON.parse(data))
-          //       }
-
-          //       // console.log(`[message] Data received from server: ${event.data}`);
-          //       // let msg = JSON.parse(event.data)
-          //       // messageBus.emit(msg)
-          //     })
-          //   })
-          // })
-          // .catch(err => console.log(err))
         });
     }
-
   }, [isWasmLoaded])
-
 
   return (
     <ErrorBoundary>
@@ -97,4 +64,12 @@ export function PlayerApp() {
         </div>
       </div>
     </ErrorBoundary>);
+}
+
+async function parseDemo(event, messageBus) {
+  await parse(event, messageBus)
+}
+
+async function parse(event, messageBus) {
+  
 }

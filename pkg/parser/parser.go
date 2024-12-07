@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/golang/geo/r3"
-	dem "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	dem "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 	"go.uber.org/zap"
 )
 

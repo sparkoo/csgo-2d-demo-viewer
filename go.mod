@@ -9,7 +9,7 @@ require (
 	github.com/alexflint/go-arg v1.5.1
 	github.com/golang/geo v0.0.0-20230421003525-6adc56603217
 	github.com/gorilla/websocket v1.5.3
-	github.com/markus-wa/demoinfocs-golang/v5 v5.0.0-20240904222726-24b77fe5ebfa
+	github.com/markus-wa/demoinfocs-golang/v4 v4.3.0
 	github.com/sparkoo/go-steam v0.0.0-20231112203532-968479d66868
 	github.com/stretchr/testify v1.9.0
 	github.com/yohcop/openid-go v1.0.1
