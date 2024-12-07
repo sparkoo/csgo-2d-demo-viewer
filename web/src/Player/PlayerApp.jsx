@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import './PlayerApp.css';
 import ErrorBoundary from "./Error.jsx";
 import MessageBus from "./MessageBus.js";
@@ -7,26 +7,26 @@ import Map2d from "./map/Map2d.jsx";
 import InfoPanel from "./panel/InfoPanel.jsx";
 import '../libs/wasm_exec.js';
 import './protos/Message_pb.js'
+import DemoContext from "../context.js"
 
 export function PlayerApp() {
+  const demoData = useContext(DemoContext);
+
   const [messageBus] = useState(new MessageBus())
   const [player] = useState(new Player(messageBus))
   const [serverHost] = useState(window.location.host.includes("localhost") ? "http://localhost:8080" : "");
   const [isWasmLoaded, setIsWasmLoaded] = useState(false)
 
   useEffect(() => {
-    console.log("run run run")
+    console.log("run run run", demoData)
 
     if (!isWasmLoaded) {
       loadWasm();
       return
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const channel = new BroadcastChannel(urlParams.get("uuid"));
-    channel.onmessage = (event) => {
-      console.log("received", event, isWasmLoaded)
-      window.testt(event.data, function (data) {
+    if (demoData.demoData) {
+      window.testt(demoData.demoData, async function  (data) {
         if (data instanceof Uint8Array) {
           const msg = proto.Message.deserializeBinary(data).toObject()
           messageBus.emit(msg)
@@ -35,7 +35,25 @@ export function PlayerApp() {
           messageBus.emit(JSON.parse(data))
         }
       })
-    };
+      demoData.setDemoData(null)
+    }
+
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const channel = new BroadcastChannel(urlParams.get("uuid"));
+    // channel.onmessage = async (event) => {
+    //   console.log("received", event, isWasmLoaded)
+    //   await window.testt(event.data, function (data) {
+    //     if (data instanceof Uint8Array) {
+    //       const msg = proto.Message.deserializeBinary(data).toObject()
+    //       setMessage("123")
+    //       console.log("huha?")
+    //       messageBus.emit(msg)
+    //     } else {
+    //       console.log("[message] text data received from server, this is weird. We're using protobufs ?!?!?", data);
+    //       messageBus.emit(JSON.parse(data))
+    //     }
+    //   })
+    // };
     messageBus.listen([13], function (msg) {
       alert(msg.message)
       // window.testt(byteArray)
@@ -64,12 +82,4 @@ export function PlayerApp() {
         </div>
       </div>
     </ErrorBoundary>);
-}
-
-async function parseDemo(event, messageBus) {
-  await parse(event, messageBus)
-}
-
-async function parse(event, messageBus) {
-  
 }
