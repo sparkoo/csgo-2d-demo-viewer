@@ -5,70 +5,33 @@ import MessageBus from "./MessageBus.js";
 import Player from "./Player.js";
 import Map2d from "./map/Map2d.jsx";
 import InfoPanel from "./panel/InfoPanel.jsx";
-import '../libs/wasm_exec.js';
+// import '../libs/wasm_exec.js';
 import './protos/Message_pb.js'
 import DemoContext from "../context.js"
+// import workerScript from "./worker.js";
 
 export function PlayerApp() {
   const demoData = useContext(DemoContext);
+  const worker = new Worker("src/libs/worker.js");
 
   const [messageBus] = useState(new MessageBus())
   const [player] = useState(new Player(messageBus))
   const [serverHost] = useState(window.location.host.includes("localhost") ? "http://localhost:8080" : "");
   const [isWasmLoaded, setIsWasmLoaded] = useState(false)
 
+  worker.onmessage = (e) => {
+    console.log("Message received from worker", e);
+    const msg = proto.Message.deserializeBinary(e.data).toObject()
+    messageBus.emit(msg)
+  };
+
   useEffect(() => {
-    console.log("run run run", demoData)
-
-    if (!isWasmLoaded) {
-      loadWasm();
-      return
-    }
-
     if (demoData.demoData) {
-      window.testt(demoData.demoData, async function  (data) {
-        if (data instanceof Uint8Array) {
-          const msg = proto.Message.deserializeBinary(data).toObject()
-          messageBus.emit(msg)
-        } else {
-          console.log("[message] text data received from server, this is weird. We're using protobufs ?!?!?", data);
-          messageBus.emit(JSON.parse(data))
-        }
-      })
-      demoData.setDemoData(null)
+      setTimeout(() => worker.postMessage(demoData.demoData), 1000)
     }
-
-    // const urlParams = new URLSearchParams(window.location.search);
-    // const channel = new BroadcastChannel(urlParams.get("uuid"));
-    // channel.onmessage = async (event) => {
-    //   console.log("received", event, isWasmLoaded)
-    //   await window.testt(event.data, function (data) {
-    //     if (data instanceof Uint8Array) {
-    //       const msg = proto.Message.deserializeBinary(data).toObject()
-    //       setMessage("123")
-    //       console.log("huha?")
-    //       messageBus.emit(msg)
-    //     } else {
-    //       console.log("[message] text data received from server, this is weird. We're using protobufs ?!?!?", data);
-    //       messageBus.emit(JSON.parse(data))
-    //     }
-    //   })
-    // };
     messageBus.listen([13], function (msg) {
       alert(msg.message)
-      // window.testt(byteArray)
     })
-    // Connect(this.messageBus)
-
-    async function loadWasm() {
-      const go = new window.Go();
-      WebAssembly.instantiateStreaming(fetch(serverHost + "/wasm"), go.importObject)
-        .then((result) => {
-          go.run(result.instance);
-          console.log("should be loaded now")
-          setIsWasmLoaded(true)
-        });
-    }
   }, [isWasmLoaded])
 
   return (
