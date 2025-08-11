@@ -64,14 +64,7 @@ func server(ctx context.Context) {
 	mux := http.NewServeMux()
 
 	mux.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./web/dist/assets"))))
-	mux.HandleFunc("/wasm", func(w http.ResponseWriter, r *http.Request) {
-		if config.Mode == conf.MODE_DEV {
-			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			w.Header().Set("Content-Type", "application/wasm")
-		}
-		http.ServeFile(w, r, "./wasm/main.wasm")
-	})
+	mux.Handle("/wasm/", http.StripPrefix("/wasm", http.FileServer(http.Dir("./web/dist/wasm"))))
 	fs := http.FileServer(http.Dir("web/dist"))
 	mux.Handle("/", fs)
 	mux.Handle("/player", http.StripPrefix("/player", fs))

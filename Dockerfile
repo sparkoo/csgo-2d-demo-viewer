@@ -45,7 +45,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y ca-certificates
 
 COPY --from=builder_go /csgo-2d-demo-player/_output/main /csgo-2d-demo-player/
-COPY --from=builder_go /csgo-2d-demo-player/_output/main.wasm /csgo-2d-demo-player/wasm/
+# COPY --from=builder_go /csgo-2d-demo-player/_output/main.wasm /csgo-2d-demo-player/web/public
 COPY --from=builder_npm /csgo-2d-demo-player/web/dist/assets/. /csgo-2d-demo-player/assets/
 COPY --from=builder_npm /csgo-2d-demo-player/web/dist/ /csgo-2d-demo-player/web/dist/
 
