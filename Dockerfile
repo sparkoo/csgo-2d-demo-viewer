@@ -40,7 +40,7 @@ COPY web/src src
 RUN npm run build
 
 # dist
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y ca-certificates
 
