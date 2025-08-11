@@ -47,8 +47,8 @@ const Uploader = (props) => {
       <FileUpload
         mode="basic"
         name="demoFile"
-        accept="application/*"
-        maxFileSize={200_000_000}
+        accept="application/zstd"
+        maxFileSize={500_000_000}
         // onProgress={onProgress}
         customUpload={true}
         uploadHandler={uploadHandler}
