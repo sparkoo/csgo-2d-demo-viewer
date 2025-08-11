@@ -20,7 +20,7 @@ onmessage = (event) => {
 async function loadWasm() {
   console.log("hus", serverHost + "/wasm")
   const go = new globalThis.Go();
-  await WebAssembly.instantiateStreaming(fetch(serverHost + "/wasm"), go.importObject)
+  await WebAssembly.instantiateStreaming(fetch("/wasm/csdemoparser.wasm"), go.importObject)
     .then((result) => {
       go.run(result.instance);
       console.log("should be loaded now")
