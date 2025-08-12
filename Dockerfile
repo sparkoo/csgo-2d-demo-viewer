@@ -36,7 +36,6 @@ COPY web/index.html .
 COPY web/vite.config.js .
 COPY web/.env.production .
 COPY web/public public
-COPY web/public/wasm public/wasm
 COPY web/src src
 RUN npm run build
 
