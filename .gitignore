@@ -6,3 +6,4 @@ assets/icons/shapes
 *.exe
 .secret/
 *.wasm
+web/public/wasm/

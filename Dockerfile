@@ -1,5 +1,5 @@
 # backend build
-FROM golang:1.23 AS builder_go
+FROM golang:1.24 AS builder_go
 
 USER root
 WORKDIR /csgo-2d-demo-player
@@ -36,6 +36,7 @@ COPY web/index.html .
 COPY web/vite.config.js .
 COPY web/.env.production .
 COPY web/public public
+COPY --from=builder_go /usr/local/go/lib/wasm/wasm_exec.js public/wasm/wasm_exec.js
 COPY web/src src
 RUN npm run build
 
