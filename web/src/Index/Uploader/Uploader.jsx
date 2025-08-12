@@ -1,37 +1,24 @@
 import './Uploader.css';
 import { FileUpload } from 'primereact/fileupload';
-import { ProgressBar } from 'primereact/progressbar';
 import { useLocation } from 'preact-iso';
 import { useContext } from 'react';
 import { DemoContext } from '../../context'
 
-const Uploader = (props) => {
+const Uploader = () => {
   const demoData = useContext(DemoContext);
-  // const [serverHost] = useState(window.location.host.includes("localhost") ? "http://localhost:8080" : "")
-  // const [uploadProgress, setUploadProgress] = useState([])
-  // const onUpload = function (event) {
-  //   console.log("file upload", event)
-  // }
-
-  // const onProgress = (event, filename) => {
-  //   console.log("progress", filename, event)
-  // }
   const { route } = useLocation();
 
   const uploadHandler = function ({ files }) {
     const [file] = files;
     console.log(file)
-    console.log("am I even here?")
 
     const reader = new FileReader();
 
-    console.log("and here?")
     reader.onload = function (e) {
-      console.log("loadedede");
       const arrayBuffer = e.target.result;
       const byteArray = new Uint8Array(arrayBuffer);
       demoData.setDemoData(byteArray)
-      route("/player?blabol")
+      route("/player")
       // const uuid = crypto.randomUUID()
       // window.open("/player?platform=upload&uuid=" + uuid, '_blank').focus();
       // const channel = new BroadcastChannel(uuid);
