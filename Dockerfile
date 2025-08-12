@@ -16,7 +16,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build \
   main.go
 
 RUN CGO_ENABLED=0 GOOS=js GOARCH=wasm GO111MODULE=on go build \
-  -a -o _output/main.wasm \
+  -a -o _output/csdemoparser.wasm \
   -gcflags all=-trimpath=/ \
   -asmflags all=-trimpath=/ \
   cmd/wasm/wasm.go
@@ -46,7 +46,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y ca-certificates
 
 COPY --from=builder_go /csgo-2d-demo-player/_output/main /csgo-2d-demo-player/
-# COPY --from=builder_go /csgo-2d-demo-player/_output/main.wasm /csgo-2d-demo-player/web/public
+COPY --from=builder_go /csgo-2d-demo-player/_output/csdemoparser.wasm /csgo-2d-demo-player/web/dist/wasm/
 COPY --from=builder_npm /csgo-2d-demo-player/web/dist/assets/. /csgo-2d-demo-player/assets/
 COPY --from=builder_npm /csgo-2d-demo-player/web/dist/wasm/. /csgo-2d-demo-player/web/dist/wasm/
 COPY --from=builder_npm /csgo-2d-demo-player/web/dist/ /csgo-2d-demo-player/web/dist/
