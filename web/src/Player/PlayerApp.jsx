@@ -12,7 +12,7 @@ import DemoContext from "../context.js"
 
 export function PlayerApp() {
   const demoData = useContext(DemoContext);
-  const worker = new Worker("public/worker.js");
+  const worker = new Worker("worker.js");
 
   const [messageBus] = useState(new MessageBus())
   const [player] = useState(new Player(messageBus))
