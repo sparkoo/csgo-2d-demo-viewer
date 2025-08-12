@@ -1,6 +1,8 @@
 const serverHost = globalThis.location.host.includes("localhost") ? "http://localhost:8080" : "";
 
+console.log("before load script wasm_exec.js");
 importScripts('wasm_exec.js');
+console.log("after load script wasm_exec.js");
 
 onmessage = (event) => {
   if (event.data instanceof Uint8Array) {
