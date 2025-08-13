@@ -1,6 +1,6 @@
 package message
 
-import "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
+import "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
 
 func NewRound(startTick int) *Round {
 	return &Round{
