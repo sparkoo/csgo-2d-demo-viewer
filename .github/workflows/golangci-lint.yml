@@ -1,9 +1,9 @@
 name: golangci-lint
 on:
   push:
-    branches: [ "master", "dev" ]
+    branches: ["master", "dev"]
   pull_request:
-    branches: [ "master", "dev" ]
+    branches: ["master", "dev"]
 permissions:
   contents: read
   # Optional: allow read access to pull request. Use with `only-new-issues` option.
@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.23'
+          go-version: "1.24"
       - uses: actions/checkout@v4
       - name: cleanup wasm files
         run: |
