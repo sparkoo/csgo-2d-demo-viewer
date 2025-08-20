@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/golang/geo/r3"
-	dem "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	dem "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 	"go.uber.org/zap"
 )
 
@@ -138,7 +138,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		}
 
 		if !gameStarted {
-			mapCS = MapNameToMap[parser.Header().MapName]
+			mapCS = MapNameToMap["de_dust2"] // TODO: fix to actual map
 			handler(&message.Message{
 				MsgType: message.Message_InitType,
 				Tick:    int32(parser.CurrentFrame()),
@@ -158,7 +158,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			return err
 		}
 		if !more {
-			log.L().Info("demo parsed", zap.Duration("took", time.Since(parseTimer)), zap.Duration("demo length", parser.Header().PlaybackTime))
+			log.L().Info("demo parsed", zap.Duration("took", time.Since(parseTimer)))
 			handler(&message.Message{
 				MsgType: message.Message_DemoEndType,
 				Tick:    int32(parser.CurrentFrame()),
@@ -267,12 +267,12 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 		var action string
 		if g.WeaponInstance.Type == common.EqHE {
 			// HE for some reason keep on map longer. we want to remove them after they explode
-			if exploded, ok := g.Entity.PropertyValue("m_nExplodeEffectIndex"); ok && exploded.IntVal > 0 {
+			if exploded, ok := g.Entity.PropertyValue("m_nExplodeEffectIndex"); ok && exploded.BoolVal() {
 				continue
 			}
 		}
 		if g.WeaponInstance.Type == common.EqSmoke {
-			if exploded, ok := g.Entity.PropertyValue("m_bDidSmokeEffect"); ok && exploded.IntVal > 0 {
+			if exploded, ok := g.Entity.PropertyValue("m_bDidSmokeEffect"); ok && exploded.BoolVal() {
 				action = "explode"
 			}
 		}
@@ -325,7 +325,7 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 }
 
 func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
-	x, y := translatePosition(p.LastAlivePosition, mapCS)
+	x, y := translatePosition(p.Position(), mapCS)
 	player := &message.Player{
 		PlayerId: int32(p.UserID),
 		Name:     p.Name,

@@ -5,3 +5,5 @@ assets/icons/shapes
 .vscode/
 *.exe
 .secret/
+*.wasm
+web/public/wasm/

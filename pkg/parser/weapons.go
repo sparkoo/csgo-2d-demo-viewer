@@ -3,7 +3,7 @@ package parser
 import (
 	"csgo-2d-demo-player/pkg/log"
 
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 )
 
 // TODO: unused, remove later. keeping here for now to have model names

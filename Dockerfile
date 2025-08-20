@@ -1,4 +1,5 @@
-FROM golang:1.21 as builderGo
+# backend build
+FROM golang:1.24 AS builder_go
 
 USER root
 WORKDIR /csgo-2d-demo-player
@@ -14,43 +15,40 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build \
   -asmflags all=-trimpath=/ \
   main.go
 
+RUN CGO_ENABLED=0 GOOS=js GOARCH=wasm GO111MODULE=on go build \
+  -a -o _output/csdemoparser.wasm \
+  -gcflags all=-trimpath=/ \
+  -asmflags all=-trimpath=/ \
+  cmd/wasm/wasm.go
 
-FROM node:lts-slim as builderNpm
+# web build
+FROM node:lts-slim AS builder_npm
 
 USER root
 
-# index build
-WORKDIR /csgo-2d-demo-player/index
+WORKDIR /csgo-2d-demo-player/web
 
-COPY web/index/package.json .
-COPY web/index/package-lock.json .
+COPY web/package.json .
+COPY web/package-lock.json .
 RUN npm install
 
-COPY web/index/.env.production .
-COPY web/index/public public
-COPY web/index/src src
+COPY web/index.html .
+COPY web/vite.config.js .
+COPY web/.env.production .
+COPY web/public public
+COPY --from=builder_go /usr/local/go/lib/wasm/wasm_exec.js public/wasm/wasm_exec.js
+COPY web/src src
 RUN npm run build
 
-# player build
-WORKDIR /csgo-2d-demo-player/player
-
-COPY web/player/package.json .
-COPY web/player/package-lock.json .
-RUN npm install
-
-COPY web/player/public public
-COPY web/player/src src
-RUN npm run build
-
-
-FROM debian:buster-slim
+# dist
+FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y ca-certificates
 
-COPY --from=builderGo /csgo-2d-demo-player/_output/main /csgo-2d-demo-player/
-COPY --from=builderGo /csgo-2d-demo-player/assets/ /csgo-2d-demo-player/assets/
-COPY --from=builderNpm /csgo-2d-demo-player/player/build/ /csgo-2d-demo-player/web/player/build/
-COPY --from=builderNpm /csgo-2d-demo-player/index/build/ /csgo-2d-demo-player/web/index/build/
+COPY --from=builder_go /csgo-2d-demo-player/_output/main /csgo-2d-demo-player/
+COPY --from=builder_go /csgo-2d-demo-player/_output/csdemoparser.wasm /csgo-2d-demo-player/web/dist/wasm/
+COPY --from=builder_npm /csgo-2d-demo-player/web/dist/assets/. /csgo-2d-demo-player/assets/
+COPY --from=builder_npm /csgo-2d-demo-player/web/dist/ /csgo-2d-demo-player/web/dist/
 
 WORKDIR /csgo-2d-demo-player
 

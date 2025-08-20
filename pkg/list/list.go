@@ -1,86 +1,116 @@
 package list
 
 import (
+	"context"
 	"csgo-2d-demo-player/conf"
-	"csgo-2d-demo-player/pkg/auth"
 	"csgo-2d-demo-player/pkg/list/match"
 	"csgo-2d-demo-player/pkg/log"
-	"csgo-2d-demo-player/pkg/provider/faceit"
 	"csgo-2d-demo-player/pkg/utils"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
-	"strconv"
+	"regexp"
 
+	"cloud.google.com/go/storage"
 	"go.uber.org/zap"
+	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 type ListService struct {
-	Conf         *conf.Conf
-	FaceitClient *faceit.FaceitClient
+	conf      *conf.Conf
+	gcpClient *storage.Client
+	gcpBucket *storage.BucketHandle
+}
+
+func NewListService(ctx context.Context, conf *conf.Conf) (*ListService, error) {
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile(conf.GcpStorageSAKey))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create GCP storage client: %w", err)
+	}
+
+	return &ListService{
+		conf:      conf,
+		gcpClient: client,
+		gcpBucket: client.Bucket("2d-sparko-demostorage"),
+	}, nil
 }
 
 func (s *ListService) ListMatches(w http.ResponseWriter, r *http.Request) {
 	log.L().Debug("listing matches")
-	utils.CorsDev(w, r, s.Conf)
+	utils.CorsDev(w, r, s.conf)
 
 	matches := []match.MatchInfo{}
 
-	limitQuery := r.URL.Query().Get("limit")
-	if limitQuery == "" {
-		limitQuery = "15"
+	gcpStorageMatches, gcpErr := s.gcpStorage(r.Context())
+	if gcpErr != nil {
+		log.L().Error("failed to obtain matches from gcp storage", zap.Error(gcpErr))
 	}
-
-	limit, errConvLimit := strconv.Atoi(limitQuery)
-	if errConvLimit != nil {
-		log.L().Error("failed to convert limit query", zap.Error(errConvLimit))
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	faceitAuthInfo, errAuth := auth.GetAuthCookie(faceit.FaceitAuthCookieName, r, &auth.FaceitAuthInfo{})
-	if errAuth != nil {
-		log.L().Error("failed to get auth cookie when listing matches", zap.Error(errAuth))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if faceitAuthInfo != nil {
-		matches = append(matches, s.FaceitClient.ListMatches(faceitAuthInfo, limit)...)
-	} else {
-		log.L().Error("authInfo is nil when listing matches")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	matches = append(matches, gcpStorageMatches...)
 
 	if errWriteJsonResponse := writeJsonResponse(w, matches); errWriteJsonResponse != nil {
 		log.L().Error("failed to write json response with list of matches", zap.Error(errWriteJsonResponse))
 	}
 }
 
-func (s *ListService) MatchDetails(w http.ResponseWriter, r *http.Request) {
-	log.L().Debug("getting match details")
-	utils.CorsDev(w, r, s.Conf)
+func (s *ListService) UploadMatch(w http.ResponseWriter, r *http.Request) {
+	if s.conf.Mode == conf.MODE_DEV {
+		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+	}
 
-	queryVals := r.URL.Query()
-
-	platform := queryVals.Get("platform")
-
-	if platform != "faceit" {
-		log.L().Error("unexpected platform name. Expected 'faceit'.")
-		w.WriteHeader(http.StatusBadRequest)
+	if r.Method != "POST" {
+		log.L().Info("unexpected upload request method", zap.Any("request", r.Method))
 		return
 	}
 
-	match, errMatchDetail := s.FaceitClient.MatchDetails(r.Body)
-	if errMatchDetail != nil {
-		log.L().Error("failed to get faceit match detail", zap.Error(errMatchDetail))
-		w.WriteHeader(http.StatusInternalServerError)
+	log.L().Debug("uploading file ...")
+	file, handler, err := r.FormFile("demoFile")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error Retrieving the File [%s]", err.Error()), http.StatusBadRequest)
+		log.L().Error("failed upload file request", zap.Error(err))
 		return
 	}
-
-	if errWriteJsonResponse := writeJsonResponse(w, match); errWriteJsonResponse != nil {
-		log.L().Error("failed to write json response with match detail", zap.Error(errWriteJsonResponse))
+	defer file.Close()
+	log.L().Debug("uploading file", zap.String("filename", handler.Filename), zap.Int64("filesize", handler.Size), zap.Any("mime", handler.Header))
+	sampleRegex := regexp.MustCompile(`.dem.gz_[0-9]$`)
+	if !sampleRegex.Match([]byte(handler.Filename)) {
+		http.Error(w, fmt.Sprintf("unexpected file type [%s]", handler.Filename), http.StatusBadRequest)
+		return
 	}
+	objHandle := s.gcpBucket.Object(handler.Filename)
+	objWriter := objHandle.NewWriter(r.Context())
+	// Copy the uploaded file to the created file on the filesystem
+	if _, err := io.Copy(objWriter, file); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if err := objWriter.Close(); err != nil {
+		log.L().Error("fail to close gcp object writer", zap.Error(err))
+	}
+	log.L().Debug("file uploaded", zap.String("filename", handler.Filename))
+	fmt.Fprintf(w, "Successfully Uploaded File\n")
+}
+
+func (s *ListService) gcpStorage(ctx context.Context) ([]match.MatchInfo, error) {
+	matches := []match.MatchInfo{}
+
+	query := &storage.Query{}
+	it := s.gcpBucket.Objects(ctx, query)
+	for {
+		attrs, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Println("err when listing files in GCP storage bucket", err)
+		}
+		log.Printf("got file: %+v", attrs)
+		matches = append(matches, match.MatchInfo{DemoLink: attrs.Name})
+	}
+
+	return matches, nil
 }
 
 func writeJsonResponse(w http.ResponseWriter, obj any) error {
