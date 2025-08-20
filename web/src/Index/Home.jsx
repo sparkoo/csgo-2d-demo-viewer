@@ -40,31 +40,6 @@ export function Home() {
             <DemoLinkInput />
             <Uploader />
             <hr />
-            <button onClick={clickeeedd}>Testt</button>
-            <h3>Test demos</h3>
-            <ul>
-              <li>
-                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-c26b4e22-66ac-4904-87cc-3b2b65a67ddb-1-1.dem.gz" target="_blank">Vertigo</a>
-              </li>
-              <li>
-                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-01b60b8a-0b9c-4fe1-bea2-f9e612523112-1-1.dem.gz" target="_blank">Inferno</a>
-              </li>
-              <li>
-                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-2ca03eac-ea19-4ea6-9d2c-dfae175ff16c-1-1.dem.gz" target="_blank">Mirage</a>
-              </li>
-              <li>
-                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-2d177174-727c-4529-b2af-d156d6457da2-1-1.dem.gz" target="_blank">Nuke</a>
-              </li>
-              <li>
-                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-72fbfe3f-a924-446d-ae8b-03965920425c-1-1.dem.gz" target="_blank">Anubis</a>
-              </li>
-              <li>
-                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-81f43518-aacc-45ac-a391-b2ada5e6ce53-1-1.dem.gz" target="_blank">Ancient</a>
-              </li>
-              <li>
-                <a href="/player?platform=upload&matchId=https://github.com/sparkoo/csgo-2d-demo-viewer/raw/dev/test_demos/1-a7190a93-3116-41bf-9253-977abaa5cd13-1-1.dem.gz" target="_blank">Dust2</a>
-              </li>
-            </ul>
           </div>
           <div className="w3-col l2">
             <br />
@@ -73,14 +48,4 @@ export function Home() {
       </div>
     </div>
   );
-}
-
-function clickeeedd() {
-  const uuid = crypto.randomUUID()
-  window.open("/player?platform=upload&uuid=" + uuid, '_blank').focus();
-  const channel = new BroadcastChannel(uuid);
-  setTimeout(() => {
-    channel.postMessage("Hey, how's it going mate? I'm from a different tab!");
-  }, 100)
-  
 }
