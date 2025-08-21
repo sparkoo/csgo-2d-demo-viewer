@@ -27,7 +27,6 @@ onmessage = (event) => {
 };
 
 async function loadWasm() {
-  console.log("hus", serverHost + "/wasm");
   const go = new globalThis.Go();
   await WebAssembly.instantiateStreaming(
     fetch("/wasm/csdemoparser.wasm"),
