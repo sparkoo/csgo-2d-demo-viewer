@@ -267,7 +267,7 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 		var action string
 		if g.WeaponInstance.Type == common.EqHE {
 			// HE for some reason keep on map longer. we want to remove them after they explode
-			if exploded, ok := g.Entity.PropertyValue("m_nExplodeEffectIndex"); ok && exploded.BoolVal() {
+			if exploded, ok := g.Entity.PropertyValue("m_nExplodeEffectIndex"); ok && exploded.UInt64() > 0 {
 				continue
 			}
 		}
