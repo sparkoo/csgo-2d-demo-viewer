@@ -18,18 +18,19 @@ import (
 func main() {
 	done := make(chan struct{}, 0)
 	fmt.Println("HEHEHEH")
-	js.Global().Set("testt", js.FuncOf(testt))
+	js.Global().Set("wasmParseDemo", js.FuncOf(wasmParseDemo))
 	<-done
 }
 
-func testt(this js.Value, args []js.Value) interface{} {
-	fmt.Printf("testt: +%v\n", args[0].Get("length"))
-	input := make([]byte, args[0].Get("length").Int())
-	js.CopyBytesToGo(input, args[0])
+func wasmParseDemo(this js.Value, args []js.Value) interface{} {
+	fmt.Printf("testt: +%v\n", args[0])
+	fmt.Printf("arg2: +%v\n", args[1])
+	input := make([]byte, args[1].Get("length").Int())
+	js.CopyBytesToGo(input, args[1])
 
 	fmt.Println("fer")
 
-	parse(bytes.NewReader(input), args[1])
+	parse(bytes.NewReader(input), args[2])
 
 	return js.ValueOf("2")
 }

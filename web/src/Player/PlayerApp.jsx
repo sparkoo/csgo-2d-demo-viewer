@@ -5,10 +5,8 @@ import MessageBus from "./MessageBus.js";
 import Player from "./Player.js";
 import Map2d from "./map/Map2d.jsx";
 import InfoPanel from "./panel/InfoPanel.jsx";
-// import '../libs/wasm_exec.js';
 import './protos/Message_pb.js'
 import DemoContext from "../context.js"
-// import workerScript from "./worker.js";
 
 export function PlayerApp() {
   const demoData = useContext(DemoContext);
@@ -26,6 +24,7 @@ export function PlayerApp() {
   };
 
   useEffect(() => {
+    console.log("isWasmLoaded", isWasmLoaded)
     if (demoData.demoData) {
       setTimeout(() => worker.postMessage(demoData.demoData), 1000)
     }
