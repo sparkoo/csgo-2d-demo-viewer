@@ -1,29 +1,39 @@
-const serverHost = globalThis.location.host.includes("localhost") ? "http://localhost:8080" : "";
+const serverHost = globalThis.location.host.includes("localhost")
+  ? "http://localhost:8080"
+  : "";
 
-importScripts('wasm/wasm_exec.js');
+importScripts("wasm/wasm_exec.js");
 
 onmessage = (event) => {
-  if (event.data instanceof Uint8Array) {
-    globalThis.testt(event.data, async function (data) {
+  console.log("received event: ", event);
+  var demoData = event.data.data;
+  var filename = event.data.filename;
+  console.log("file: ", filename);
+  if (demoData instanceof Uint8Array) {
+    globalThis.wasmParseDemo(filename, demoData, async function (data) {
       if (data instanceof Uint8Array) {
-        postMessage(data)
+        postMessage(data);
         // const msg = proto.Message.deserializeBinary(data).toObject()
         // messageBus.emit(msg)
       } else {
-        console.log("[message] text data received from server, this is weird. We're using protobufs ?!?!?", data);
-        postMessage(JSON.parse(data))
+        console.log(
+          "[message] text data received from server, this is weird. We're using protobufs ?!?!?",
+          data
+        );
+        postMessage(JSON.parse(data));
       }
-    })
+    });
   }
-}
+};
 
 async function loadWasm() {
-  console.log("hus", serverHost + "/wasm")
   const go = new globalThis.Go();
-  await WebAssembly.instantiateStreaming(fetch("/wasm/csdemoparser.wasm"), go.importObject)
-    .then((result) => {
-      go.run(result.instance);
-      console.log("should be loaded now")
-    });
+  await WebAssembly.instantiateStreaming(
+    fetch("/wasm/csdemoparser.wasm"),
+    go.importObject
+  ).then((result) => {
+    go.run(result.instance);
+    console.log("should be loaded now");
+  });
 }
 loadWasm();

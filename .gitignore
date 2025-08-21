@@ -7,3 +7,4 @@ assets/icons/shapes
 .secret/
 *.wasm
 web/public/wasm/
+testdemos/
