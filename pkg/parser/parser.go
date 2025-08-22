@@ -13,6 +13,7 @@ import (
 	dem "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	demsg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 	"go.uber.org/zap"
 )
 
@@ -124,6 +125,11 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		readyForNewRound = true
 	})
 
+	parser.RegisterNetMessageHandler(func(e *demsg.CSVCMsg_ServerInfo) {
+		fmt.Printf("Hello?%+v\n", e.GetMapName())
+		mapCS = MapNameToMap[e.GetMapName()]
+	})
+
 	bombH.registerEvents()
 
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
@@ -138,7 +144,6 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		}
 
 		if !gameStarted {
-			mapCS = MapNameToMap["de_dust2"] // TODO: fix to actual map
 			handler(&message.Message{
 				MsgType: message.Message_InitType,
 				Tick:    int32(parser.CurrentFrame()),
