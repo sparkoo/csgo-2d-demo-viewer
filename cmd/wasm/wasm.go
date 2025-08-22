@@ -15,12 +15,12 @@ func main() {
 }
 
 func wasmParseDemo(this js.Value, args []js.Value) interface{} {
-	fmt.Println("Herere")
 	filename := args[0].String()
-	fmt.Println("trying to parse a demo %s", &filename)
+	fmt.Printf("parsing demo %s\n", &filename)
 
 	callback := args[2]
 	demoData := make([]byte, args[1].Get("length").Int())
+
 	js.CopyBytesToGo(demoData, args[1])
 
 	err := parser.WasmParseDemo(filename, bytes.NewReader(demoData), func(payload []byte) {
