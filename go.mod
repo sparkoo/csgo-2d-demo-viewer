@@ -10,7 +10,7 @@ require (
 	github.com/golang/geo v0.0.0-20250813021530-247f39904721
 	github.com/gorilla/websocket v1.5.3
 	github.com/klauspost/compress v1.18.0
-	github.com/markus-wa/demoinfocs-golang/v5 v5.0.2
+	github.com/markus-wa/demoinfocs-golang/v5 v5.0.3-0.20250812130237-b1909f883a9d
 	github.com/sparkoo/go-steam v0.0.0-20231112203532-968479d66868
 	github.com/stretchr/testify v1.10.0
 	github.com/yohcop/openid-go v1.0.1
@@ -45,7 +45,6 @@ require (
 	github.com/oklog/ulid/v2 v2.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/objx v0.5.2 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.49.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
