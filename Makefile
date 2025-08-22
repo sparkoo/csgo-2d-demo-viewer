@@ -9,7 +9,7 @@ GOROOT_WASM := $(GOROOT)/lib/wasm/wasm_exec.js
 
 wasm:
 	mkdir -p $(WASM_DIR)
-	GOOS=js GOARCH=wasm go build -o $(WASM_OUT) ./cmd/wasm
+	GOOS=js GOARCH=wasm go build -ldflags="-s -w" -o $(WASM_OUT) ./cmd/wasm
 	@echo "Copying wasm_exec.js from $(GOROOT_WASM)"
 	cp "$(GOROOT_WASM)" "$(WASM_EXEC)"
 	@echo "Built $(WASM_OUT) and ensured $(WASM_EXEC)"
