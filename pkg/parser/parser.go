@@ -374,10 +374,10 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 			case common.EqKnife:
 			case common.EqZeus:
 			default:
-				log.Printf("what is this ? '%+v'", w)
+				log.Printf("what is this ? '%+v'\n", w)
 			}
 		case common.EqClassUnknown:
-			log.Printf("what is that???")
+			log.Printf("what is that??? %+v\n", w)
 		}
 	}
 	sort.Slice(player.Grenades, func(i, j int) bool {

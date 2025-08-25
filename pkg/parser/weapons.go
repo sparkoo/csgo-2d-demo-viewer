@@ -152,7 +152,7 @@ func convertWeapon(equipmentType common.EquipmentType) string {
 	if w, ok := WeaponsEqType[equipmentType]; ok {
 		return w
 	} else {
-		log.Printf("model not found '%s'", equipmentType)
+		log.Printf("model not found (treating as knife) '%+v'\n", equipmentType)
 		return "knife"
 	}
 }

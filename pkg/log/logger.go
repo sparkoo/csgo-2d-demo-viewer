@@ -37,13 +37,13 @@ func L() *zap.Logger {
 }
 
 func Print(msg string, err error) {
-	logger.Info(msg, zap.Error(err))
+	L().Info(msg, zap.Error(err))
 }
 
 func Printf(msg string, args ...any) {
-	logger.Info(fmt.Sprintf(msg, args...))
+	L().Info(fmt.Sprintf(msg, args...))
 }
 
 func Println(msg string, err error) {
-	logger.Info(msg, zap.Error(err))
+	L().Info(msg, zap.Error(err))
 }
