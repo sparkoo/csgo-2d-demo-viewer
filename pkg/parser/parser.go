@@ -46,6 +46,10 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	gameStarted := false
 	var mapCS MapCS
 
+	parser.RegisterNetMessageHandler(func(e *demsg.CSVCMsg_ServerInfo) {
+		mapCS = MapNameToMap[e.GetMapName()]
+	})
+
 	// parse one frame to have something
 	if more, err := parser.ParseNextFrame(); !more || err != nil {
 		return err
@@ -123,11 +127,6 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	})
 	parser.RegisterEventHandler(func(e events.RoundStart) {
 		readyForNewRound = true
-	})
-
-	parser.RegisterNetMessageHandler(func(e *demsg.CSVCMsg_ServerInfo) {
-		fmt.Printf("Hello?%+v\n", e.GetMapName())
-		mapCS = MapNameToMap[e.GetMapName()]
 	})
 
 	bombH.registerEvents()
