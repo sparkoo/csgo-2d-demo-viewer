@@ -1,7 +1,3 @@
-const serverHost = globalThis.location.host.includes("localhost")
-  ? "http://localhost:8080"
-  : "";
-
 importScripts("wasm/wasm_exec.js");
 
 onmessage = (event) => {
