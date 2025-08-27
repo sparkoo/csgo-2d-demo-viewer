@@ -34,7 +34,6 @@ RUN npm install
 
 COPY web/index.html .
 COPY web/vite.config.js .
-COPY web/.env.production .
 COPY web/public public
 COPY --from=builder_go /usr/local/go/lib/wasm/wasm_exec.js public/wasm/wasm_exec.js
 COPY web/src src

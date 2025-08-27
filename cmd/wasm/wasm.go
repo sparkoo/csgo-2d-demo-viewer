@@ -16,7 +16,7 @@ func main() {
 
 func wasmParseDemo(this js.Value, args []js.Value) interface{} {
 	filename := args[0].String()
-	fmt.Printf("parsing demo %s\n", &filename)
+	fmt.Printf("parsing demo %s\n", filename)
 
 	callback := args[2]
 	demoData := make([]byte, args[1].Get("length").Int())

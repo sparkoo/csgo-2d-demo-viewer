@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"csgo-2d-demo-player/conf"
 	"csgo-2d-demo-player/pkg/log"
 	"fmt"
@@ -14,7 +13,6 @@ import (
 var config *conf.Conf
 
 func main() {
-	ctx := context.Background()
 	config = &conf.Conf{}
 	arg.MustParse(config)
 
@@ -23,10 +21,10 @@ func main() {
 
 	log.L().Debug("using config", zap.Any("config", config))
 	// log.Printf("using config %+v", config)
-	server(ctx)
+	server()
 }
 
-func server(ctx context.Context) {
+func server() {
 	mux := http.NewServeMux()
 
 	mux.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("./web/dist/assets"))))
