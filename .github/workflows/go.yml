@@ -7,27 +7,32 @@ permissions:
 
 on:
   push:
-    branches: [ "master", "dev" ]
+    branches: ["master", "dev"]
   pull_request:
-    branches: [ "master", "dev" ]
+    branches: ["master", "dev"]
 
 env:
   GOLANG_PROTOBUF_REGISTRATION_CONFLICT: warn
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./parser
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.24
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.24
 
-    - name: Build
-      run: go build -v main.go
+      - name: Build
+        env:
+          GOOS: js
+          GOARCH: wasm
+        run: go build -ldflags="-s -w" -v ./wasm.go
 
-    - name: Test
-      run: go test -v $( go list ./... | grep -v /wasm )
+      - name: Test
+        run: go test -v ./...
