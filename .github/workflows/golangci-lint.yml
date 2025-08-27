@@ -12,9 +12,6 @@ jobs:
   golangci:
     name: lint
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./parser
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -27,7 +24,7 @@ jobs:
           version: latest
 
           # Optional: working directory, useful for monorepos
-          # working-directory: somedir
+          working-directory: parser
 
           # Optional: golangci-lint command line arguments.
           # args: --out-format=colored-line-number # can't do that in github actions :(
