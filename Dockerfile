@@ -2,13 +2,13 @@
 FROM golang:1.24 AS builder_go
 
 USER root
-WORKDIR /csgo-2d-demo-player/parser
+WORKDIR /csgo-2d-demo-player
 
-COPY go.mod .
-COPY go.sum .
+COPY parser/go.mod .
+COPY parser/go.sum .
 RUN go mod download
 
-COPY . .
+COPY parser .
 RUN CGO_ENABLED=0 GOOS=js GOARCH=wasm GO111MODULE=on go build \
   -a -o _output/csdemoparser.wasm \
   -gcflags all=-trimpath=/ \
@@ -20,7 +20,7 @@ FROM node:lts-alpine AS builder_npm
 
 USER root
 
-WORKDIR /csgo-2d-demo-player/web
+WORKDIR /csgo-2d-demo-player
 
 COPY web/package.json .
 COPY web/package-lock.json .
@@ -36,10 +36,10 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copy built frontend assets
-COPY --from=builder_npm /csgo-2d-demo-player/web/dist/ /usr/share/nginx/html/
+COPY --from=builder_npm /csgo-2d-demo-player/dist/ /usr/share/nginx/html/
 
 # Copy WASM files to correct locations
-COPY --from=builder_go /csgo-2d-demo-player/parser/_output/csdemoparser.wasm /usr/share/nginx/html/wasm/
+COPY --from=builder_go /csgo-2d-demo-player/_output/csdemoparser.wasm /usr/share/nginx/html/wasm/
 COPY --from=builder_go /usr/local/go/lib/wasm/wasm_exec.js /usr/share/nginx/html/wasm/
 
 # Copy custom nginx configuration
