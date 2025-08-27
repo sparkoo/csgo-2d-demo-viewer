@@ -1,32 +1,26 @@
-# backend build
+# WASM build stage
 FROM golang:1.24 AS builder_go
 
 USER root
 WORKDIR /csgo-2d-demo-player
 
-COPY go.mod .
-COPY go.sum .
+COPY parser/go.mod .
+COPY parser/go.sum .
 RUN go mod download
 
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build \
-  -a -o _output/main \
-  -gcflags all=-trimpath=/ \
-  -asmflags all=-trimpath=/ \
-  main.go
-
+COPY parser .
 RUN CGO_ENABLED=0 GOOS=js GOARCH=wasm GO111MODULE=on go build \
   -a -o _output/csdemoparser.wasm \
   -gcflags all=-trimpath=/ \
   -asmflags all=-trimpath=/ \
-  cmd/wasm/wasm.go
+  wasm.go
 
-# web build
-FROM node:lts-slim AS builder_npm
+# Frontend build stage
+FROM node:lts-alpine AS builder_npm
 
 USER root
 
-WORKDIR /csgo-2d-demo-player/web
+WORKDIR /csgo-2d-demo-player
 
 COPY web/package.json .
 COPY web/package-lock.json .
@@ -34,22 +28,25 @@ RUN npm install
 
 COPY web/index.html .
 COPY web/vite.config.js .
-COPY web/.env.production .
 COPY web/public public
-COPY --from=builder_go /usr/local/go/lib/wasm/wasm_exec.js public/wasm/wasm_exec.js
 COPY web/src src
 RUN npm run build
 
-# dist
-FROM debian:bookworm-slim
+# Nginx stage
+FROM nginx:alpine
 
-RUN apt-get update && apt-get install -y ca-certificates
+# Copy built frontend assets
+COPY --from=builder_npm /csgo-2d-demo-player/dist/ /usr/share/nginx/html/
 
-COPY --from=builder_go /csgo-2d-demo-player/_output/main /csgo-2d-demo-player/
-COPY --from=builder_go /csgo-2d-demo-player/_output/csdemoparser.wasm /csgo-2d-demo-player/web/dist/wasm/
-COPY --from=builder_npm /csgo-2d-demo-player/web/dist/assets/. /csgo-2d-demo-player/assets/
-COPY --from=builder_npm /csgo-2d-demo-player/web/dist/ /csgo-2d-demo-player/web/dist/
+# Copy WASM files to correct locations
+COPY --from=builder_go /csgo-2d-demo-player/_output/csdemoparser.wasm /usr/share/nginx/html/wasm/
+COPY --from=builder_go /usr/local/go/lib/wasm/wasm_exec.js /usr/share/nginx/html/wasm/
 
-WORKDIR /csgo-2d-demo-player
+# Copy custom nginx configuration
+COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 
-CMD /csgo-2d-demo-player/main
+# Expose port 8080
+EXPOSE 8080
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
