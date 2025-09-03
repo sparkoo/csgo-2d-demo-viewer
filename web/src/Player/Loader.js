@@ -1,14 +1,45 @@
-import { useEffect } from "react";
+import MessageBus from "./MessageBus.js";
 
-const LoaderService = (messageBus) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [rounds, setRounds] = useState([]);
+class LoaderService {
+  constructor(worker, demoDataService, setIsWasmLoaded) {
+    this.isLoading = false;
+    this.messageBus = new MessageBus();
+    this.worker = worker;
+    this.demoDataService = demoDataService;
+    this.setIsWasmLoaded = setIsWasmLoaded;
 
-  const handleAddRound = (roundMsg) => {
+    this.worker.onmessage = (e) => {
+      console.log("Message received from worker", e);
+      if (e.data === "ready") {
+        this.setIsWasmLoaded(true);
+      } else {
+        const msg = proto.Message.deserializeBinary(e.data).toObject();
+        this.messageBus.emit(msg);
+      }
+    };
+
+    this.messageBus.listen([5, 6, 13], (msg) => {
+      if (this.isLoading) {
+        switch (msg.msgtype) {
+          case 5:
+            this.loadingDone();
+            break;
+          case 6:
+            this.handleAddRound(msg.round);
+            break;
+          case 13:
+            alert(msg.message);
+            break;
+        }
+      }
+    });
+  }
+
+  handleAddRound(roundMsg) {
     let roundTicks = [];
     let tickMessages = [];
     let currentTick = roundMsg.ticksList[0].tick;
-    roundMsg.ticksList.forEach(function (tick) {
+    roundMsg.ticksList.forEach((tick) => {
       if (tick.tick !== currentTick) {
         roundTicks.push(tickMessages);
         tickMessages = [];
@@ -18,31 +49,12 @@ const LoaderService = (messageBus) => {
     });
 
     roundMsg.ticksList = roundTicks;
-    this.rounds.push(roundMsg);
-    this.messageBus.emit({
-      msgtype: MSG_INIT_ROUNDS,
-      rounds: this.rounds,
-    });
-  };
+    this.demoDataService.addRound(roundMsg);
+  }
 
-  const loadingDone = () => {
-    setIsLoading(false);
-  };
-
-  messageBus.listen([5, 6], function (msg) {
-    if (this.loading) {
-      switch (msg.msgtype) {
-        case 5:
-          loadingDone();
-          break;
-        case 6:
-          handleAddRound(msg.round);
-          break;
-      }
-    }
-  });
-
-  return { isLoading, rounds };
-};
+  loadingDone() {
+    this.isLoading = false;
+  }
+}
 
 export default LoaderService;

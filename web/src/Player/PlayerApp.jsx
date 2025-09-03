@@ -8,28 +8,20 @@ import InfoPanel from "./panel/InfoPanel.jsx";
 import "./protos/Message_pb.js";
 import DemoContext from "../context.js";
 import LoaderService from "./Loader.js";
+import DemoDataService from "./DemoDataService.js";
 
 export function PlayerApp() {
   const demoData = useContext(DemoContext);
-  const worker = new Worker("worker.js");
+  const [worker] = useState(new Worker("worker.js"));
 
+  const demoDataService = new DemoDataService();
   const playerMessageBus = new MessageBus();
-  const loaderMessageBus = new MessageBus();
-
-  // const loader = LoaderService(loaderMessageBus, playerMessageBus);
-  const player = new Player(playerMessageBus);
 
   const [isWasmLoaded, setIsWasmLoaded] = useState(false);
-
-  worker.onmessage = (e) => {
-    console.log("Message received from worker", e);
-    if (e.data === "ready") {
-      setIsWasmLoaded(true);
-    } else {
-      const msg = proto.Message.deserializeBinary(e.data).toObject();
-      loaderMessageBus.emit(msg);
-    }
-  };
+  const loader = useState(
+    new LoaderService(worker, demoDataService, setIsWasmLoaded)
+  );
+  const player = useState(new Player(playerMessageBus));
 
   useEffect(() => {
     console.log("isWasmLoaded", isWasmLoaded);
@@ -37,11 +29,8 @@ export function PlayerApp() {
       if (demoData.demoData) {
         worker.postMessage(demoData.demoData);
       }
-      loaderMessageBus.listen([13], function (msg) {
-        alert(msg.message);
-      });
     }
-  }, [isWasmLoaded]);
+  }, []);
 
   return (
     <ErrorBoundary>
