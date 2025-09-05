@@ -12,25 +12,24 @@ import DemoDataService from "./DemoDataService.js";
 
 export function PlayerApp() {
   const demoData = useContext(DemoContext);
-  const [worker] = useState(new Worker("worker.js"));
 
   const demoDataService = new DemoDataService();
   const playerMessageBus = new MessageBus();
 
   const [isWasmLoaded, setIsWasmLoaded] = useState(false);
-  const loader = useState(
-    new LoaderService(worker, demoDataService, setIsWasmLoaded)
+  const [loader] = useState(
+    new LoaderService(demoDataService, setIsWasmLoaded)
   );
-  const player = useState(new Player(playerMessageBus));
+  const player = new Player(playerMessageBus);
 
   useEffect(() => {
     console.log("isWasmLoaded", isWasmLoaded);
     if (isWasmLoaded) {
       if (demoData.demoData) {
-        worker.postMessage(demoData.demoData);
+        loader.load(demoData.demoData);
       }
     }
-  }, []);
+  }, [isWasmLoaded]);
 
   return (
     <ErrorBoundary>

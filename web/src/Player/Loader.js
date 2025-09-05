@@ -1,10 +1,10 @@
 import MessageBus from "./MessageBus.js";
 
 class LoaderService {
-  constructor(worker, demoDataService, setIsWasmLoaded) {
+  constructor(demoDataService, setIsWasmLoaded) {
     this.isLoading = false;
     this.messageBus = new MessageBus();
-    this.worker = worker;
+    this.worker = new Worker("worker.js");
     this.demoDataService = demoDataService;
     this.setIsWasmLoaded = setIsWasmLoaded;
 
@@ -33,6 +33,10 @@ class LoaderService {
         }
       }
     });
+  }
+
+  load(demoData) {
+    this.worker.postMessage(demoData);
   }
 
   handleAddRound(roundMsg) {
