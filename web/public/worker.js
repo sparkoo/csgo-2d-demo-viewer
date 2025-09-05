@@ -30,6 +30,7 @@ async function loadWasm() {
   ).then((result) => {
     go.run(result.instance);
     console.log("should be loaded now");
+    setTimeout(() => postMessage("ready"), 200);
   });
 }
 loadWasm();
