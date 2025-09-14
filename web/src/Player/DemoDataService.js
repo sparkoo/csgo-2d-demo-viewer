@@ -1,6 +1,11 @@
 class DemoDataService {
   constructor() {
+    this.map = "";
     this.rounds = [];
+  }
+
+  init(matchInfo) {
+    this.map = matchInfo.mapname;
   }
 
   addRound(round) {

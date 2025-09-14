@@ -2,8 +2,6 @@ import MessageBus from "./MessageBus.js";
 
 class LoaderService {
   constructor(demoDataService, setIsWasmLoaded) {
-    this.isLoading = false;
-    this.messageBus = new MessageBus();
     this.worker = new Worker("worker.js");
     this.demoDataService = demoDataService;
     this.setIsWasmLoaded = setIsWasmLoaded;
@@ -14,13 +12,10 @@ class LoaderService {
         this.setIsWasmLoaded(true);
       } else {
         const msg = proto.Message.deserializeBinary(e.data).toObject();
-        this.messageBus.emit(msg);
-      }
-    };
-
-    this.messageBus.listen([5, 6, 13], (msg) => {
-      if (this.isLoading) {
         switch (msg.msgtype) {
+          case 4:
+            this.demoDataService.init(msg.init);
+            break;
           case 5:
             this.loadingDone();
             break;
@@ -30,9 +25,11 @@ class LoaderService {
           case 13:
             alert(msg.message);
             break;
+          default:
+            console.log("what is this message?", msg);
         }
       }
-    });
+    };
   }
 
   load(demoData) {
