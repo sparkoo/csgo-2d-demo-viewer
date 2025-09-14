@@ -1,47 +1,51 @@
 import { useEffect, useState, useContext } from "react";
-import './PlayerApp.css';
+import "./PlayerApp.css";
 import ErrorBoundary from "./Error.jsx";
 import MessageBus from "./MessageBus.js";
 import Player from "./Player.js";
 import Map2d from "./map/Map2d.jsx";
 import InfoPanel from "./panel/InfoPanel.jsx";
-import './protos/Message_pb.js'
-import DemoContext from "../context.js"
+import "./protos/Message_pb.js";
+import DemoContext from "../context.js";
 
 export function PlayerApp() {
   const demoData = useContext(DemoContext);
   const worker = new Worker("worker.js");
 
-  const [messageBus] = useState(new MessageBus())
-  const [player] = useState(new Player(messageBus))
-  const [serverHost] = useState(window.location.host.includes("localhost") ? "http://localhost:8080" : "");
-  const [isWasmLoaded, setIsWasmLoaded] = useState(false)
+  const [playerMessageBus] = useState(new MessageBus());
+  const [loaderMessageBus] = useState(new MessageBus());
+  const [player] = useState(new Player(playerMessageBus, loaderMessageBus));
+  const [serverHost] = useState(
+    window.location.host.includes("localhost") ? "http://localhost:8080" : ""
+  );
+  const [isWasmLoaded, setIsWasmLoaded] = useState(false);
 
   worker.onmessage = (e) => {
     console.log("Message received from worker", e);
-    const msg = proto.Message.deserializeBinary(e.data).toObject()
-    messageBus.emit(msg)
+    const msg = proto.Message.deserializeBinary(e.data).toObject();
+    loaderMessageBus.emit(msg);
   };
 
   useEffect(() => {
-    console.log("isWasmLoaded", isWasmLoaded)
+    console.log("isWasmLoaded", isWasmLoaded);
     if (demoData.demoData) {
-      setTimeout(() => worker.postMessage(demoData.demoData), 1000)
+      setTimeout(() => worker.postMessage(demoData.demoData), 1000);
     }
-    messageBus.listen([13], function (msg) {
-      alert(msg.message)
-    })
-  }, [isWasmLoaded])
+    playerMessageBus.listen([13], function (msg) {
+      alert(msg.message);
+    });
+  }, [isWasmLoaded]);
 
   return (
     <ErrorBoundary>
       <div className="grid-container">
         <div className="grid-item map">
-          <Map2d messageBus={messageBus} />
+          <Map2d messageBus={playerMessageBus} />
         </div>
         <div className="grid-item infoPanel">
-          <InfoPanel messageBus={messageBus} />
+          <InfoPanel messageBus={playerMessageBus} />
         </div>
       </div>
-    </ErrorBoundary>);
+    </ErrorBoundary>
+  );
 }
