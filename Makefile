@@ -1,5 +1,5 @@
 # WebAssembly build
-.PHONY: wasm
+.PHONY: wasm dev
 
 WASM_DIR := ../web/public/wasm
 WASM_OUT := $(WASM_DIR)/csdemoparser.wasm
