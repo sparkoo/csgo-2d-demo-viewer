@@ -1,5 +1,5 @@
 # WebAssembly build
-.PHONY: wasm
+.PHONY: wasm dev
 
 WASM_DIR := ../web/public/wasm
 WASM_OUT := $(WASM_DIR)/csdemoparser.wasm
@@ -13,3 +13,6 @@ wasm:
 	@echo "Copying wasm_exec.js from $(GOROOT_WASM)"
 	cp "$(GOROOT_WASM)" "$(WASM_EXEC)"
 	@echo "Built $(WASM_OUT) and ensured $(WASM_EXEC)"
+
+dev:
+	npm --prefix web start

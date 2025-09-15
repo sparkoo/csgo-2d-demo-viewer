@@ -29,13 +29,11 @@ class Player {
     this.messageBus = playerBus;
 
     loaderBus.listen(
-      [MSG_INIT_ROUNDS, 5, 6],
+      [4, 5, 6],
       function (msg) {
         switch (msg.msgtype) {
           case 4:
-          case 7:
-          case 13:
-          case MSG_INIT_ROUNDS:
+            this.messageBus.emit(msg);
             break;
           case 5:
             this.loadingDone();
@@ -98,6 +96,7 @@ class Player {
   }
 
   handleAddRound(roundMsg) {
+    console.log("add round", roundMsg);
     let roundTicks = [];
     let tickMessages = [];
     let currentTick = roundMsg.ticksList[0].tick;

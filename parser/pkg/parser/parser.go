@@ -5,7 +5,6 @@ import (
 	"csgo-2d-demo-player/pkg/message"
 	"fmt"
 	"io"
-	"math"
 	"sort"
 	"time"
 
@@ -177,17 +176,17 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			continue
 		}
 
-		if parser.CurrentFrame()%1024 == 0 {
-			progressWholePercent := int32(math.Round(float64(parser.Progress()) * 100))
-			handler(&message.Message{
-				MsgType: message.Message_ProgressType,
-				Tick:    int32(parser.CurrentFrame()),
-				Progress: &message.Progress{
-					Progress: progressWholePercent,
-					Message:  "Loading match ...",
-				},
-			}, parser.GameState())
-		}
+		// if parser.CurrentFrame()%1024 == 0 {
+		// 	progressWholePercent := int32(math.Round(float64(parser.Progress()) * 100))
+		// 	handler(&message.Message{
+		// 		MsgType: message.Message_ProgressType,
+		// 		Tick:    int32(parser.CurrentFrame()),
+		// 		Progress: &message.Progress{
+		// 			Progress: progressWholePercent,
+		// 			Message:  "Loading match ...",
+		// 		},
+		// 	}, parser.GameState())
+		// }
 
 		if parser.CurrentFrame()%16 == 0 {
 			roundTime := parser.CurrentTime() - currentRoundTimer.lastRoundStart

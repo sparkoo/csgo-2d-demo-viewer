@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import "./PlayerApp.css";
 import ErrorBoundary from "./Error.jsx";
 import MessageBus from "./MessageBus.js";
@@ -9,31 +9,58 @@ import "./protos/Message_pb.js";
 import DemoContext from "../context.js";
 
 export function PlayerApp() {
+  const worker = useRef(null);
+  const player = useRef(null);
+
   const demoData = useContext(DemoContext);
-  const worker = new Worker("worker.js");
 
   const [playerMessageBus] = useState(new MessageBus());
   const [loaderMessageBus] = useState(new MessageBus());
-  const [player] = useState(new Player(playerMessageBus, loaderMessageBus));
-  const [serverHost] = useState(
-    window.location.host.includes("localhost") ? "http://localhost:8080" : ""
-  );
+
   const [isWasmLoaded, setIsWasmLoaded] = useState(false);
 
-  worker.onmessage = (e) => {
-    console.log("Message received from worker", e);
-    const msg = proto.Message.deserializeBinary(e.data).toObject();
-    loaderMessageBus.emit(msg);
-  };
-
   useEffect(() => {
-    console.log("isWasmLoaded", isWasmLoaded);
-    if (demoData.demoData) {
-      setTimeout(() => worker.postMessage(demoData.demoData), 1000);
+    if (!worker.current) {
+      worker.current = new Worker("worker.js");
+      console.log('Worker created.');
     }
+
+    if (!player.current) {
+      player.current = new Player(playerMessageBus, loaderMessageBus);
+      console.log("Player created.");
+    }
+
+    worker.current.onmessage = (e) => {
+      console.log("Message received from worker", e);
+      if (e.data === "ready") {
+        setIsWasmLoaded(true);
+      } else {
+        const msg = proto.Message.deserializeBinary(e.data).toObject();
+        loaderMessageBus.emit(msg);
+      }
+    };
     playerMessageBus.listen([13], function (msg) {
       alert(msg.message);
     });
+
+    return () => {
+      if (worker.current) {
+        worker.current.terminate();
+        console.log('Worker terminated.');
+        worker.current = null;
+      }
+
+      if (player.current) {
+        player.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log("isWasmLoaded", isWasmLoaded);
+    if (isWasmLoaded && demoData.demoData) {
+      worker.current.postMessage(demoData.demoData);
+    }
   }, [isWasmLoaded]);
 
   return (
