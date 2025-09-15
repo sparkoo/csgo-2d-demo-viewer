@@ -29,10 +29,12 @@ class Player {
     this.messageBus = playerBus;
 
     loaderBus.listen(
-      [MSG_INIT_ROUNDS, 5, 6],
+      [4, MSG_INIT_ROUNDS, 5, 6],
       function (msg) {
         switch (msg.msgtype) {
           case 4:
+            this.messageBus.emit(msg);
+            break;
           case 7:
           case 13:
           case MSG_INIT_ROUNDS:
