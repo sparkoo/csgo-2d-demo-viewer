@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import "./PlayerApp.css";
 import ErrorBoundary from "./Error.jsx";
 import MessageBus from "./MessageBus.js";
@@ -9,16 +9,18 @@ import "./protos/Message_pb.js";
 import DemoContext from "../context.js";
 
 export function PlayerApp() {
+  const worker = useRef(new Worker("worker.js"));
+
   const demoData = useContext(DemoContext);
-  const [worker] = useState(new Worker("worker.js"));
 
   const [playerMessageBus] = useState(new MessageBus());
   const [loaderMessageBus] = useState(new MessageBus());
+
   const [isWasmLoaded, setIsWasmLoaded] = useState(false);
 
   useEffect(() => {
     const player = new Player(playerMessageBus, loaderMessageBus);
-    worker.onmessage = (e) => {
+    worker.current.onmessage = (e) => {
       console.log("Message received from worker", e);
       if (e.data === "ready") {
         setIsWasmLoaded(true);
@@ -35,7 +37,7 @@ export function PlayerApp() {
   useEffect(() => {
     console.log("isWasmLoaded", isWasmLoaded);
     if (isWasmLoaded && demoData.demoData) {
-      worker.postMessage(demoData.demoData);
+      worker.current.postMessage(demoData.demoData);
     }
   }, [isWasmLoaded]);
 
