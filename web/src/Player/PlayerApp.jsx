@@ -14,21 +14,23 @@ export function PlayerApp() {
 
   const [playerMessageBus] = useState(new MessageBus());
   const [loaderMessageBus] = useState(new MessageBus());
-  const [player] = useState(new Player(playerMessageBus, loaderMessageBus));
-  const [serverHost] = useState(
-    window.location.host.includes("localhost") ? "http://localhost:8080" : ""
-  );
   const [isWasmLoaded, setIsWasmLoaded] = useState(false);
 
-  worker.onmessage = (e) => {
-    console.log("Message received from worker", e);
-    if (e.data === "ready") {
-      setIsWasmLoaded(true);
-    } else {
-      const msg = proto.Message.deserializeBinary(e.data).toObject();
-      loaderMessageBus.emit(msg);
-    }
-  };
+  useEffect(() => {
+    const player = new Player(playerMessageBus, loaderMessageBus);
+    worker.onmessage = (e) => {
+      console.log("Message received from worker", e);
+      if (e.data === "ready") {
+        setIsWasmLoaded(true);
+      } else {
+        const msg = proto.Message.deserializeBinary(e.data).toObject();
+        loaderMessageBus.emit(msg);
+      }
+    };
+    playerMessageBus.listen([13], function (msg) {
+      alert(msg.message);
+    });
+  }, []);
 
   useEffect(() => {
     console.log("isWasmLoaded", isWasmLoaded);
@@ -36,10 +38,6 @@ export function PlayerApp() {
       worker.postMessage(demoData.demoData);
     }
   }, [isWasmLoaded]);
-
-  playerMessageBus.listen([13], function (msg) {
-    alert(msg.message);
-  });
 
   return (
     <ErrorBoundary>
