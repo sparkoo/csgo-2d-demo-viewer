@@ -21,7 +21,7 @@ export function PlayerApp() {
 
   useEffect(() => {
     if (!worker.current) {
-      worker.current = new Worker(new Worker("worker.js"));
+      worker.current = new Worker("worker.js");
       console.log('Worker created.');
     }
 
