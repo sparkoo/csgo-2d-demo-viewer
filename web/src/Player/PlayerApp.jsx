@@ -9,7 +9,8 @@ import "./protos/Message_pb.js";
 import DemoContext from "../context.js";
 
 export function PlayerApp() {
-  const worker = useRef(new Worker("worker.js"));
+  const worker = useRef(null);
+  const player = useRef(null);
 
   const demoData = useContext(DemoContext);
 
@@ -19,7 +20,16 @@ export function PlayerApp() {
   const [isWasmLoaded, setIsWasmLoaded] = useState(false);
 
   useEffect(() => {
-    const player = new Player(playerMessageBus, loaderMessageBus);
+    if (!worker.current) {
+      worker.current = new Worker(new Worker("worker.js"));
+      console.log('Worker created.');
+    }
+
+    if (!player.current) {
+      player.current = new Player(playerMessageBus, loaderMessageBus);
+      console.log("Player created.");
+    }
+
     worker.current.onmessage = (e) => {
       console.log("Message received from worker", e);
       if (e.data === "ready") {
@@ -32,6 +42,18 @@ export function PlayerApp() {
     playerMessageBus.listen([13], function (msg) {
       alert(msg.message);
     });
+
+    return () => {
+      if (worker.current) {
+        worker.current.terminate();
+        console.log('Worker terminated.');
+        worker.current = null;
+      }
+
+      if (player.current) {
+        player.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
