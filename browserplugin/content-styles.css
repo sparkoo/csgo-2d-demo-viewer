@@ -1,0 +1,124 @@
+/* CS:GO Demo Viewer Button Styles */
+.csgo-demo-viewer-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #ff6500 0%, #ff8c00 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(255, 101, 0, 0.2);
+  text-decoration: none;
+  white-space: nowrap;
+  margin: 0 8px;
+}
+
+.csgo-demo-viewer-button:hover {
+  background: linear-gradient(135deg, #e55a00 0%, #ff7700 100%);
+  box-shadow: 0 4px 8px rgba(255, 101, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.csgo-demo-viewer-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(255, 101, 0, 0.2);
+}
+
+.csgo-demo-viewer-button svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* Container for fallback positioning */
+.csgo-demo-viewer-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 12px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.csgo-demo-viewer-container .csgo-demo-viewer-button {
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .csgo-demo-viewer-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .csgo-demo-viewer-container {
+    top: 10px;
+    right: 10px;
+    padding: 8px;
+  }
+}
+
+/* Integration with Faceit's design system */
+.match-header-actions .csgo-demo-viewer-button,
+.room-header-actions .csgo-demo-viewer-button,
+.match-actions .csgo-demo-viewer-button,
+.room-actions .csgo-demo-viewer-button {
+  margin-left: 12px;
+}
+
+/* Dark theme compatibility */
+@media (prefers-color-scheme: dark) {
+  .csgo-demo-viewer-container {
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Animation for button appearance */
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.csgo-demo-viewer-button {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+/* Loading state (for future use) */
+.csgo-demo-viewer-button.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.csgo-demo-viewer-button.loading::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

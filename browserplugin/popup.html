@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CS:GO Demo Viewer</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="popup-container">
+      <div class="header">
+        <div class="logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          <h1>CS:GO Demo Viewer</h1>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="status" id="status">
+          <div class="status-indicator" id="statusIndicator"></div>
+          <span id="statusText">Checking page...</span>
+        </div>
+
+        <div class="info">
+          <p>
+            This extension adds a "View in Demo Viewer" button to Faceit match
+            pages.
+          </p>
+        </div>
+
+        <div class="current-url">
+          <label for="viewerUrl">Demo Viewer URL:</label>
+          <input
+            type="text"
+            id="viewerUrl"
+            placeholder="http://localhost:3000"
+          />
+          <button id="saveUrl" class="btn-primary">Save</button>
+        </div>
+
+        <div class="actions">
+          <button id="testButton" class="btn-secondary">
+            Test Current Page
+          </button>
+          <button id="openOptions" class="btn-secondary">Options</button>
+        </div>
+
+        <div class="footer">
+          <p>Visit a Faceit match page to see the demo viewer button.</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

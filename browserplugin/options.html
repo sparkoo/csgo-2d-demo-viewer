@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CS:GO Demo Viewer - Options</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <div class="options-container">
+      <header class="header">
+        <div class="logo">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          <div>
+            <h1>CS:GO Demo Viewer</h1>
+            <p>Extension Options</p>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <section class="section">
+          <h2>Demo Viewer Configuration</h2>
+          <div class="form-group">
+            <label for="viewerUrl">Demo Viewer URL</label>
+            <input
+              type="url"
+              id="viewerUrl"
+              placeholder="http://localhost:3000"
+            />
+            <p class="help-text">
+              Enter the URL where your CS:GO demo viewer is hosted. Use
+              <code>http://localhost:3000</code> for local development.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="autoInject" />
+              Automatically inject button on page load
+            </label>
+            <p class="help-text">
+              When enabled, the demo viewer button will be automatically added
+              to Faceit match pages.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="showNotifications" />
+              Show notifications
+            </label>
+            <p class="help-text">
+              Display notifications when demos are found or when the extension
+              is updated.
+            </p>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Button Appearance</h2>
+          <div class="form-group">
+            <label for="buttonPosition">Button Position</label>
+            <select id="buttonPosition">
+              <option value="auto">Auto-detect best position</option>
+              <option value="header">Page header</option>
+              <option value="floating">Floating (top-right)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="buttonText">Button Text</label>
+            <input
+              type="text"
+              id="buttonText"
+              placeholder="View in Demo Viewer"
+              maxlength="30"
+            />
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Advanced Settings</h2>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="debugMode" />
+              Enable debug mode
+            </label>
+            <p class="help-text">
+              Show additional console logs for troubleshooting. Only enable if
+              you're experiencing issues.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label for="customSelectors"
+              >Custom Demo Selectors (Advanced)</label
+            >
+            <textarea
+              id="customSelectors"
+              rows="3"
+              placeholder="a[href*='.dem.gz'], .demo-download"
+            ></textarea>
+            <p class="help-text">
+              CSS selectors to find demo download links. One per line. Leave
+              empty to use defaults.
+            </p>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>About</h2>
+          <div class="about-info">
+            <p><strong>Version:</strong> <span id="version">1.0.0</span></p>
+            <p>
+              <strong>Description:</strong> Adds a button to Faceit match pages
+              to view CS:GO demos in your demo viewer.
+            </p>
+            <p>
+              <strong>Support:</strong> For issues or feature requests, please
+              check the extension documentation.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="actions">
+          <button id="saveButton" class="btn-primary">Save Settings</button>
+          <button id="resetButton" class="btn-secondary">
+            Reset to Defaults
+          </button>
+          <button id="testButton" class="btn-secondary">
+            Test Configuration
+          </button>
+        </div>
+        <div class="status" id="status"></div>
+      </footer>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>
