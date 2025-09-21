@@ -1,14 +1,14 @@
 # CS2 Demo Viewer - FACEIT Integration
 
-A Chrome extension that adds "Analyze Demo" buttons to FACEIT.com pages, allowing you to quickly open CS2 demos in the CS2 2D Demo Viewer.
+A Chrome extension that adds an "Analyze Demo" button to FACEIT match room pages, allowing you to quickly open CS2 demos in the CS2 2D Demo Viewer.
 
 ## Features
 
-- 🎯 **Smart Button Placement**: Automatically adds "Analyze Demo" buttons to FACEIT match pages
+- 🎯 **Targeted Placement**: Adds "Analyze Demo" button inside div[name="info"] elements on match room pages
 - 🚀 **One-Click Analysis**: Opens your CS2 2D Demo Viewer with a single click
 - 🔄 **SPA Support**: Works with FACEIT's single-page application navigation
-- 🎨 **FACEIT Integration**: Buttons blend seamlessly with FACEIT's design
-- ⚡ **Lightweight**: Minimal performance impact on FACEIT pages
+- 🎨 **Clean Integration**: Button integrates seamlessly with FACEIT's design
+- ⚡ **Lightweight**: Minimal performance impact with focused functionality
 
 ## Installation
 
@@ -26,22 +26,19 @@ The extension will be available on the Chrome Web Store once published.
 ## Usage
 
 1. **Install the extension** using one of the methods above
-2. **Navigate to FACEIT.com** and browse to any match page:
-   - Player profiles with match history
-   - Match room pages
-   - Match statistics pages
-3. **Look for "Analyze Demo" buttons** that appear automatically on match entries
-4. **Click any button** to open the CS2 2D Demo Viewer in a new tab
+2. **Navigate to FACEIT.com** and browse to a match room page:
+   - Match room pages (`/cs2/room/{room-id}`)
+3. **Look for the "Analyze Demo" button** inside div[name="info"] elements
+4. **Click the button** to open the CS2 2D Demo Viewer in a new tab
 5. **Upload your demo file** manually in the demo viewer
 
 ## Supported Pages
 
-The extension works on these FACEIT page types:
+The extension works specifically on:
 
-- ✅ Player profiles (`/players/{username}`)
-- ✅ Match history pages (`/players/{username}/stats`)
-- ✅ Match room pages (`/room/{room-id}`)
-- ✅ Match statistics pages
+- ✅ CS2 Match room pages (`/cs2/room/{room-id}`)
+
+The extension only injects buttons into div elements with name="info" attribute.
 
 ## Configuration
 
@@ -57,11 +54,11 @@ _Note: A settings page for easy configuration will be added in a future version.
 
 ## How It Works
 
-1. **Content Script Injection**: The extension injects a content script into all FACEIT pages
-2. **DOM Observation**: Uses MutationObserver to detect when new match content loads
-3. **Smart Detection**: Identifies match-related elements using multiple CSS selectors
-4. **Button Injection**: Adds styled "Analyze Demo" buttons to appropriate locations
-5. **Demo Viewer Integration**: Opens the CS2 2D Demo Viewer when buttons are clicked
+1. **Content Script Injection**: The extension injects a content script into FACEIT pages
+2. **Match Room Detection**: Checks if the current URL matches the CS2 room pattern (`/cs2/room/`)
+3. **Info Div Detection**: Searches for div elements with name="info" attribute
+4. **Button Injection**: Adds a single "Analyze Demo" button inside the info div
+5. **Demo Viewer Integration**: Opens the CS2 2D Demo Viewer when the button is clicked
 
 ## Development
 
@@ -91,10 +88,9 @@ browserplugin/
 
 #### Changing the Demo Viewer URL
 
-Edit these files to change the default demo viewer URL:
+Edit this file to change the default demo viewer URL:
 
-1. `content-script.js` - Line 4: `this.demoViewerUrl = 'http://localhost:3000';`
-2. `popup.js` - Line 9: `const demoViewerUrl = 'http://localhost:3000';`
+1. `content-script.js` - Line 9: `this.demoViewerUrl = 'http://localhost:3000';`
 
 #### Modifying Button Appearance
 
@@ -104,22 +100,23 @@ Edit `content-styles.css` to customize the button design:
 - Size: Adjust padding and font-size
 - Position: Change positioning logic in the content script
 
-#### Adding New Page Support
+#### Modifying Target Elements
 
-To support additional FACEIT page types:
+To change which elements the button gets injected into:
 
-1. Update the `matches` array in `manifest.json` if needed
-2. Add new detection logic in `content-script.js`
-3. Create new injection methods for the page type
+1. Update the selector in `injectIntoInfoDiv()` method in `content-script.js`
+2. Modify the observer in `observePageChanges()` to watch for different elements
+3. Update the `isMatchRoomPage()` method if targeting different URL patterns
 
 ## Troubleshooting
 
-### Buttons Not Appearing
+### Button Not Appearing
 
 1. **Check Console**: Open Chrome DevTools and look for error messages
-2. **Verify Page Type**: Ensure you're on a supported FACEIT page
-3. **Reload Extension**: Go to `chrome://extensions/` and reload the extension
-4. **Clear Cache**: Clear browser cache and reload FACEIT
+2. **Verify Page Type**: Ensure you're on a CS2 match room page (`/cs2/room/`)
+3. **Check for Info Div**: Verify the page has a div with name="info" attribute
+4. **Reload Extension**: Go to `chrome://extensions/` and reload the extension
+5. **Clear Cache**: Clear browser cache and reload FACEIT
 
 ### Demo Viewer Not Opening
 
