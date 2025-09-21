@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="popup-container">
+      <div class="header">
+        <div class="logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"
+            />
+          </svg>
+        </div>
+        <div class="title">
+          <h1>CS2 Demo Viewer</h1>
+          <p>FACEIT Integration</p>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="status" id="status">
+          <div class="status-indicator" id="statusIndicator"></div>
+          <div class="status-text">
+            <span id="statusTitle">Ready</span>
+            <span id="statusDescription"
+              >Navigate to FACEIT to analyze demos</span
+            >
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="openViewer" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"
+              />
+            </svg>
+            Open Demo Viewer
+          </button>
+
+          <button id="openFaceit" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              />
+            </svg>
+            Go to FACEIT
+          </button>
+        </div>
+
+        <div class="info">
+          <div class="info-item">
+            <span class="info-label">Demo Viewer:</span>
+            <span class="info-value" id="viewerUrl">localhost:3000</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Version:</span>
+            <span class="info-value">1.0.0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>Click "Analyze Demo" buttons on FACEIT match pages</p>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
