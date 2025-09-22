@@ -152,12 +152,24 @@ class FACEITDemoViewer {
 
     this.log("✅ Found div[name='info'] element:", infoDiv);
 
+    // Find the "Watch demo" button
+    const watchDemoButton = Array.from(infoDiv.querySelectorAll("button")).find(
+      (btn) => btn.textContent.trim().toLowerCase().includes("watch demo")
+    );
+
+    if (!watchDemoButton) {
+      this.log("❌ Could not find 'Watch demo' button");
+      return false;
+    }
+
+    this.log("✅ Found 'Watch demo' button:", watchDemoButton);
+
     // Create our button
     const button = this.createAnalyzeButton("match-room-info");
 
-    // Simply append the button to the info div
-    infoDiv.appendChild(button);
-    this.log("✅ Successfully inserted button into div[name='info']");
+    // Insert the button right after the "Watch demo" button
+    watchDemoButton.insertAdjacentElement("afterend", button);
+    this.log("✅ Successfully inserted button after 'Watch demo' button");
     return true;
   }
 
@@ -165,9 +177,6 @@ class FACEITDemoViewer {
     const button = document.createElement("button");
     button.className = `${this.buttonClass}`;
     button.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-      </svg>
       2d sparko
     `;
     button.title = "Open CS2 Demo Viewer";
