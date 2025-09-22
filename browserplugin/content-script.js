@@ -206,22 +206,86 @@ class FACEITDemoViewer {
     button.disabled = true;
 
     try {
-      // Open the demo viewer in a new tab
-      window.open(this.demoViewerUrl, "_blank");
+      // Extract match ID from URL
+      const url = window.location.href;
+      const matchId = url.split("/").pop();
 
-      // Show success feedback
-      button.innerHTML = `
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
-        </svg>
-        Opened!
-      `;
+      // First, fetch match details
+      fetch(`https://www.faceit.com/api/match/v2/match/${matchId}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((matchData) => {
+          this.log("Match data:", matchData);
+          this.log("Demo download link", matchData.payload.demoURLs[0]);
 
-      // Reset button after 2 seconds
-      setTimeout(() => {
-        button.innerHTML = originalContent;
-        button.disabled = false;
-      }, 2000);
+          // Construct demo URL (assuming pattern from example)
+          const demoUrl = matchData.payload.demoURLs[0];
+
+          // Then, make HTTP request to download demo URL
+          return fetch(
+            "https://www.faceit.com/api/download/v2/demos/download-url",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                resource_url: demoUrl,
+              }),
+            }
+          );
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((downloadData) => {
+          this.log("Demo download URL response:", downloadData);
+          this.log(
+            "Demo final download link",
+            downloadData.payload.download_url
+          );
+
+          // Open the demo viewer in a new tab
+          // window.open(this.demoViewerUrl, "_blank");
+
+          // Show success feedback
+          button.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
+            </svg>
+            Opened!
+          `;
+
+          // Reset button after 2 seconds
+          setTimeout(() => {
+            button.innerHTML = originalContent;
+            button.disabled = false;
+          }, 2000);
+        })
+        .catch((error) => {
+          console.error("Error in API calls:", error);
+
+          // Show error feedback
+          button.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+            </svg>
+            Error
+          `;
+
+          // Reset button after 2 seconds
+          setTimeout(() => {
+            button.innerHTML = originalContent;
+            button.disabled = false;
+          }, 2000);
+        });
     } catch (error) {
       console.error("Error opening demo viewer:", error);
 
