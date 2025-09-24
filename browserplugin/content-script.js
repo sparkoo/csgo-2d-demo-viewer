@@ -9,6 +9,7 @@ class FACEITDemoViewer {
     this.demoViewerUrl = "http://localhost:3000";
     this.buttonClass = "cs2-demo-viewer-btn";
     this.debugMode = true;
+    this.turnstileWidgetId = "2dsparko-turnstile";
     this.init();
   }
 
@@ -46,6 +47,7 @@ class FACEITDemoViewer {
 
     this.observePageChanges();
     this.injectButtons();
+    this.addDivBelowTurnstile();
   }
 
   isMatchRoomPage() {
@@ -53,6 +55,28 @@ class FACEITDemoViewer {
     const url = window.location.href;
     const matchRoomPattern = /\/cs2\/room\/[^\/]+$/;
     return matchRoomPattern.test(url);
+  }
+
+  addDivBelowTurnstile() {
+    this.log("🔍 Looking for turnstile widget...");
+    const turnstileInput = document.querySelector(
+      '[name="cf-turnstile-response"]'
+    );
+    if (turnstileInput) {
+      let turnstileDiv = turnstileInput.closest("div");
+      if (turnstileDiv) {
+        if (!turnstileDiv.id) {
+          turnstileDiv.id = this.turnstileWidgetId;
+        }
+        const newDiv = document.createElement("div");
+        turnstileDiv.insertAdjacentElement("afterend", newDiv);
+        this.log("✅ Added div below turnstile widget");
+      } else {
+        this.log("❌ Could not find turnstile div");
+      }
+    } else {
+      this.log("⚠️ Turnstile input not found");
+    }
   }
 
   observePageChanges() {
@@ -86,6 +110,7 @@ class FACEITDemoViewer {
         this.injectionTimeout = setTimeout(() => {
           this.log("Page content changed, re-injecting buttons...");
           this.injectButtons();
+          this.addDivBelowTurnstile();
         }, 1000);
       }
     });
@@ -105,6 +130,7 @@ class FACEITDemoViewer {
         // Wait a bit for the new page to load
         setTimeout(() => {
           this.injectButtons();
+          this.addDivBelowTurnstile();
         }, 1500);
       }
     });
@@ -191,6 +217,11 @@ class FACEITDemoViewer {
     return button;
   }
 
+  getToken() {
+    // TODO: get the real token
+    return "abcd";
+  }
+
   handleAnalyzeClick(matchId, button) {
     const originalContent = button.innerHTML;
 
@@ -235,6 +266,7 @@ class FACEITDemoViewer {
               },
               body: JSON.stringify({
                 resource_url: demoUrl,
+                captcha_token: this.getToken(),
               }),
             }
           );
@@ -247,27 +279,75 @@ class FACEITDemoViewer {
         })
         .then((downloadData) => {
           this.log("Demo download URL response:", downloadData);
-          this.log(
-            "Demo final download link",
-            downloadData.payload.download_url
-          );
+          const downloadUrl = downloadData.payload.download_url;
+          this.log("Demo final download link", downloadUrl);
 
-          // Open the demo viewer in a new tab
-          // window.open(this.demoViewerUrl, "_blank");
+          // Fetch demo directly with credentials
+          this.log("Fetching demo directly with credentials");
+          fetch(downloadUrl)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.blob();
+            })
+            .then((blob) => {
+              return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+            })
+            .then((dataUrl) => {
+              this.log("Demo converted to data URL");
 
-          // Show success feedback
-          button.innerHTML = `
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
-            </svg>
-            Opened!
-          `;
+              // Open the demo viewer in a new tab
+              chrome.tabs.create({ url: this.demoViewerUrl }, (tab) => {
+                // Inject the data URL into the viewer
+                chrome.tabs.executeScript(
+                  tab.id,
+                  {
+                    code: `window.demoData = '${dataUrl.replace(
+                      /'/g,
+                      "\\'"
+                    )}';`,
+                  },
+                  () => {
+                    // Show success feedback
+                    button.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
+                    </svg>
+                    Opened Viewer!
+                  `;
 
-          // Reset button after 2 seconds
-          setTimeout(() => {
-            button.innerHTML = originalContent;
-            button.disabled = false;
-          }, 2000);
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                      button.innerHTML = originalContent;
+                      button.disabled = false;
+                    }, 2000);
+                  }
+                );
+              });
+            })
+            .catch((error) => {
+              console.error("Error downloading demo:", error);
+
+              // Show error feedback
+              button.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                </svg>
+                Error
+              `;
+
+              // Reset button after 2 seconds
+              setTimeout(() => {
+                button.innerHTML = originalContent;
+                button.disabled = false;
+              }, 2000);
+            });
         })
         .catch((error) => {
           console.error("Error in API calls:", error);

@@ -3,17 +3,16 @@
   "name": "CS2 Demo Viewer - FACEIT Integration",
   "version": "1.0.0",
   "description": "Adds demo analysis functionality to FACEIT pages",
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "tabs", "downloads", "scripting"],
   "host_permissions": [
     "https://www.faceit.com/*",
-    "https://faceit.com/*"
+    "https://faceit.com/*",
+    "https://*.faceit.com/*",
+    "http://localhost/*"
   ],
   "content_scripts": [
     {
-      "matches": [
-        "https://www.faceit.com/*",
-        "https://faceit.com/*"
-      ],
+      "matches": ["https://www.faceit.com/*", "https://faceit.com/*"],
       "js": ["content-script.js"],
       "css": ["content-styles.css"],
       "run_at": "document_end",
