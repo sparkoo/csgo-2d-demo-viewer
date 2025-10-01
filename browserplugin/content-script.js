@@ -9,7 +9,7 @@ class FACEITDemoViewer {
     this.demoViewerUrl = "http://localhost:3000";
     this.buttonClass = "cs2-demo-viewer-btn";
     this.debugMode = true;
-    this.turnstileWidgetId = "2dsparko-turnstile";
+    this.turnstileWidgetId = "dsparko-turnstile";
     this.init();
   }
 
@@ -195,6 +195,12 @@ class FACEITDemoViewer {
 
     // Insert the button right after the "Watch demo" button
     watchDemoButton.insertAdjacentElement("afterend", button);
+
+    // Create an empty div below the button
+    const emptyDiv = document.createElement("div");
+    emptyDiv.id = "2d_turnstile";
+    button.insertAdjacentElement("afterend", emptyDiv);
+
     this.log("✅ Successfully inserted button after 'Watch demo' button");
     return true;
   }
@@ -208,10 +214,10 @@ class FACEITDemoViewer {
     button.title = "Open CS2 Demo Viewer";
     button.dataset.matchId = matchId;
 
-    button.addEventListener("click", (e) => {
+    button.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      this.handleAnalyzeClick(matchId, button);
+      await this.handleAnalyzeClick(matchId, button);
     });
 
     return button;
@@ -222,7 +228,69 @@ class FACEITDemoViewer {
     return "abcd";
   }
 
-  handleAnalyzeClick(matchId, button) {
+  async findSiteKey() {
+    const faceitMainScript = [...document.querySelectorAll("script")].find(
+      (script) =>
+        /https:\/\/cdn-frontend\.faceit-cdn\.net\/web-next\/_next\/static\/chunks\/pages\/_app-[a-z0-9]+\.min\.js/.test(
+          script.src
+        )
+    );
+
+    const faceitChunkScripts = [...document.querySelectorAll("script")].filter(
+      (script) =>
+        /https:\/\/cdn-frontend\.faceit-cdn\.net\/web-next\/.*\/chunks\/[0-9]+.*\.min\.js/.test(
+          script.src
+        )
+    );
+
+    const searchScript = async (chunkScript) => {
+      try {
+        const response = await fetch(chunkScript.src);
+        if (!response.ok) return null;
+
+        const text = await response.text();
+
+        const patterns = [
+          /\("(0x[a-zA-Z0-9]+)"\)/,
+          /"(0x[a-zA-Z0-9]{16,})"/,
+          /sitekey:\s*"(0x[a-zA-Z0-9]+)"/,
+          /'(0x[a-zA-Z0-9]{16,})'/,
+        ];
+
+        for (const pattern of patterns) {
+          const match = pattern.exec(text);
+          if (match) {
+            const siteKey = match[1];
+            if (
+              siteKey !== "0xffffffffffffffff" &&
+              !siteKey.match(/^0x[f]+$/)
+            ) {
+              return siteKey;
+            }
+          }
+        }
+        return null;
+      } catch (error) {
+        return null;
+      }
+    };
+
+    const searchPromises = faceitChunkScripts.map((script) =>
+      searchScript(script)
+    );
+
+    const results = await Promise.allSettled(searchPromises);
+    for (const result of results) {
+      if (result.status === "fulfilled" && result.value) {
+        console.log("found?", result.value);
+        return result.value;
+      }
+    }
+
+    throw new Error("Could not find the sitekey");
+  }
+
+  async handleAnalyzeClick(matchId, button) {
     const originalContent = button.innerHTML;
 
     // Show loading state
@@ -235,6 +303,12 @@ class FACEITDemoViewer {
       Opening...
     `;
     button.disabled = true;
+
+    const siteKey = await this.findSiteKey();
+    if (!siteKey) {
+      console.log("couldn't find the sitekey");
+      return;
+    }
 
     try {
       // Extract match ID from URL
@@ -256,20 +330,27 @@ class FACEITDemoViewer {
           // Construct demo URL (assuming pattern from example)
           const demoUrl = matchData.payload.demoURLs[0];
 
+          window.postMessage({
+            source: "2dsparko-extenstion-script",
+            demourl: demoUrl,
+            sitekey: siteKey,
+          });
+          return 1;
+
           // Then, make HTTP request to download demo URL
-          return fetch(
-            "https://www.faceit.com/api/download/v2/demos/download-url",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                resource_url: demoUrl,
-                captcha_token: this.getToken(),
-              }),
-            }
-          );
+          // return fetch(
+          //   "https://www.faceit.com/api/download/v2/demos/download-url",
+          //   {
+          //     method: "POST",
+          //     headers: {
+          //       "Content-Type": "application/json",
+          //     },
+          //     body: JSON.stringify({
+          //       resource_url: demoUrl,
+          //       captcha_token: this.getToken(),
+          //     }),
+          //   }
+          // );
         })
         .then((response) => {
           if (!response.ok) {
@@ -279,7 +360,8 @@ class FACEITDemoViewer {
         })
         .then((downloadData) => {
           this.log("Demo download URL response:", downloadData);
-          const downloadUrl = downloadData.payload.download_url;
+          const downloadUrl =
+            "https://demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com/cs2/1-307fb563-abc0-45f7-9d2c-d60a4b40a220-1-1.dem.zst?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=0032bdbf06e20000000000001%2F20250924%2F%2Fs3%2Faws4_request&X-Amz-Date=20250924T044918Z&X-Amz-Expires=299&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=8cd0b0647bc7a45fcc54c44d9582c94777e613417281bfb668c7a8dd89eaf641";
           this.log("Demo final download link", downloadUrl);
 
           // Fetch demo directly with credentials
@@ -388,3 +470,38 @@ class FACEITDemoViewer {
 
 // Initialize the extension
 new FACEITDemoViewer();
+
+// Function to inject the script
+function injectScript(file_path, tag) {
+  var node = document.getElementsByTagName(tag)[0];
+  var script = document.createElement("script");
+  script.setAttribute("type", "text/javascript");
+  script.setAttribute("src", file_path);
+  node.appendChild(script);
+}
+
+// Inject the injector.js script
+// NOTE: The path must be relative to the extension's root directory.
+// You might need to use chrome.runtime.getURL() or browser.runtime.getURL()
+// to get the correct path.
+const scriptUrl = chrome.runtime.getURL("injector.js");
+injectScript(scriptUrl, "body");
+
+// Listen for the message from the injected script
+window.addEventListener("message", function (event) {
+  // We must verify the message origin
+  if (
+    event.source !== window ||
+    event.data.source !== "my-extension-injector"
+  ) {
+    return;
+  }
+
+  console.log("blabol", event);
+
+  // Now you have the data in your content script's world!
+  if (event.data.turnstileLoaded) {
+    console.log("🎉 window.turnstile is accessible and loaded on the page!");
+    // Do further processing here...
+  }
+});

@@ -19,6 +19,12 @@
       "all_frames": false
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["injector.js"],
+      "matches": ["https://www.faceit.com/*", "https://faceit.com/*"]
+    }
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "CS2 Demo Viewer",
