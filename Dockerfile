@@ -37,7 +37,11 @@ FROM nginx:alpine
 
 # 1. Install the set-misc dynamic module using Alpine Package Manager (apk).
 # The 'nginx' package is already installed on the base image.
-RUN apk add --no-cache nginx-mod-http-set-misc
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache \
+        nginx-mod-http-set-misc \
+        nginx-mod-devel-kit
 
 # 2. Add the dynamic module loading instruction to the main Nginx config file.
 # The .so file is installed in /usr/lib/nginx/modules/.
