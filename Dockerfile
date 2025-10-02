@@ -33,7 +33,7 @@ COPY web/src src
 RUN npm run build
 
 # Nginx stage
-FROM nginx:alpine
+FROM nginx:1.28-alpine
 
 # 1. Install the set-misc dynamic module using Alpine Package Manager (apk).
 # The 'nginx' package is already installed on the base image.
