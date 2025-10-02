@@ -50,7 +50,10 @@ COPY --from=builder_go /csgo-2d-demo-player/_output/csdemoparser.wasm /usr/share
 COPY --from=builder_go /usr/local/go/lib/wasm/wasm_exec.js /usr/share/nginx/html/wasm/
 
 # Copy custom nginx configuration
-COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
+COPY deploy/nginx.conf /etc/nginx/nginx.conf
+
+# Validate nginx configuration
+RUN nginx -t
 
 # Expose port 8080
 EXPOSE 8080
