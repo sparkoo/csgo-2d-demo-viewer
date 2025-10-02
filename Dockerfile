@@ -38,6 +38,7 @@ FROM alpine:latest
 # Install nginx and required modules
 RUN apk update && \
     apk add --no-cache \
+        ca-certificates \
         nginx \
         nginx-mod-http-set-misc \
         nginx-mod-devel-kit
