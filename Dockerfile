@@ -42,9 +42,6 @@ RUN apk update && \
         nginx-mod-http-set-misc \
         nginx-mod-devel-kit
 
-# 2. Add the dynamic module loading instruction to the main Nginx config file.
-# The .so file is installed in /usr/lib/nginx/modules/.
-RUN sed -i '1s/^/load_module \/usr\/lib\/nginx\/modules\/ndk_http_module.so;\nload_module \/usr\/lib\/nginx\/modules\/ngx_http_set_misc_module.so;\n/' /etc/nginx/nginx.conf
 # Copy built frontend assets
 COPY --from=builder_npm /csgo-2d-demo-player/dist/ /usr/share/nginx/html/
 
