@@ -33,13 +33,12 @@ COPY web/src src
 RUN npm run build
 
 # Nginx stage
-FROM nginx:1.26-alpine
+FROM alpine:latest
 
-# 1. Install the set-misc dynamic module using Alpine Package Manager (apk).
-# The 'nginx' package is already installed on the base image.
+# Install nginx and required modules
 RUN apk update && \
-    apk upgrade && \
     apk add --no-cache \
+        nginx \
         nginx-mod-http-set-misc \
         nginx-mod-devel-kit
 
