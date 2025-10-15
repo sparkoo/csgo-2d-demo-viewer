@@ -31,10 +31,11 @@
       .then((respbody) => {
         console.log("hey there?", respbody.payload.download_url);
         fetch(
-          "https://dev.2d.sparko.cz/download?url=" +
+          "http://localhost:8080/download?url=" +
             encodeURIComponent(respbody.payload.download_url)
         )
-          .then((response) => console.log("download started?", response))
+          .then((response) => response.blob())
+          .then((blob) => console.log("Size of received data:", blob.size))
           .catch((e) => {
             console.log("sthing wrong", e);
           });
