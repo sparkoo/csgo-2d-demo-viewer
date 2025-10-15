@@ -1,3 +1,4 @@
 issues:
-  exclude-dirs:
-    - cmd/wasm/
+  exclusions:
+    paths:
+      - cmd/wasm/
