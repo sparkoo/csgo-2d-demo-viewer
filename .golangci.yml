@@ -1,4 +1,4 @@
-issues:
+linters:
   exclusions:
     paths:
       - cmd/wasm/
