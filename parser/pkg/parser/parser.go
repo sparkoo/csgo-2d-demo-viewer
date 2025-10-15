@@ -30,7 +30,11 @@ type RoundTimer struct {
 
 func Parse(demoFile io.Reader, handler func(msg *message.Message, state dem.GameState)) error {
 	parser := dem.NewParser(demoFile)
-	defer parser.Close()
+	defer func() {
+		if err := parser.Close(); err != nil {
+			log.L().Error("failed to close parser", zap.Error(err))
+		}
+	}()
 
 	matchErr := parseMatch(parser, handler)
 	if matchErr != nil {
