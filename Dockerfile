@@ -39,7 +39,7 @@ USER root
 WORKDIR /csgo-2d-demo-player
 
 COPY server/go.mod .
-COPY server/go.sum .
+# COPY server/go.sum .
 RUN go mod download
 
 COPY server .
