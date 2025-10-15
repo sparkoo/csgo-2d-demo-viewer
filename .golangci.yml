@@ -1,5 +1,1 @@
 version: "2"
-linters:
-  exclusions:
-    paths:
-      - cmd/wasm
