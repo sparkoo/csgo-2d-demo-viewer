@@ -1,11 +1,8 @@
 module csgo-2d-demo-player
 
-go 1.24.0
-
-toolchain go1.24.4
+go 1.25.1
 
 require (
-	github.com/alexflint/go-arg v1.5.1
 	github.com/golang/geo v0.0.0-20250813021530-247f39904721
 	github.com/klauspost/compress v1.18.0
 	github.com/markus-wa/demoinfocs-golang/v5 v5.0.3-0.20250812130237-b1909f883a9d
@@ -14,7 +11,6 @@ require (
 )
 
 require (
-	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/markus-wa/go-unassert v0.1.3 // indirect
 	github.com/markus-wa/gobitread v0.2.5-0.20241202000432-3c3e0bc797c6 // indirect
