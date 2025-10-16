@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "FACEIT 2D Replay",
   "version": "0.1.0",
-  "description": "Adds demo analysis functionality to FACEIT pages",
+  "description": "Adds 2D Replay to FACEIT matches",
   "permissions": [],
   "host_permissions": [
     "https://www.faceit.com/*",
