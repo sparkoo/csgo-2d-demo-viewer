@@ -1,5 +1,5 @@
 # WebAssembly build
-.PHONY: wasm dev
+.PHONY: wasm dev server
 
 WASM_DIR := ../web/public/wasm
 WASM_OUT := $(WASM_DIR)/csdemoparser.wasm
@@ -16,3 +16,6 @@ wasm:
 
 dev:
 	npm --prefix web start
+
+server:
+	go run server/main.go
