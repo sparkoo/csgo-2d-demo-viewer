@@ -10,9 +10,8 @@ body {
 }
 
 .popup-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 400px;
+   display: flex;
+   flex-direction: column;
 }
 
 .header {
@@ -20,8 +19,8 @@ body {
   align-items: center;
   gap: 12px;
   padding: 20px;
-  background: linear-gradient(135deg, #ff6b35, #f7931e);
-  color: white;
+  background: linear-gradient(135deg, #faec28, #6e680a);
+  color: #2d2d2d;
 }
 
 .logo svg {

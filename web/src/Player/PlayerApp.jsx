@@ -74,7 +74,7 @@ export function PlayerApp() {
           .then((data) => {
             console.log("Response size:", data.byteLength);
             worker.current.postMessage({
-              filename: "test.zst",
+              filename: "demo.zst",
               data: new Uint8Array(data),
             });
           })

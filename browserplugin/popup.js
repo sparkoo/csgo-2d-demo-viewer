@@ -1,11 +1,9 @@
 // CS2 Demo Viewer Extension Popup
 document.addEventListener("DOMContentLoaded", async () => {
-  const statusIndicator = document.getElementById("statusIndicator");
-  const statusTitle = document.getElementById("statusTitle");
-  const statusDescription = document.getElementById("statusDescription");
   const openViewerBtn = document.getElementById("openViewer");
   const openFaceitBtn = document.getElementById("openFaceit");
   const viewerUrl = document.getElementById("viewerUrl");
+  const versionElement = document.getElementById("version");
 
   // Demo viewer URL
   const demoViewerUrl = "http://localhost:3000";
@@ -13,29 +11,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Update viewer URL display
   viewerUrl.textContent = demoViewerUrl.replace("http://", "");
 
-  // Check current tab and update status
-  try {
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-
-    if (tab.url.includes("faceit.com")) {
-      statusIndicator.className = "status-indicator";
-      statusTitle.textContent = "Ready on FACEIT";
-      statusDescription.textContent =
-        'Look for "Analyze Demo" buttons on match pages';
-    } else {
-      statusIndicator.className = "status-indicator warning";
-      statusTitle.textContent = "Not on FACEIT";
-      statusDescription.textContent = "Navigate to FACEIT.com to analyze demos";
-    }
-  } catch (error) {
-    console.error("Error checking current tab:", error);
-    statusIndicator.className = "status-indicator error";
-    statusTitle.textContent = "Extension Error";
-    statusDescription.textContent = "Unable to check current page";
-  }
+  // Get extension version from manifest
+  const manifest = chrome.runtime.getManifest();
+  versionElement.textContent = manifest.version;
 
   // Button event listeners
   openViewerBtn.addEventListener("click", async () => {
@@ -80,23 +58,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       openFaceitBtn.classList.add("loading");
       openFaceitBtn.disabled = true;
 
-      // Check if already on FACEIT
-      const [tab] = await chrome.tabs.query({
+      // Navigate to FACEIT
+      await chrome.tabs.create({
+        url: "https://www.faceit.com",
         active: true,
-        currentWindow: true,
       });
-
-      if (tab.url.includes("faceit.com")) {
-        // Already on FACEIT, just close popup
-        window.close();
-      } else {
-        // Navigate to FACEIT
-        await chrome.tabs.create({
-          url: "https://www.faceit.com",
-          active: true,
-        });
-        window.close();
-      }
+      window.close();
     } catch (error) {
       console.error("Error opening FACEIT:", error);
 
