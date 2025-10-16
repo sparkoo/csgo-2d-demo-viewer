@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext, useRef } from "react";
+import { useLocation } from "preact-iso";
 import "./PlayerApp.css";
 import ErrorBoundary from "./Error.jsx";
 import MessageBus from "./MessageBus.js";
@@ -9,6 +10,7 @@ import "./protos/Message_pb.js";
 import DemoContext from "../context.js";
 
 export function PlayerApp() {
+  const location = useLocation();
   const worker = useRef(null);
   const player = useRef(null);
 
@@ -22,7 +24,7 @@ export function PlayerApp() {
   useEffect(() => {
     if (!worker.current) {
       worker.current = new Worker("worker.js");
-      console.log('Worker created.');
+      console.log("Worker created.");
     }
 
     if (!player.current) {
@@ -46,7 +48,7 @@ export function PlayerApp() {
     return () => {
       if (worker.current) {
         worker.current.terminate();
-        console.log('Worker terminated.');
+        console.log("Worker terminated.");
         worker.current = null;
       }
 
@@ -59,7 +61,27 @@ export function PlayerApp() {
   useEffect(() => {
     console.log("isWasmLoaded", isWasmLoaded);
     if (isWasmLoaded && demoData.demoData) {
+      console.log("baaaa");
       worker.current.postMessage(demoData.demoData);
+    } else if (isWasmLoaded && location.query.demourl) {
+      const demoUrl = location.query.demourl;
+      if (demoUrl) {
+        console.log("Demo URL found:", demoUrl);
+        fetch(
+          `https://dev.2d.sparko.cz/download?url=${encodeURIComponent(demoUrl)}`
+        )
+          .then((resp) => resp.arrayBuffer())
+          .then((data) => {
+            console.log("Response size:", data.byteLength);
+            worker.current.postMessage({
+              filename: "test.zst",
+              data: new Uint8Array(data),
+            });
+          })
+          .catch((error) => console.error("Error fetching demo:", error));
+      } else {
+        console.log("No demo URL in params");
+      }
     }
   }, [isWasmLoaded]);
 
