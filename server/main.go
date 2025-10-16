@@ -9,10 +9,7 @@ import (
 )
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	origin := r.Header.Get("Origin")
-	if origin == "https://faceit.com" || origin == "https://www.faceit.com" {
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	w.Header().Set("Access-Control-Allow-Headers", "*")
 
