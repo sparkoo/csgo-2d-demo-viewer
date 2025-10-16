@@ -6,7 +6,7 @@ console.log("🌐 User agent:", navigator.userAgent);
 
 class FACEITDemoViewer {
   constructor() {
-    this.demoViewerUrl = "http://localhost:3000";
+    this.demoViewerUrl = "http://localhost:5173";
     this.buttonClass = "cs2-demo-viewer-btn";
     this.debugMode = true;
     this.turnstileWidgetId = "dsparko-turnstile";
@@ -330,27 +330,19 @@ class FACEITDemoViewer {
           // Construct demo URL (assuming pattern from example)
           const demoUrl = matchData.payload.demoURLs[0];
 
-          window.postMessage({
-            source: "2dsparko-extenstion-script",
-            demourl: demoUrl,
-            sitekey: siteKey,
-          });
-          return 1;
-
           // Then, make HTTP request to download demo URL
-          // return fetch(
-          //   "https://www.faceit.com/api/download/v2/demos/download-url",
-          //   {
-          //     method: "POST",
-          //     headers: {
-          //       "Content-Type": "application/json",
-          //     },
-          //     body: JSON.stringify({
-          //       resource_url: demoUrl,
-          //       captcha_token: this.getToken(),
-          //     }),
-          //   }
-          // );
+          return fetch(
+            "https://www.faceit.com/api/download/v2/demos/download-url",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                resource_url: demoUrl,
+              }),
+            }
+          );
         })
         .then((response) => {
           if (!response.ok) {
@@ -360,76 +352,18 @@ class FACEITDemoViewer {
         })
         .then((downloadData) => {
           this.log("Demo download URL response:", downloadData);
-          const downloadUrl =
-            "https://demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com/cs2/1-307fb563-abc0-45f7-9d2c-d60a4b40a220-1-1.dem.zst?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=0032bdbf06e20000000000001%2F20250924%2F%2Fs3%2Faws4_request&X-Amz-Date=20250924T044918Z&X-Amz-Expires=299&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=8cd0b0647bc7a45fcc54c44d9582c94777e613417281bfb668c7a8dd89eaf641";
+          const downloadUrl = downloadData.payload.download_url;
           this.log("Demo final download link", downloadUrl);
 
-          // Fetch demo directly with credentials
-          this.log("Fetching demo directly with credentials");
-          fetch(downloadUrl)
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              return response.blob();
-            })
-            .then((blob) => {
-              return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-              });
-            })
-            .then((dataUrl) => {
-              this.log("Demo converted to data URL");
+          // Open the player with the demo URL
+          const playerUrl = `${
+            this.demoViewerUrl
+          }/player?demourl=${encodeURIComponent(downloadUrl)}`;
+          window.open(playerUrl, "_blank");
 
-              // Open the demo viewer in a new tab
-              chrome.tabs.create({ url: this.demoViewerUrl }, (tab) => {
-                // Inject the data URL into the viewer
-                chrome.tabs.executeScript(
-                  tab.id,
-                  {
-                    code: `window.demoData = '${dataUrl.replace(
-                      /'/g,
-                      "\\'"
-                    )}';`,
-                  },
-                  () => {
-                    // Show success feedback
-                    button.innerHTML = `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
-                    </svg>
-                    Opened Viewer!
-                  `;
-
-                    // Reset button after 2 seconds
-                    setTimeout(() => {
-                      button.innerHTML = originalContent;
-                      button.disabled = false;
-                    }, 2000);
-                  }
-                );
-              });
-            })
-            .catch((error) => {
-              console.error("Error downloading demo:", error);
-
-              // Show error feedback
-              button.innerHTML = `
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
-                </svg>
-                Error
-              `;
-
-              // Reset button after 2 seconds
-              setTimeout(() => {
-                button.innerHTML = originalContent;
-                button.disabled = false;
-              }, 2000);
-            });
+          // Reset button to original state
+          button.innerHTML = originalContent;
+          button.disabled = false;
         })
         .catch((error) => {
           console.error("Error in API calls:", error);
@@ -470,38 +404,3 @@ class FACEITDemoViewer {
 
 // Initialize the extension
 new FACEITDemoViewer();
-
-// Function to inject the script
-function injectScript(file_path, tag) {
-  var node = document.getElementsByTagName(tag)[0];
-  var script = document.createElement("script");
-  script.setAttribute("type", "text/javascript");
-  script.setAttribute("src", file_path);
-  node.appendChild(script);
-}
-
-// Inject the injector.js script
-// NOTE: The path must be relative to the extension's root directory.
-// You might need to use chrome.runtime.getURL() or browser.runtime.getURL()
-// to get the correct path.
-const scriptUrl = chrome.runtime.getURL("injector.js");
-injectScript(scriptUrl, "body");
-
-// Listen for the message from the injected script
-window.addEventListener("message", function (event) {
-  // We must verify the message origin
-  if (
-    event.source !== window ||
-    event.data.source !== "my-extension-injector"
-  ) {
-    return;
-  }
-
-  console.log("blabol", event);
-
-  // Now you have the data in your content script's world!
-  if (event.data.turnstileLoaded) {
-    console.log("🎉 window.turnstile is accessible and loaded on the page!");
-    // Do further processing here...
-  }
-});
