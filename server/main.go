@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 )
@@ -18,24 +19,44 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := r.URL.Query().Get("url")
-	if url == "" {
+	urlParam := r.URL.Query().Get("url")
+	if urlParam == "" {
 		http.Error(w, "Missing url parameter", http.StatusBadRequest)
+		return
+	}
+
+	parsedURL, err := url.Parse(urlParam)
+	if err != nil {
+		log.Printf("Invalid URL: %s, error: %v", urlParam, err)
+		http.Error(w, "Invalid URL", http.StatusBadRequest)
+		return
+	}
+
+	// Allow only http and https schemes
+	if parsedURL.Scheme != "https" {
+		log.Printf("Forbidden scheme: %s", parsedURL.Scheme)
+		http.Error(w, "Forbidden scheme", http.StatusBadRequest)
+		return
+	}
+
+	// Optional: Enforce URL length limit
+	if len(urlParam) > 2048 {
+		http.Error(w, "URL too long", http.StatusBadRequest)
 		return
 	}
 
 	log.Printf("Incoming request to /download: %s %s from %s, User-Agent: %s, Query: %s", r.Method, r.URL.Path, r.RemoteAddr, r.Header.Get("User-Agent"), r.URL.RawQuery)
 
-	resp, err := http.Get(url)
+	resp, err := http.Get(parsedURL.String())
 	if err != nil {
-		log.Printf("Error fetching URL %s: %v", url, err)
+		log.Printf("Error fetching URL %s: %v", parsedURL.String(), err)
 		http.Error(w, "Failed to fetch URL", http.StatusInternalServerError)
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("Non-OK status from URL %s: %d", url, resp.StatusCode)
+		log.Printf("Non-OK status from URL %s: %d", parsedURL.String(), resp.StatusCode)
 		http.Error(w, "Failed to fetch URL", http.StatusInternalServerError)
 		return
 	}
