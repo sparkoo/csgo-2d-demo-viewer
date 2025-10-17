@@ -68,7 +68,7 @@ export function PlayerApp() {
       if (demoUrl) {
         console.log("Demo URL found:", demoUrl);
         fetch(
-          `https://dev.2d.sparko.cz/download?url=${encodeURIComponent(demoUrl)}`
+          `/download?url=${encodeURIComponent(demoUrl)}`
         )
           .then((resp) => resp.arrayBuffer())
           .then((data) => {
