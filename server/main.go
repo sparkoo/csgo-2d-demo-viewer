@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,6 +29,13 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	parsedURL, err := url.Parse(urlParam)
 	if err != nil {
 		log.Printf("Invalid URL: %s, error: %v", urlParam, err)
+		http.Error(w, "Invalid URL", http.StatusBadRequest)
+		return
+	}
+
+	// Forbid URLs with '#' to prevent fragment-based attacks
+	if strings.Contains(urlParam, "#") {
+		log.Printf("Forbidden URL with fragment: %s", urlParam)
 		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
@@ -65,7 +74,15 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Incoming request to /download: %s %s from %s, User-Agent: %s, Query: %s", r.Method, r.URL.Path, r.RemoteAddr, r.Header.Get("User-Agent"), r.URL.RawQuery)
 
-	resp, err := http.Get(parsedURL.String())
+	// Create a custom HTTP client with timeout and no redirects
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return errors.New("redirects not allowed")
+		},
+	}
+
+	resp, err := client.Get(parsedURL.String())
 	if err != nil {
 		log.Printf("Error fetching URL %s: %v", parsedURL.String(), err)
 		http.Error(w, "Failed to fetch URL", http.StatusInternalServerError)
