@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   demoViewerUrl = result.demoViewerUrl || DEFAULT_DEMO_VIEWER_URL;
 
-  // Update viewer URL input
-  viewerUrlInput.value = demoViewerUrl;
+  // Update viewer URL display
+  viewerUrlInput.textContent = demoViewerUrl;
 
   // Get extension version from manifest
   const manifest = chrome.runtime.getManifest();
@@ -66,20 +66,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (focusedElement && focusedElement.tagName === "BUTTON") {
         focusedElement.click();
       }
-    }
-  });
-
-  // Auto-save URL on input change
-  viewerUrlInput.addEventListener("input", async (e) => {
-    const newUrl = e.target.value.trim();
-    if (!newUrl) return; // Don't save empty values
-
-    try {
-      await chrome.storage.sync.set({ demoViewerUrl: newUrl });
-      demoViewerUrl = newUrl;
-      this.log("Auto-saved demoViewerUrl:", newUrl);
-    } catch (error) {
-      console.error("Error auto-saving URL:", error);
     }
   });
 
