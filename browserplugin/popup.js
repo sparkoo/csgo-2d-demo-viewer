@@ -5,11 +5,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   const viewerUrl = document.getElementById("viewerUrl");
   const versionElement = document.getElementById("version");
 
-  // Demo viewer URL
-  const demoViewerUrl = "http://localhost:3000";
+  // Demo viewer URL (configurable, fallback to default)
+  const DEFAULT_DEMO_VIEWER_URL = "http://localhost:3000";
+  let demoViewerUrl = DEFAULT_DEMO_VIEWER_URL;
+
+  // Try to load the viewer URL from chrome.storage (sync or local)
+  await new Promise((resolve) => {
+    chrome.storage.sync.get({ demoViewerUrl: DEFAULT_DEMO_VIEWER_URL }, (result) => {
+      demoViewerUrl = result.demoViewerUrl || DEFAULT_DEMO_VIEWER_URL;
+      resolve();
+    });
+  });
 
   // Update viewer URL display
-  viewerUrl.textContent = demoViewerUrl.replace("http://", "");
+  viewerUrl.textContent = demoViewerUrl.replace(/^https?:\/\//, "");
 
   // Get extension version from manifest
   const manifest = chrome.runtime.getManifest();

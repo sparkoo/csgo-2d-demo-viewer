@@ -61,7 +61,7 @@ export function PlayerApp() {
   useEffect(() => {
     console.log("isWasmLoaded", isWasmLoaded);
     if (isWasmLoaded && demoData.demoData) {
-      console.log("baaaa");
+      console.log("Posting demo data to worker.");
       worker.current.postMessage(demoData.demoData);
     } else if (isWasmLoaded && location.query.demourl) {
       const demoUrl = location.query.demourl;

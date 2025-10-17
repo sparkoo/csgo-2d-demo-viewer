@@ -223,73 +223,6 @@ class FACEITDemoViewer {
     return button;
   }
 
-  getToken() {
-    // TODO: get the real token
-    return "abcd";
-  }
-
-  async findSiteKey() {
-    const faceitMainScript = [...document.querySelectorAll("script")].find(
-      (script) =>
-        /https:\/\/cdn-frontend\.faceit-cdn\.net\/web-next\/_next\/static\/chunks\/pages\/_app-[a-z0-9]+\.min\.js/.test(
-          script.src
-        )
-    );
-
-    const faceitChunkScripts = [...document.querySelectorAll("script")].filter(
-      (script) =>
-        /https:\/\/cdn-frontend\.faceit-cdn\.net\/web-next\/.*\/chunks\/[0-9]+.*\.min\.js/.test(
-          script.src
-        )
-    );
-
-    const searchScript = async (chunkScript) => {
-      try {
-        const response = await fetch(chunkScript.src);
-        if (!response.ok) return null;
-
-        const text = await response.text();
-
-        const patterns = [
-          /\("(0x[a-zA-Z0-9]+)"\)/,
-          /"(0x[a-zA-Z0-9]{16,})"/,
-          /sitekey:\s*"(0x[a-zA-Z0-9]+)"/,
-          /'(0x[a-zA-Z0-9]{16,})'/,
-        ];
-
-        for (const pattern of patterns) {
-          const match = pattern.exec(text);
-          if (match) {
-            const siteKey = match[1];
-            if (
-              siteKey !== "0xffffffffffffffff" &&
-              !siteKey.match(/^0x[f]+$/)
-            ) {
-              return siteKey;
-            }
-          }
-        }
-        return null;
-      } catch (error) {
-        return null;
-      }
-    };
-
-    const searchPromises = faceitChunkScripts.map((script) =>
-      searchScript(script)
-    );
-
-    const results = await Promise.allSettled(searchPromises);
-    for (const result of results) {
-      if (result.status === "fulfilled" && result.value) {
-        console.log("found?", result.value);
-        return result.value;
-      }
-    }
-
-    throw new Error("Could not find the sitekey");
-  }
-
   async handleAnalyzeClick(matchId, button) {
     const originalContent = button.innerHTML;
 
@@ -303,12 +236,6 @@ class FACEITDemoViewer {
       Opening...
     `;
     button.disabled = true;
-
-    const siteKey = await this.findSiteKey();
-    if (!siteKey) {
-      console.log("couldn't find the sitekey");
-      return;
-    }
 
     try {
       // Extract match ID from URL
