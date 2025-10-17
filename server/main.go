@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +74,14 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 func spaHandler(dir string) http.Handler {
 	fs := http.FileServer(http.Dir(dir))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		path := filepath.Join(dir, r.URL.Path)
+		// Sanitize the path to prevent directory traversal
+		path := filepath.Clean(filepath.Join(dir, r.URL.Path))
+		rel, err := filepath.Rel(dir, path)
+		if err != nil || strings.Contains(rel, "..") {
+			http.NotFound(w, r)
+			return
+		}
+
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			http.ServeFile(w, r, filepath.Join(dir, "index.html"))
 		} else {
