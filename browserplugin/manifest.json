@@ -3,12 +3,11 @@
   "name": "FACEIT 2D Replay",
   "version": "0.1.0",
   "description": "Adds 2D Replay to FACEIT matches",
-  "permissions": [],
+  "permissions": ["storage"],
   "host_permissions": [
     "https://www.faceit.com/*",
     "https://faceit.com/*",
-    "https://*.faceit.com/*",
-    "http://localhost/*"
+    "https://*.faceit.com/*"
   ],
   "content_scripts": [
     {

@@ -6,10 +6,9 @@ console.log("🌐 User agent:", navigator.userAgent);
 
 class FACEITDemoViewer {
   constructor() {
-    this.demoViewerUrl = "http://localhost:5173";
+    this.demoViewerUrl = "https://2d.sparko.cz"; // Default fallback
     this.buttonClass = "cs2-demo-viewer-btn";
     this.debugMode = true;
-    this.turnstileWidgetId = "dsparko-turnstile";
     this.init();
   }
 
@@ -19,8 +18,22 @@ class FACEITDemoViewer {
     }
   }
 
-  init() {
+  async init() {
     this.log("Initializing extension...");
+
+    // Load demoViewerUrl from chrome.storage
+    try {
+      const result = await chrome.storage.sync.get({
+        demoViewerUrl: this.demoViewerUrl, // Use default if not set
+      });
+      this.demoViewerUrl = result.demoViewerUrl || this.demoViewerUrl;
+      this.log("Loaded demoViewerUrl:", this.demoViewerUrl);
+    } catch (error) {
+      this.log(
+        "Error loading demoViewerUrl from storage, using default:",
+        error
+      );
+    }
 
     // Wait for page to be fully loaded
     if (document.readyState === "loading") {
@@ -240,14 +253,6 @@ class FACEITDemoViewer {
       const url = window.location.href;
       const matchId = url.split("/").pop();
 
-      // Validate matchId format (UUID v4)
-      const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-      if (!uuidV4Regex.test(matchId)) {
-        button.innerHTML = "Invalid match ID";
-        button.disabled = false;
-        this.log("Invalid match ID format:", matchId);
-        return;
-      }
       // First, fetch match details
       fetch(`https://www.faceit.com/api/match/v2/match/${matchId}`)
         .then((response) => {
