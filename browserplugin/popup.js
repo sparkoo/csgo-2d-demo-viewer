@@ -10,12 +10,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   let demoViewerUrl = DEFAULT_DEMO_VIEWER_URL;
 
   // Try to load the viewer URL from chrome.storage (sync or local)
-  await new Promise((resolve) => {
-    chrome.storage.sync.get({ demoViewerUrl: DEFAULT_DEMO_VIEWER_URL }, (result) => {
-      demoViewerUrl = result.demoViewerUrl || DEFAULT_DEMO_VIEWER_URL;
-      resolve();
-    });
-  });
+  const result = await chrome.storage.sync.get({ demoViewerUrl: DEFAULT_DEMO_VIEWER_URL });
+  demoViewerUrl = result.demoViewerUrl || DEFAULT_DEMO_VIEWER_URL;
 
   // Update viewer URL display
   viewerUrl.textContent = demoViewerUrl.replace(/^https?:\/\//, "");

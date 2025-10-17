@@ -65,23 +65,19 @@ export function PlayerApp() {
       worker.current.postMessage(demoData.demoData);
     } else if (isWasmLoaded && location.query.demourl) {
       const demoUrl = location.query.demourl;
-      if (demoUrl) {
-        console.log("Demo URL found:", demoUrl);
-        fetch(
-          `/download?url=${encodeURIComponent(demoUrl)}`
-        )
-          .then((resp) => resp.arrayBuffer())
-          .then((data) => {
-            console.log("Response size:", data.byteLength);
-            worker.current.postMessage({
-              filename: "demo.zst",
-              data: new Uint8Array(data),
-            });
-          })
-          .catch((error) => console.error("Error fetching demo:", error));
-      } else {
-        console.log("No demo URL in params");
-      }
+      console.log("Demo URL found:", demoUrl);
+      fetch(
+        `/download?url=${encodeURIComponent(demoUrl)}`
+      )
+        .then((resp) => resp.arrayBuffer())
+        .then((data) => {
+          console.log("Response size:", data.byteLength);
+          worker.current.postMessage({
+            filename: "demo.zst",
+            data: new Uint8Array(data),
+          });
+        })
+        .catch((error) => console.error("Error fetching demo:", error));
     }
   }, [isWasmLoaded]);
 

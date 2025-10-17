@@ -65,8 +65,8 @@ class FACEITDemoViewer {
     if (turnstileInput) {
       let turnstileDiv = turnstileInput.closest("div");
       if (turnstileDiv) {
-        if (!turnstileDiv.id) {
-          turnstileDiv.id = this.turnstileWidgetId;
+        if (!turnstileDiv.dataset.turnstileWidget) {
+          turnstileDiv.dataset.turnstileWidget = "true";
         }
         const newDiv = document.createElement("div");
         turnstileDiv.insertAdjacentElement("afterend", newDiv);
@@ -208,9 +208,7 @@ class FACEITDemoViewer {
   createAnalyzeButton(matchId) {
     const button = document.createElement("button");
     button.className = `${this.buttonClass}`;
-    button.innerHTML = `
-      2d sparko
-    `;
+    button.textContent = "2d sparko";
     button.title = "Open CS2 Demo Viewer";
     button.dataset.matchId = matchId;
 
@@ -242,6 +240,14 @@ class FACEITDemoViewer {
       const url = window.location.href;
       const matchId = url.split("/").pop();
 
+      // Validate matchId format (UUID v4)
+      const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      if (!uuidV4Regex.test(matchId)) {
+        button.innerHTML = "Invalid match ID";
+        button.disabled = false;
+        this.log("Invalid match ID format:", matchId);
+        return;
+      }
       // First, fetch match details
       fetch(`https://www.faceit.com/api/match/v2/match/${matchId}`)
         .then((response) => {
