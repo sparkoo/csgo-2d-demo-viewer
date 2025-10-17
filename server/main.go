@@ -33,6 +33,13 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check that the host is the allowed one
+	if parsedURL.Host != "demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com" {
+		log.Printf("Forbidden host: %s", parsedURL.Host)
+		http.Error(w, "Forbidden host", http.StatusBadRequest)
+		return
+	}
+
 	// Allow only http and https schemes
 	if parsedURL.Scheme != "https" {
 		log.Printf("Forbidden scheme: %s", parsedURL.Scheme)
