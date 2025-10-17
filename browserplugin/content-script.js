@@ -51,7 +51,8 @@ class FACEITDemoViewer {
     this.log("Page title:", document.title);
 
     // Check if we're actually on FACEIT
-    if (!window.location.hostname.includes("faceit.com")) {
+    const hostname = window.location.hostname;
+    if (!/^(.+\.)?faceit\.com$/.test(hostname)) {
       this.log("❌ Not on FACEIT domain, exiting...");
       return;
     }
