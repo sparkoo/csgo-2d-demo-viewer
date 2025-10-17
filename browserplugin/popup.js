@@ -1,61 +1,25 @@
 // CS2 Demo Viewer Extension Popup
 document.addEventListener("DOMContentLoaded", async () => {
-  const openViewerBtn = document.getElementById("openViewer");
   const openFaceitBtn = document.getElementById("openFaceit");
-  const viewerUrl = document.getElementById("viewerUrl");
+  const viewerUrlInput = document.getElementById("viewerUrlInput");
   const versionElement = document.getElementById("version");
 
   // Demo viewer URL (configurable, fallback to default)
-  const DEFAULT_DEMO_VIEWER_URL = "http://localhost:3000";
+  const DEFAULT_DEMO_VIEWER_URL = "https://2d.sparko.cz";
   let demoViewerUrl = DEFAULT_DEMO_VIEWER_URL;
 
   // Try to load the viewer URL from chrome.storage (sync or local)
-  const result = await chrome.storage.sync.get({ demoViewerUrl: DEFAULT_DEMO_VIEWER_URL });
+  const result = await chrome.storage.sync.get({
+    demoViewerUrl: DEFAULT_DEMO_VIEWER_URL,
+  });
   demoViewerUrl = result.demoViewerUrl || DEFAULT_DEMO_VIEWER_URL;
 
   // Update viewer URL display
-  viewerUrl.textContent = demoViewerUrl.replace(/^https?:\/\//, "");
+  viewerUrlInput.textContent = demoViewerUrl;
 
   // Get extension version from manifest
   const manifest = chrome.runtime.getManifest();
   versionElement.textContent = manifest.version;
-
-  // Button event listeners
-  openViewerBtn.addEventListener("click", async () => {
-    try {
-      // Add loading state
-      openViewerBtn.classList.add("loading");
-      openViewerBtn.disabled = true;
-
-      // Open demo viewer in new tab
-      await chrome.tabs.create({
-        url: demoViewerUrl,
-        active: true,
-      });
-
-      // Close popup after opening
-      window.close();
-    } catch (error) {
-      console.error("Error opening demo viewer:", error);
-
-      // Remove loading state
-      openViewerBtn.classList.remove("loading");
-      openViewerBtn.disabled = false;
-
-      // Show error feedback
-      const originalText = openViewerBtn.innerHTML;
-      openViewerBtn.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
-        </svg>
-        Error Opening
-      `;
-
-      setTimeout(() => {
-        openViewerBtn.innerHTML = originalText;
-      }, 2000);
-    }
-  });
 
   openFaceitBtn.addEventListener("click", async () => {
     try {
@@ -106,7 +70,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // Focus first button for keyboard navigation
-  openViewerBtn.focus();
+  openFaceitBtn.focus();
 });
 
 // Handle messages from content script (if needed in future)
