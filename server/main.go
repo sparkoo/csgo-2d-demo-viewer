@@ -11,9 +11,7 @@ import (
 )
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
 
 	if r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusOK)
@@ -33,13 +31,6 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check that the host is the allowed one
-	if parsedURL.Host != "demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com" {
-		log.Printf("Forbidden host: %s", parsedURL.Host)
-		http.Error(w, "Forbidden host", http.StatusBadRequest)
-		return
-	}
-
 	// Allow only http and https schemes
 	if parsedURL.Scheme != "https" {
 		log.Printf("Forbidden scheme: %s", parsedURL.Scheme)
@@ -50,6 +41,25 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	// Optional: Enforce URL length limit
 	if len(urlParam) > 2048 {
 		http.Error(w, "URL too long", http.StatusBadRequest)
+		return
+	}
+
+	// Whitelist of allowed hosts
+	allowedHosts := []string{
+		"demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com",
+	}
+
+	// Check that the host is in the allowed list
+	allowed := false
+	for _, host := range allowedHosts {
+		if host == parsedURL.Host {
+			allowed = true
+			break
+		}
+	}
+	if !allowed {
+		log.Printf("Forbidden host: %s", parsedURL.Host)
+		http.Error(w, "Forbidden host", http.StatusBadRequest)
 		return
 	}
 
