@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -82,7 +83,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	resp, err := client.Get(parsedURL.String())
+	resp, err := client.Get(fmt.Sprintf("https://%s%s?%s", parsedURL.Host, parsedURL.Path, parsedURL.RawQuery))
 	if err != nil {
 		log.Printf("Error fetching URL %s: %v", parsedURL.String(), err)
 		http.Error(w, "Failed to fetch URL", http.StatusInternalServerError)
