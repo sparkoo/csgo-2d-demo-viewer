@@ -9,6 +9,8 @@ class FACEITDemoViewer {
     this.demoViewerUrl = "https://2d.sparko.cz"; // Default fallback
     this.buttonClass = "cs2-demo-viewer-btn";
     this.debugMode = true;
+    this.injectionTimeout = null;
+    this.historyCheckTimeout = null;
     this.init();
   }
 
@@ -61,6 +63,7 @@ class FACEITDemoViewer {
 
     this.observePageChanges();
     this.injectButtons();
+    this.checkScrollableMatchHistory();
   }
 
   isMatchRoomPage() {
@@ -74,6 +77,12 @@ class FACEITDemoViewer {
     // FACEIT uses SPA navigation, so we need to observe DOM changes
     const observer = new MutationObserver((mutations) => {
       let shouldReinject = false;
+
+      // Always check for scrollable-match-history on DOM changes (separate from button injection)
+      clearTimeout(this.historyCheckTimeout);
+      this.historyCheckTimeout = setTimeout(() => {
+        this.checkScrollableMatchHistory();
+      }, 500);
 
       mutations.forEach((mutation) => {
         if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
@@ -101,7 +110,7 @@ class FACEITDemoViewer {
         this.injectionTimeout = setTimeout(() => {
           this.log("Page content changed, re-injecting buttons...");
           this.injectButtons();
-        }, 1000);
+        }, 500);
       }
     });
 
@@ -121,6 +130,11 @@ class FACEITDemoViewer {
         setTimeout(() => {
           this.injectButtons();
         }, 1500);
+
+        // Separate timeout for history check
+        setTimeout(() => {
+          this.checkScrollableMatchHistory();
+        }, 500);
       }
     });
 
@@ -189,6 +203,51 @@ class FACEITDemoViewer {
     return true;
   }
 
+  checkScrollableMatchHistory() {
+    const div = document.getElementById("scrollable-match-history");
+    if (div) {
+      this.log("✅ Found scrollable-match-history div");
+
+      // Get the second div inside
+      const childDivs = div.querySelectorAll("div");
+      if (childDivs.length >= 2) {
+        const secondDiv = childDivs[1];
+        const anchors = secondDiv.querySelectorAll("a");
+
+        anchors.forEach((anchor) => {
+          const innerDiv = anchor.querySelector("div");
+          if (innerDiv && !innerDiv.querySelector("button[name='replay2d']")) {
+            const button = document.createElement("button");
+            button.className = "history-match-btn";
+            button.title = "Open CS2 Demo Viewer";
+            button.style.marginLeft = "5px"; // Simple styling
+            button.textContent = "2D"; // Not empty, but minimal
+            button.name = "replay2d";
+
+            // Add click handler similar to other buttons
+            button.addEventListener("click", async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              // Extract match ID from anchor href or something
+              const href = anchor.href || "";
+              const matchId = href.split("/").pop();
+              if (matchId) {
+                await this.handleReplayClick(matchId, button);
+              }
+            });
+
+            innerDiv.appendChild(button);
+            this.log("Inserted button into inner div of anchor:", anchor);
+          }
+        });
+      } else {
+        this.log("⚠️ Second div not found in scrollable-match-history");
+      }
+    } else {
+      this.log("❌ scrollable-match-history div not found");
+    }
+  }
+
   createReplayButton(matchId) {
     const button = document.createElement("button");
     button.className = `${this.buttonClass}`;
@@ -206,6 +265,8 @@ class FACEITDemoViewer {
   }
 
   async handleReplayClick(matchId, button) {
+    this.log("handle click on match", matchId);
+
     const originalContent = button.innerHTML;
 
     // Show loading state
@@ -218,14 +279,16 @@ class FACEITDemoViewer {
       Opening...
     `;
     button.disabled = true;
-
     try {
-      // Extract match ID from URL
-      const url = window.location.href;
-      const matchId = url.split("/").pop();
+      // Extract match ID from URL if it's a match room button
+      let actualMatchId = matchId;
+      if (matchId === "match-room-info") {
+        const url = window.location.href;
+        actualMatchId = url.split("/").pop();
+      }
 
       // First, fetch match details
-      fetch(`https://www.faceit.com/api/match/v2/match/${matchId}`)
+      fetch(`https://www.faceit.com/api/match/v2/match/${actualMatchId}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
