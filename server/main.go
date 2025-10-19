@@ -140,12 +140,12 @@ func secureDemoUrl(urlParam string) (string, error) {
 }
 
 func extractMatchId(in string) string {
-	// Compile the regex to match the match ID format: digits-UUID-digits-digits
-	// UUID format: 8-4-4-4-12 hex characters (a-f, 0-9)
-	re := regexp.MustCompile(`\d-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d-\d`)
-
-	// Find the matched substring
-	return re.FindString(in)
+	re := regexp.MustCompile(`\/(\d-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d-\d)\.`)
+	matches := re.FindStringSubmatch(in)
+	if len(matches) < 2 {
+		return ""
+	}
+	return matches[1]
 }
 
 func main() {
