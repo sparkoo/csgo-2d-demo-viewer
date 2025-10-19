@@ -180,7 +180,7 @@ class FACEITDemoViewer {
     this.log("✅ Found 'Watch demo' button:", watchDemoButton);
 
     // Create our button
-    const button = this.createAnalyzeButton("match-room-info");
+    const button = this.createReplayButton("match-room-info");
 
     // Insert the button right after the "Watch demo" button
     watchDemoButton.insertAdjacentElement("afterend", button);
@@ -189,7 +189,7 @@ class FACEITDemoViewer {
     return true;
   }
 
-  createAnalyzeButton(matchId) {
+  createReplayButton(matchId) {
     const button = document.createElement("button");
     button.className = `${this.buttonClass}`;
     button.textContent = "2d sparko";
@@ -199,13 +199,13 @@ class FACEITDemoViewer {
     button.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      await this.handleAnalyzeClick(matchId, button);
+      await this.handleReplayClick(matchId, button);
     });
 
     return button;
   }
 
-  async handleAnalyzeClick(matchId, button) {
+  async handleReplayClick(matchId, button) {
     const originalContent = button.innerHTML;
 
     // Show loading state
