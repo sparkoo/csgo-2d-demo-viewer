@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "FACEIT 2D Replay",
+  "version": "0.1.0",
+  "description": "Adds 2D Replay to FACEIT matches",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://www.faceit.com/*",
+    "https://faceit.com/*",
+    "https://*.faceit.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.faceit.com/*", "https://faceit.com/*"],
+      "js": ["content-script.js"],
+      "css": ["content-styles.css"],
+      "run_at": "document_end",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FACEIT 2D Replay",
+    "default_icon": "icons/icon.png"
+  },
+  "icons": {
+    "16": "icons/icon.png",
+    "48": "icons/icon.png",
+    "128": "icons/icon.png"
+  }
+}

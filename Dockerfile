@@ -1,5 +1,5 @@
 # WASM build stage
-FROM golang:1.24 AS builder_go
+FROM golang:1.25 AS builder_parser
 
 USER root
 WORKDIR /csgo-2d-demo-player
@@ -32,21 +32,40 @@ COPY web/public public
 COPY web/src src
 RUN npm run build
 
-# Nginx stage
-FROM nginx:alpine
+# Server build stage
+FROM golang:1.25 AS builder_server
+
+USER root
+WORKDIR /csgo-2d-demo-player
+
+COPY server/go.mod .
+# COPY server/go.sum .
+RUN go mod download
+
+COPY server .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main .
+
+# Final stage
+FROM alpine:latest
+
+RUN apk add --no-cache ca-certificates
+
+WORKDIR /app
 
 # Copy built frontend assets
-COPY --from=builder_npm /csgo-2d-demo-player/dist/ /usr/share/nginx/html/
+COPY --from=builder_npm /csgo-2d-demo-player/dist/ ./web/dist/
 
 # Copy WASM files to correct locations
-COPY --from=builder_go /csgo-2d-demo-player/_output/csdemoparser.wasm /usr/share/nginx/html/wasm/
-COPY --from=builder_go /usr/local/go/lib/wasm/wasm_exec.js /usr/share/nginx/html/wasm/
+COPY --from=builder_parser /csgo-2d-demo-player/_output/csdemoparser.wasm ./web/dist/wasm/
+COPY --from=builder_parser /usr/local/go/lib/wasm/wasm_exec.js ./web/dist/wasm/
 
-# Copy custom nginx configuration
-COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
+# Copy server binary
+COPY --from=builder_server /csgo-2d-demo-player/main ./server/
+
+WORKDIR /app/server
 
 # Expose port 8080
 EXPOSE 8080
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start server
+CMD ["./main"]
