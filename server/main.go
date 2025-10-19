@@ -61,9 +61,11 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check that the host is in the allowed list
 	allowed := false
-	for _, host := range allowedHosts {
+	hostId := -1
+	for i, host := range allowedHosts {
 		if host == parsedURL.Host {
 			allowed = true
+			hostId = i
 			break
 		}
 	}
@@ -83,7 +85,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	resp, err := client.Get(fmt.Sprintf("https://%s%s?%s", parsedURL.Host, parsedURL.Path, parsedURL.RawQuery))
+	resp, err := client.Get(fmt.Sprintf("https://%s%s?%s", allowedHosts[hostId], parsedURL.Path, parsedURL.RawQuery))
 	if err != nil {
 		log.Printf("Error fetching URL %s: %v", parsedURL.String(), err)
 		http.Error(w, "Failed to fetch URL", http.StatusInternalServerError)
