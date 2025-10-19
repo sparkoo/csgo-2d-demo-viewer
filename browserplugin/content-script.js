@@ -61,7 +61,6 @@ class FACEITDemoViewer {
 
     this.observePageChanges();
     this.injectButtons();
-    this.addDivBelowTurnstile();
   }
 
   isMatchRoomPage() {
@@ -69,28 +68,6 @@ class FACEITDemoViewer {
     const url = window.location.href;
     const matchRoomPattern = /\/cs2\/room\/[^\/]+$/;
     return matchRoomPattern.test(url);
-  }
-
-  addDivBelowTurnstile() {
-    this.log("🔍 Looking for turnstile widget...");
-    const turnstileInput = document.querySelector(
-      '[name="cf-turnstile-response"]'
-    );
-    if (turnstileInput) {
-      let turnstileDiv = turnstileInput.closest("div");
-      if (turnstileDiv) {
-        if (!turnstileDiv.dataset.turnstileWidget) {
-          turnstileDiv.dataset.turnstileWidget = "true";
-        }
-        const newDiv = document.createElement("div");
-        turnstileDiv.insertAdjacentElement("afterend", newDiv);
-        this.log("✅ Added div below turnstile widget");
-      } else {
-        this.log("❌ Could not find turnstile div");
-      }
-    } else {
-      this.log("⚠️ Turnstile input not found");
-    }
   }
 
   observePageChanges() {
@@ -124,7 +101,6 @@ class FACEITDemoViewer {
         this.injectionTimeout = setTimeout(() => {
           this.log("Page content changed, re-injecting buttons...");
           this.injectButtons();
-          this.addDivBelowTurnstile();
         }, 1000);
       }
     });
@@ -144,7 +120,6 @@ class FACEITDemoViewer {
         // Wait a bit for the new page to load
         setTimeout(() => {
           this.injectButtons();
-          this.addDivBelowTurnstile();
         }, 1500);
       }
     });
@@ -209,11 +184,6 @@ class FACEITDemoViewer {
 
     // Insert the button right after the "Watch demo" button
     watchDemoButton.insertAdjacentElement("afterend", button);
-
-    // Create an empty div below the button
-    const emptyDiv = document.createElement("div");
-    emptyDiv.id = "2d_turnstile";
-    button.insertAdjacentElement("afterend", emptyDiv);
 
     this.log("✅ Successfully inserted button after 'Watch demo' button");
     return true;
