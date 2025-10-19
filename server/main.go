@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -27,52 +28,10 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parsedURL, err := url.Parse(urlParam)
-	if err != nil {
-		log.Printf("Invalid URL: %s, error: %v", urlParam, err)
-		http.Error(w, "Invalid URL", http.StatusBadRequest)
-		return
-	}
-
-	// Forbid URLs with '#' to prevent fragment-based attacks
-	if strings.Contains(urlParam, "#") {
-		log.Printf("Forbidden URL with fragment: %s", urlParam)
-		http.Error(w, "Invalid URL", http.StatusBadRequest)
-		return
-	}
-
-	// Allow only http and https schemes
-	if parsedURL.Scheme != "https" {
-		log.Printf("Forbidden scheme: %s", parsedURL.Scheme)
-		http.Error(w, "Forbidden scheme", http.StatusBadRequest)
-		return
-	}
-
-	// Optional: Enforce URL length limit
-	if len(urlParam) > 2048 {
-		http.Error(w, "URL too long", http.StatusBadRequest)
-		return
-	}
-
-	// Whitelist of allowed hosts
-	allowedHosts := []string{
-		"demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com",
-	}
-
-	// Check that the host is in the allowed list
-	allowed := false
-	hostId := -1
-	for i, host := range allowedHosts {
-		if host == parsedURL.Host {
-			allowed = true
-			hostId = i
-			break
-		}
-	}
-	if !allowed {
-		log.Printf("Forbidden host: %s", parsedURL.Host)
-		http.Error(w, "Forbidden host", http.StatusBadRequest)
-		return
+	demoUrl, errDemoUrl := secureDemoUrl(urlParam)
+	if errDemoUrl != nil {
+		log.Printf("Failed to construct the url: %v", errDemoUrl)
+		http.Error(w, "Failed to construct the url", http.StatusInternalServerError)
 	}
 
 	log.Printf("Incoming request to /download: %s %s from %s, User-Agent: %s, Query: %s", r.Method, r.URL.Path, r.RemoteAddr, r.Header.Get("User-Agent"), r.URL.RawQuery)
@@ -85,16 +44,16 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	resp, err := client.Get(fmt.Sprintf("https://%s%s?%s", allowedHosts[hostId], parsedURL.Path, parsedURL.RawQuery))
+	resp, err := client.Get(demoUrl)
 	if err != nil {
-		log.Printf("Error fetching URL %s: %v", parsedURL.String(), err)
+		log.Printf("Error fetching URL %s: %v", demoUrl, err)
 		http.Error(w, "Failed to fetch URL", http.StatusInternalServerError)
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("Non-OK status from URL %s: %d", parsedURL.String(), resp.StatusCode)
+		log.Printf("Non-OK status from URL %s: %d", demoUrl, resp.StatusCode)
 		http.Error(w, "Failed to fetch URL", http.StatusInternalServerError)
 		return
 	}
@@ -125,6 +84,68 @@ func spaHandler(dir string) http.Handler {
 			fs.ServeHTTP(w, r)
 		}
 	})
+}
+
+func secureDemoUrl(urlParam string) (string, error) {
+
+	parsedURL, err := url.Parse(urlParam)
+	if err != nil {
+		log.Printf("Invalid URL: %s, error: %v", urlParam, err)
+		return "", err
+	}
+
+	// Forbid URLs with '#' to prevent fragment-based attacks
+	if strings.Contains(urlParam, "#") {
+		log.Printf("Forbidden URL with fragment: %s", urlParam)
+		return "", fmt.Errorf("forbidden URL with fragment: %s", urlParam)
+	}
+
+	// Allow only http and https schemes
+	if parsedURL.Scheme != "https" {
+		log.Printf("Forbidden scheme: %s", parsedURL.Scheme)
+		return "", fmt.Errorf("forbidden scheme: %s", parsedURL.Scheme)
+	}
+
+	// Optional: Enforce URL length limit
+	if len(urlParam) > 2048 {
+		return "", fmt.Errorf("too long URL")
+	}
+
+	// Whitelist of allowed hosts
+	allowedHosts := []string{
+		"demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com",
+	}
+
+	// Check that the host is in the allowed list
+	allowed := false
+	hostId := -1
+	for i, host := range allowedHosts {
+		if host == parsedURL.Host {
+			allowed = true
+			hostId = i
+			break
+		}
+	}
+	if !allowed {
+		log.Printf("Forbidden host: %s", parsedURL.Host)
+		return "", fmt.Errorf("forbidden host %v", parsedURL.Host)
+	}
+
+	matchId := extractMatchId(parsedURL.Path)
+	if matchId == "" {
+		return "", fmt.Errorf("no match id found in path %s", parsedURL.Path)
+	}
+
+	return fmt.Sprintf("https://%s/cs2/%s.dem.zst?%s", allowedHosts[hostId], matchId, parsedURL.RawQuery), nil
+}
+
+func extractMatchId(in string) string {
+	// Compile the regex to match the match ID format: digits-UUID-digits-digits
+	// UUID format: 8-4-4-4-12 hex characters (a-f, 0-9)
+	re := regexp.MustCompile(`\d-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d-\d`)
+
+	// Find the matched substring
+	return re.FindString(in)
 }
 
 func main() {
