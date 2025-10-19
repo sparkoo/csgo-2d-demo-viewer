@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext, useRef } from "react";
 import { useLocation } from "preact-iso";
 import "./PlayerApp.css";
+import "./weapons.css";
 import ErrorBoundary from "./Error.jsx";
 import MessageBus from "./MessageBus.js";
 import Player from "./Player.js";
@@ -66,9 +67,7 @@ export function PlayerApp() {
     } else if (isWasmLoaded && location.query.demourl) {
       const demoUrl = location.query.demourl;
       console.log("Demo URL found:", demoUrl);
-      fetch(
-        `/download?url=${encodeURIComponent(demoUrl)}`
-      )
+      fetch(`/download?url=${encodeURIComponent(demoUrl)}`)
         .then((resp) => resp.arrayBuffer())
         .then((data) => {
           console.log("Response size:", data.byteLength);
