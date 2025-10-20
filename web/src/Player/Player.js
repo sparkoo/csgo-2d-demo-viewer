@@ -19,7 +19,7 @@ class Player {
 
     this.loading = true;
 
-    this.playing = true;
+    this.playing = false;
     this.currentTickI = 0;
     this.playingRoundI = 0;
 

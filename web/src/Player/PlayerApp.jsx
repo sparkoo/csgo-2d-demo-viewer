@@ -9,6 +9,7 @@ import Map2d from "./map/Map2d.jsx";
 import InfoPanel from "./panel/InfoPanel.jsx";
 import "./protos/Message_pb.js";
 import DemoContext from "../context.js";
+import { MSG_PLAY_CHANGE } from "./constants.js";
 
 const downloadServer = window.location.host.includes("localhost")
   ? "http://localhost:8080"
@@ -25,6 +26,9 @@ export function PlayerApp() {
   const [loaderMessageBus] = useState(new MessageBus());
 
   const [isWasmLoaded, setIsWasmLoaded] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Loading...");
 
   useEffect(() => {
     if (!worker.current) {
@@ -48,6 +52,16 @@ export function PlayerApp() {
     };
     playerMessageBus.listen([13], function (msg) {
       alert(msg.message);
+    });
+
+    playerMessageBus.listen([MSG_PLAY_CHANGE], function (msg) {
+      setIsPlaying(msg.playing);
+      if (msg.playing) {
+        setHasPlayed(true);
+      }
+      if (!msg.playing) {
+        setLoadingMessage("Loading...");
+      }
     });
 
     return () => {
@@ -94,6 +108,13 @@ export function PlayerApp() {
           <InfoPanel messageBus={playerMessageBus} />
         </div>
       </div>
+      {!isPlaying && !hasPlayed && (
+        <div className="loading-overlay">
+          <div className="loading-dialog">
+            <p>{loadingMessage}</p>
+          </div>
+        </div>
+      )}
     </ErrorBoundary>
   );
 }
