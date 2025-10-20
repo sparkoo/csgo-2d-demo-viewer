@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -149,7 +150,15 @@ func extractMatchId(in string) string {
 }
 
 func main() {
+	dev := flag.Bool("dev", false, "enable dev mode")
+	flag.Parse()
+
 	http.HandleFunc("/download", downloadHandler)
 	http.Handle("/", spaHandler("../web/dist"))
+
+	if *dev {
+		http.Handle("/testdemos/", http.StripPrefix("/testdemos/", http.FileServer(http.Dir("./testdemos"))))
+	}
+
 	http.ListenAndServe(":8080", nil)
 }

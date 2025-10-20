@@ -18,4 +18,4 @@ dev:
 	npm --prefix web start
 
 server:
-	go run server/main.go
+	go run server/main.go -dev
