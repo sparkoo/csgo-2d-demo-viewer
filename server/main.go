@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -14,8 +15,14 @@ import (
 	"time"
 )
 
+var isDev bool
+
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	if isDev {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	}
 
 	if r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusOK)
@@ -28,10 +35,17 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	demoUrl, errDemoUrl := secureDemoUrl(urlParam)
-	if errDemoUrl != nil {
-		log.Printf("Failed to construct the url: %v", errDemoUrl)
-		http.Error(w, "Failed to construct the url", http.StatusInternalServerError)
+	var demoUrl string
+	var errDemoUrl error
+	if isDev {
+		demoUrl = urlParam
+	} else {
+		demoUrl, errDemoUrl = secureDemoUrl(urlParam)
+		if errDemoUrl != nil {
+			log.Printf("Failed to construct the url: %v", errDemoUrl)
+			http.Error(w, "Failed to construct the url", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	log.Printf("Incoming request to /download: %s %s from %s, User-Agent: %s, Query: %s", r.Method, r.URL.Path, r.RemoteAddr, r.Header.Get("User-Agent"), r.URL.RawQuery)
@@ -149,7 +163,16 @@ func extractMatchId(in string) string {
 }
 
 func main() {
+	dev := flag.Bool("dev", false, "enable dev mode")
+	flag.Parse()
+	isDev = *dev
+
 	http.HandleFunc("/download", downloadHandler)
 	http.Handle("/", spaHandler("../web/dist"))
+
+	if *dev {
+		http.Handle("/testdemos/", http.StripPrefix("/testdemos/", http.FileServer(http.Dir("./testdemos"))))
+	}
+
 	http.ListenAndServe(":8080", nil)
 }
