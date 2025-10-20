@@ -111,6 +111,7 @@ export function PlayerApp() {
       {!isPlaying && !hasPlayed && (
         <div className="loading-overlay">
           <div className="loading-dialog">
+            <div className="loading-spinner"></div>
             <p>{loadingMessage}</p>
           </div>
         </div>
