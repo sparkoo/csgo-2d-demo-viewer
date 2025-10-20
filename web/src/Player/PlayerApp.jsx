@@ -10,6 +10,10 @@ import InfoPanel from "./panel/InfoPanel.jsx";
 import "./protos/Message_pb.js";
 import DemoContext from "../context.js";
 
+const downloadServer = window.location.host.includes("localhost")
+  ? "http://localhost:8080"
+  : "";
+
 export function PlayerApp() {
   const location = useLocation();
   const worker = useRef(null);
@@ -67,7 +71,7 @@ export function PlayerApp() {
     } else if (isWasmLoaded && location.query.demourl) {
       const demoUrl = location.query.demourl;
       console.log("Demo URL found:", demoUrl);
-      fetch(`/download?url=${encodeURIComponent(demoUrl)}`)
+      fetch(`${downloadServer}/download?url=${encodeURIComponent(demoUrl)}`)
         .then((resp) => resp.arrayBuffer())
         .then((data) => {
           console.log("Response size:", data.byteLength);
