@@ -67,7 +67,7 @@ export function PlayerApp() {
     } else if (isWasmLoaded && location.query.demourl) {
       const demoUrl = location.query.demourl;
       console.log("Demo URL found:", demoUrl);
-      fetch(`http://localhost:8080/download?url=${encodeURIComponent(demoUrl)}`)
+      fetch(`/download?url=${encodeURIComponent(demoUrl)}`)
         .then((resp) => resp.arrayBuffer())
         .then((data) => {
           console.log("Response size:", data.byteLength);
