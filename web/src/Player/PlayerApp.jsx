@@ -30,6 +30,7 @@ export function PlayerApp() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState(["Loading..."]);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     if (!worker.current) {
@@ -122,7 +123,10 @@ export function PlayerApp() {
             data: new Uint8Array(response.data),
           });
         })
-        .catch((error) => console.error("Error fetching demo:", error));
+        .catch((error) => {
+          setIsError(true);
+          setLoadingMessage(["Error downloading demo: " + error.message]);
+        });
     }
   }, [isWasmLoaded]);
 
@@ -139,7 +143,11 @@ export function PlayerApp() {
       {!isPlaying && !hasPlayed && (
         <div className="loading-overlay">
           <div className="loading-dialog">
-            <div className="loading-spinner"></div>
+            {isError ? (
+              <div className="error-icon">⚠️</div>
+            ) : (
+              <div className="loading-spinner"></div>
+            )}
             {loadingMessage.map((msg, idx) => (
               <p key={idx}>{msg}</p>
             ))}
