@@ -29,8 +29,7 @@ export function PlayerApp() {
   const [isWasmLoaded, setIsWasmLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("Loading...");
-  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [loadingMessage, setLoadingMessage] = useState(["Loading..."]);
 
   useEffect(() => {
     if (!worker.current) {
@@ -56,13 +55,21 @@ export function PlayerApp() {
       alert(msg.message);
     });
 
+    playerMessageBus.listen([4], (msg) => {
+      setLoadingMessage([
+        "Loading match...",
+        msg.init.tname + " vs " + msg.init.ctname,
+        "Map: " + msg.init.mapname,
+      ]);
+    });
+
     playerMessageBus.listen([MSG_PLAY_CHANGE], function (msg) {
       setIsPlaying(msg.playing);
       if (msg.playing) {
         setHasPlayed(true);
       }
       if (!msg.playing) {
-        setLoadingMessage("Loading...");
+        setLoadingMessage(["Loading..."]);
       }
     });
 
@@ -91,18 +98,18 @@ export function PlayerApp() {
         .get(`${downloadServer}/download?url=${encodeURIComponent(demoUrl)}`, {
           responseType: "arraybuffer",
           onDownloadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setDownloadProgress(percentCompleted);
-            setLoadingMessage(`Downloading demo... ${percentCompleted}%`);
+            console.log(progressEvent);
+            setLoadingMessage([
+              `Downloading demo... ${(progressEvent.loaded / 1048576).toFixed(
+                2
+              )} MB`,
+            ]);
           },
         })
         .then((response) => {
           console.log("Response size:", response.data.byteLength);
-          setLoadingMessage("Parsing demo...");
-          setDownloadProgress(0);
-          const contentDisposition = response.headers['content-disposition'];
+          setLoadingMessage(["Loading match..."]);
+          const contentDisposition = response.headers["content-disposition"];
           let filename = "demo.zst";
           if (contentDisposition) {
             const match = contentDisposition.match(/filename="([^"]+)"/);
@@ -133,15 +140,9 @@ export function PlayerApp() {
         <div className="loading-overlay">
           <div className="loading-dialog">
             <div className="loading-spinner"></div>
-            <p>{loadingMessage}</p>
-            {downloadProgress > 0 && (
-              <div className="progress-bar-container">
-                <div
-                  className="progress-bar"
-                  style={{ width: `${downloadProgress}%` }}
-                ></div>
-              </div>
-            )}
+            {loadingMessage.map((msg, idx) => (
+              <p key={idx}>{msg}</p>
+            ))}
           </div>
         </div>
       )}
