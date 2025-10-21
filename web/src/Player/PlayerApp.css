@@ -66,7 +66,7 @@ html, body {
   height: 40px;
   border: 4px solid var(--TColor);
   border-top: 4px solid var(--CTColor);
-  border-bottom: 4px solid var(--CTColor);
+  border-right: 4px solid var(--CTColor);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 10px;
@@ -97,4 +97,19 @@ html, body {
   border-radius: 8px;
   text-align: center;
   font-size: 18px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background-color: var(--DarkColor);
+  border-radius: 5px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--CTColor);
+  transition: width 0.3s ease;
 }

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "axios": "^1.6.0",
     "dotenv": "^16.0.3",
     "google-protobuf": "^3.21.2",
     "preact-iso": "2.8.1",
