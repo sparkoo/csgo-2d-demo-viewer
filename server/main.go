@@ -79,9 +79,26 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Length", contentLength)
 	}
 
-	_, err = io.Copy(w, resp.Body)
-	if err != nil {
-		log.Printf("Error copying response: %v", err)
+	// Stream the response in chunks
+	buf := make([]byte, 32*1024) // 32KB buffer
+	for {
+		n, err := resp.Body.Read(buf)
+		if n > 0 {
+			if _, writeErr := w.Write(buf[:n]); writeErr != nil {
+				log.Printf("Error writing response: %v", writeErr)
+				return
+			}
+			if flusher, ok := w.(http.Flusher); ok {
+				flusher.Flush() // Flush immediately for streaming
+			}
+		}
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			log.Printf("Error reading response: %v", err)
+			return
+		}
 	}
 }
 
