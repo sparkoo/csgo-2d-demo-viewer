@@ -75,9 +75,9 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 	matchId := extractMatchId(demoUrl)
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.dem.zst"`, matchId))
-	if contentLength := resp.Header.Get("Content-Length"); contentLength != "" {
-		w.Header().Set("Content-Length", contentLength)
-	}
+	// if contentLength := resp.Header.Get("Content-Length"); contentLength != "" {
+	// 	w.Header().Set("Content-Length", contentLength)
+	// }
 
 	// Stream the response in chunks
 	buf := make([]byte, 32*1024) // 32KB buffer
