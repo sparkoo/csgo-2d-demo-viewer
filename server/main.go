@@ -52,7 +52,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Create a custom HTTP client with timeout and no redirects
 	client := &http.Client{
-		Timeout: 30 * time.Second,
+		Timeout: 60 * time.Second,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return errors.New("redirects not allowed")
 		},
@@ -73,7 +73,11 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-	w.Header().Set("Content-Disposition", resp.Header.Get("Content-Disposition"))
+	matchId := extractMatchId(demoUrl)
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.dem.zst"`, matchId))
+	if contentLength := resp.Header.Get("Content-Length"); contentLength != "" {
+		w.Header().Set("Content-Length", contentLength)
+	}
 
 	_, err = io.Copy(w, resp.Body)
 	if err != nil {

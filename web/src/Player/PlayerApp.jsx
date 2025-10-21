@@ -1,5 +1,6 @@
 import { useEffect, useState, useContext, useRef } from "react";
 import { useLocation } from "preact-iso";
+import axios from "axios";
 import "./PlayerApp.css";
 import "./weapons.css";
 import ErrorBoundary from "./Error.jsx";
@@ -29,6 +30,7 @@ export function PlayerApp() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Loading...");
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   useEffect(() => {
     if (!worker.current) {
@@ -85,13 +87,32 @@ export function PlayerApp() {
     } else if (isWasmLoaded && location.query.demourl) {
       const demoUrl = location.query.demourl;
       console.log("Demo URL found:", demoUrl);
-      fetch(`${downloadServer}/download?url=${encodeURIComponent(demoUrl)}`)
-        .then((resp) => resp.arrayBuffer())
-        .then((data) => {
-          console.log("Response size:", data.byteLength);
+      axios
+        .get(`${downloadServer}/download?url=${encodeURIComponent(demoUrl)}`, {
+          responseType: "arraybuffer",
+          onDownloadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setDownloadProgress(percentCompleted);
+            setLoadingMessage(`Downloading demo... ${percentCompleted}%`);
+          },
+        })
+        .then((response) => {
+          console.log("Response size:", response.data.byteLength);
+          setLoadingMessage("Parsing demo...");
+          setDownloadProgress(0);
+          const contentDisposition = response.headers['content-disposition'];
+          let filename = "demo.zst";
+          if (contentDisposition) {
+            const match = contentDisposition.match(/filename="([^"]+)"/);
+            if (match) {
+              filename = match[1];
+            }
+          }
           worker.current.postMessage({
-            filename: "demo.zst",
-            data: new Uint8Array(data),
+            filename: filename,
+            data: new Uint8Array(response.data),
           });
         })
         .catch((error) => console.error("Error fetching demo:", error));
@@ -113,6 +134,14 @@ export function PlayerApp() {
           <div className="loading-dialog">
             <div className="loading-spinner"></div>
             <p>{loadingMessage}</p>
+            {downloadProgress > 0 && (
+              <div className="progress-bar-container">
+                <div
+                  className="progress-bar"
+                  style={{ width: `${downloadProgress}%` }}
+                ></div>
+              </div>
+            )}
           </div>
         </div>
       )}
