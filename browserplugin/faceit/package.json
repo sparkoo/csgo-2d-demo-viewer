@@ -7,6 +7,10 @@
     "build": "webpack --mode production",
     "build:chrome": "webpack --mode production --env browser=chrome",
     "build:firefox": "webpack --mode production --env browser=firefox",
+    "package:chrome": "npm run build:chrome && web-ext build --source-dir dist/chrome --artifacts-dir dist --filename faceit_2d_replay-chrome-{version}.zip --overwrite-dest",
+    "package:firefox": "npm run build:firefox && web-ext build --source-dir dist/firefox --artifacts-dir dist --filename faceit_2d_replay-firefox-{version}.zip --overwrite-dest",
+    "sign:firefox": "web-ext sign --source-dir dist/firefox --artifacts-dir dist/signed --api-key $FIREFOX_API_KEY --api-secret $FIREFOX_API_SECRET",
+    "package:firefox:signed": "npm run build:firefox && web-ext sign --source-dir dist/firefox --artifacts-dir dist --api-key $FIREFOX_API_KEY --api-secret $FIREFOX_API_SECRET",
     "dev": "webpack --mode development --watch",
     "dev:chrome": "webpack --mode development --watch --env browser=chrome",
     "dev:firefox": "webpack --mode development --watch --env browser=firefox"
@@ -20,6 +24,7 @@
     "@babel/preset-env": "^7.22.0",
     "babel-loader": "^9.1.0",
     "copy-webpack-plugin": "^11.0.0",
+    "web-ext": "^7.8.0",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
   }

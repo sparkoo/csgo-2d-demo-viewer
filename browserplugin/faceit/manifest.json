@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "FACEIT 2D Replay",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Adds 2D Replay to FACEIT matches",
   "permissions": ["storage"],
   "host_permissions": [
