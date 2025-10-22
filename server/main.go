@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 )
@@ -102,22 +103,34 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+var validPaths = []string{"/", "/player"}
+
 func spaHandler(dir string) http.Handler {
 	fs := http.FileServer(http.Dir(dir))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Sanitize the path to prevent directory traversal
 		path := filepath.Clean(filepath.Join(dir, r.URL.Path))
-		rel, err := filepath.Rel(dir, path)
-		if err != nil || strings.Contains(rel, "..") {
+		rel, pathFormatErr := filepath.Rel(dir, path)
+
+		if pathFormatErr != nil || strings.Contains(rel, "..") {
 			http.NotFound(w, r)
 			return
 		}
 
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			http.ServeFile(w, r, filepath.Join(dir, "index.html"))
-		} else {
-			fs.ServeHTTP(w, r)
+		// check if the file from path exists
+		if _, filePathErr := os.Stat(path); filePathErr != nil {
+			if os.IsNotExist(filePathErr) && slices.Contains(validPaths, r.URL.Path) {
+				// serve index on listed paths
+				http.ServeFile(w, r, filepath.Join(dir, "index.html"))
+				return
+			}
+
+			http.NotFound(w, r)
+			return
 		}
+
+		// serve real existing file
+		fs.ServeHTTP(w, r)
 	})
 }
 
