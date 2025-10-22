@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 )
@@ -116,20 +117,20 @@ func spaHandler(dir string) http.Handler {
 			return
 		}
 
+		// check if the file from path exists
 		if _, err := os.Stat(path); err != nil {
-			if os.IsNotExist(err) {
-				for _, validPath := range validPaths {
-					if r.URL.Path == validPath {
-						http.ServeFile(w, r, filepath.Join(dir, "index.html"))
-						return
-					}
-				}
+			if os.IsNotExist(err) && slices.Contains(validPaths, r.URL.Path) {
+				// serve index on listed paths
+				http.ServeFile(w, r, filepath.Join(dir, "index.html"))
+				return
 			}
 
 			http.NotFound(w, r)
-		} else {
-			fs.ServeHTTP(w, r)
+			return
 		}
+
+		// serve real existing file
+		fs.ServeHTTP(w, r)
 	})
 }
 
