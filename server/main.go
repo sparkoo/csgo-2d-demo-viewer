@@ -24,6 +24,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	}
+	w.Header().Set("Access-Control-Expose-Headers", "X-Demo-Length")
 
 	if r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusOK)
@@ -76,9 +77,9 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 	matchId := extractMatchId(demoUrl)
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.dem.zst"`, matchId))
-	// if contentLength := resp.Header.Get("Content-Length"); contentLength != "" {
-	// 	w.Header().Set("Content-Length", contentLength)
-	// }
+	if contentLength := resp.Header.Get("Content-Length"); contentLength != "" {
+		w.Header().Set("X-Demo-Length", contentLength)
+	}
 
 	// Stream the response in chunks
 	buf := make([]byte, 32*1024) // 32KB buffer

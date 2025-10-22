@@ -31,6 +31,8 @@ export function PlayerApp() {
   const [hasPlayed, setHasPlayed] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState(["Loading..."]);
   const [isError, setIsError] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     if (!worker.current) {
@@ -94,21 +96,26 @@ export function PlayerApp() {
       worker.current.postMessage(demoData.demoData);
     } else if (isWasmLoaded && location.query.demourl) {
       const demoUrl = location.query.demourl;
-      console.log("Demo URL found:", demoUrl);
+      setIsDownloading(true);
       axios
         .get(`${downloadServer}/download?url=${encodeURIComponent(demoUrl)}`, {
           responseType: "arraybuffer",
           onDownloadProgress: (progressEvent) => {
-            console.log(progressEvent);
-            setLoadingMessage([
-              `Downloading demo... ${(progressEvent.loaded / 1048576).toFixed(
-                2
-              )} MB`,
-            ]);
+            console.log(
+              progressEvent,
+              progressEvent.event.target.getResponseHeader("X-Demo-Length")
+            );
+            var totalSize =
+              progressEvent.event.target.getResponseHeader("X-Demo-Length");
+            setDownloadProgress(
+              totalSize ? (progressEvent.loaded / totalSize) * 100 : 0
+            );
+            setLoadingMessage([`Downloading demo...`]);
           },
         })
         .then((response) => {
-          console.log("Response size:", response.data.byteLength);
+          setIsDownloading(false);
+          setDownloadProgress(0);
           setLoadingMessage(["Loading match..."]);
           const contentDisposition = response.headers["content-disposition"];
           let filename = "demo.zst";
@@ -124,6 +131,8 @@ export function PlayerApp() {
           });
         })
         .catch((error) => {
+          setIsDownloading(false);
+          setDownloadProgress(0);
           setIsError(true);
           setLoadingMessage(["Error downloading demo: " + error.message]);
         });
@@ -151,6 +160,14 @@ export function PlayerApp() {
             {loadingMessage.map((msg, idx) => (
               <p key={idx}>{msg}</p>
             ))}
+            {isDownloading && (
+              <div className="progress-bar-container">
+                <div
+                  className="progress-bar"
+                  style={{ width: `${downloadProgress}%` }}
+                ></div>
+              </div>
+            )}
           </div>
         </div>
       )}
