@@ -1,4 +1,6 @@
 // CS2 Demo Viewer Extension Popup
+import browser from 'webextension-polyfill';
+
 document.addEventListener("DOMContentLoaded", async () => {
   const openFaceitBtn = document.getElementById("openFaceit");
   const viewerUrlInput = document.getElementById("viewerUrlInput");
@@ -8,8 +10,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const DEFAULT_DEMO_VIEWER_URL = "https://2d.sparko.cz";
   let demoViewerUrl = DEFAULT_DEMO_VIEWER_URL;
 
-  // Try to load the viewer URL from chrome.storage (sync or local)
-  const result = await chrome.storage.sync.get({
+  // Try to load the viewer URL from browser.storage (sync or local)
+  const result = await browser.storage.sync.get({
     demoViewerUrl: DEFAULT_DEMO_VIEWER_URL,
   });
   demoViewerUrl = result.demoViewerUrl || DEFAULT_DEMO_VIEWER_URL;
@@ -18,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   viewerUrlInput.textContent = demoViewerUrl;
 
   // Get extension version from manifest
-  const manifest = chrome.runtime.getManifest();
+  const manifest = browser.runtime.getManifest();
   versionElement.textContent = manifest.version;
 
   openFaceitBtn.addEventListener("click", async () => {
@@ -28,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       openFaceitBtn.disabled = true;
 
       // Navigate to FACEIT
-      await chrome.tabs.create({
+      await browser.tabs.create({
         url: "https://www.faceit.com",
         active: true,
       });
@@ -74,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Handle messages from content script (if needed in future)
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "updateStatus") {
     // Handle status updates from content script
     console.log("Status update:", request.status);
