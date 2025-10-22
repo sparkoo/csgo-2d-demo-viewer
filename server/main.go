@@ -102,7 +102,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var validPaths []string = []string{"/", "/player"}
+var validPaths = []string{"/", "/player"}
 
 func spaHandler(dir string) http.Handler {
 	fs := http.FileServer(http.Dir(dir))
