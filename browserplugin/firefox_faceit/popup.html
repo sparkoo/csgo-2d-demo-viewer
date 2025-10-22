@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="popup-container">
+      <div class="header">
+        <div class="logo">
+          <img width="32" height="32" src="icons/icon.png" />
+        </div>
+        <div class="title">
+          <h1>FACEIT 2D Replay</h1>
+          <p>2d.sparko.cz</p>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actions">
+          <button id="openFaceit" class="btn btn-secondary">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              height="32"
+              width="32"
+            >
+              <path
+                d="M21 4.134c0-.143-.17-.18-.238-.071-2.177 3.553-3.436 5.563-4.525 7.429H3.174c-.17 0-.238.215-.102.287 5.41 2.153 13.233 5.42 17.622 7.214.102.036.306-.072.306-.144V4.134z"
+                fill="#FF5500"
+              ></path>
+            </svg>
+            Go to FACEIT
+          </button>
+        </div>
+
+        <div class="info">
+          <div class="info-item">
+            <span class="info-label">Demo Viewer:</span>
+            <span id="viewerUrlInput" class="info-value"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Version:</span>
+            <span class="info-value" id="version">x.x.x</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
