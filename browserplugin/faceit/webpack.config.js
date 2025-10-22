@@ -3,6 +3,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = (env) => {
   const browser = env.browser || "chrome";
+  const isDev = env.WEBPACK_SERVE;
 
   return {
     entry: {
@@ -12,8 +13,15 @@ module.exports = (env) => {
     output: {
       path: path.resolve(__dirname, `dist/${browser}`),
       filename: "[name].js",
-      clean: true,
+      clean: !isDev, // Don't clean in dev mode to preserve files
     },
+    watchOptions: isDev
+      ? {
+          ignored: /node_modules/,
+          aggregateTimeout: 300,
+          poll: 1000,
+        }
+      : undefined,
     module: {
       rules: [
         {
@@ -29,7 +37,10 @@ module.exports = (env) => {
                     useBuiltIns: "usage",
                     corejs: 3,
                     targets: {
-                      browsers: browser === "firefox" ? ["> 0.25%", "not dead", "Firefox ESR"] : ["> 0.25%", "not dead"],
+                      browsers:
+                        browser === "firefox"
+                          ? ["> 0.25%", "not dead", "Firefox ESR"]
+                          : ["> 0.25%", "not dead"],
                     },
                   },
                 ],
@@ -43,16 +54,24 @@ module.exports = (env) => {
       extensions: [".js"],
     },
     plugins: [
-      new CopyPlugin({
-        patterns: [
-          { from: "manifest.json", to: "manifest.json" },
-          { from: "popup.html", to: "popup.html" },
-          { from: "content-styles.css", to: "content-styles.css" },
-          { from: "popup.css", to: "popup.css" },
-          { from: "icons", to: "icons" },
-        ],
-      }),
+      ...(isDev
+        ? []
+        : [
+            new CopyPlugin({
+              patterns: [
+                { from: "manifest.json", to: "manifest.json" },
+                { from: "popup.html", to: "popup.html" },
+                { from: "content-styles.css", to: "content-styles.css" },
+                { from: "popup.css", to: "popup.css" },
+                { from: "icons", to: "icons" },
+              ],
+            }),
+          ]),
     ],
-    mode: "production",
+    mode: "development",
+    devtool: "inline-source-map",
+    optimization: {
+      minimize: false,
+    },
   };
 };

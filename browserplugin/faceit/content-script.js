@@ -253,7 +253,7 @@ class FACEITDemoViewer {
   createReplayButton(matchId) {
     const button = document.createElement("button");
     button.className = `${this.buttonClass}`;
-    button.textContent = "2d sparko";
+    button.textContent = "2d replay";
     button.title = "Open CS2 Demo Viewer";
     button.dataset.matchId = matchId;
 
