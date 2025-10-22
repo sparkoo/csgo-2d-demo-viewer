@@ -2,6 +2,11 @@
   "manifest_version": 3,
   "name": "FACEIT 2D Replay",
   "version": "0.2.0",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "cs2-2d-replay-faceit-firefox@sparko.cz"
+    }
+  },
   "description": "Adds 2D Replay to FACEIT matches",
   "permissions": ["storage"],
   "host_permissions": [
