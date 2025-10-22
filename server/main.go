@@ -116,13 +116,16 @@ func spaHandler(dir string) http.Handler {
 			return
 		}
 
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			for _, validPath := range validPaths {
-				if r.URL.Path == validPath {
-					http.ServeFile(w, r, filepath.Join(dir, "index.html"))
-					return
+		if _, err := os.Stat(path); err != nil {
+			if os.IsNotExist(err) {
+				for _, validPath := range validPaths {
+					if r.URL.Path == validPath {
+						http.ServeFile(w, r, filepath.Join(dir, "index.html"))
+						return
+					}
 				}
 			}
+
 			http.NotFound(w, r)
 		} else {
 			fs.ServeHTTP(w, r)
