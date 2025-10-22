@@ -110,16 +110,16 @@ func spaHandler(dir string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Sanitize the path to prevent directory traversal
 		path := filepath.Clean(filepath.Join(dir, r.URL.Path))
-		rel, err := filepath.Rel(dir, path)
+		rel, pathFormatErr := filepath.Rel(dir, path)
 
-		if err != nil || strings.Contains(rel, "..") {
+		if pathFormatErr != nil || strings.Contains(rel, "..") {
 			http.NotFound(w, r)
 			return
 		}
 
 		// check if the file from path exists
-		if _, err := os.Stat(path); err != nil {
-			if os.IsNotExist(err) && slices.Contains(validPaths, r.URL.Path) {
+		if _, filePathErr := os.Stat(path); filePathErr != nil {
+			if os.IsNotExist(filePathErr) && slices.Contains(validPaths, r.URL.Path) {
 				// serve index on listed paths
 				http.ServeFile(w, r, filepath.Join(dir, "index.html"))
 				return
