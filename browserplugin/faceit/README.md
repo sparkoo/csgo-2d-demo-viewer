@@ -6,7 +6,7 @@ This browser extension adds 2D replay functionality to FACEIT matches, allowing 
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js (v18 or higher)
 - npm
 
 ### Setup
@@ -46,6 +46,9 @@ npm run package:chrome
 # Package for Firefox (creates zip file)
 npm run package:firefox
 
+# Package both Chrome and Firefox
+npm run package
+
 # Package and sign for Firefox (requires API credentials)
 npm run package:firefox:signed
 ```
@@ -56,14 +59,25 @@ To sign the Firefox extension for distribution through Mozilla Add-ons:
 
 1. Get your API credentials from [Mozilla Add-ons](https://addons.mozilla.org/en-US/developers/addon/api/key/)
 2. Set environment variables:
-   ```bash
-   export FIREFOX_API_KEY="your-api-key"
-   export FIREFOX_API_SECRET="your-api-secret"
-   ```
+    - For Unix-like systems (Linux/macOS):
+        ```bash
+        export FIREFOX_API_KEY="your-api-key"
+        export FIREFOX_API_SECRET="your-api-secret"
+        ```
+    - For Windows (Command Prompt):
+        ```cmd
+        set FIREFOX_API_KEY=your-api-key
+        set FIREFOX_API_SECRET=your-api-secret
+        ```
+    - For Windows (PowerShell):
+        ```powershell
+        $env:FIREFOX_API_KEY="your-api-key"
+        $env:FIREFOX_API_SECRET="your-api-secret"
+        ```
 3. Run the signed packaging:
-   ```bash
-   npm run package:firefox:signed
-   ```
+    ```bash
+    npm run package:firefox:signed
+    ```
 
 The signed extension will be available in `dist/signed/`.
 
@@ -80,7 +94,7 @@ dist/
 
 ### Browser Compatibility
 
-- **Chrome**: Full support
+- **Chrome**: Full support (Manifest V3)
 - **Firefox**: Full support with webextension-polyfill
 - **Edge**: Should work (Chromium-based)
 
@@ -91,6 +105,10 @@ dist/
 - **web-ext**: Firefox extension signing and packaging
 - **webextension-polyfill**: Cross-browser API compatibility
 
+### Extension Settings
+
+The extension allows configuration of the demo viewer URL through the extension popup. Users can customize where demos are opened by changing the viewer URL in the settings.
+
 ### Features
 
 - Adds 2D replay buttons to FACEIT match pages
@@ -98,3 +116,4 @@ dist/
 - Cross-browser compatible (Chrome/Firefox)
 - Automatic demo download and player opening
 - Configurable demo viewer URL via extension settings
+- Supports latest FACEIT website updates
