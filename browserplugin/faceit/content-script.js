@@ -1,4 +1,6 @@
 // CS2 Demo Viewer - FACEIT Integration Content Script
+import browser from "webextension-polyfill";
+
 console.log("🚀 CS2 Demo Viewer extension loaded!");
 console.log("📍 Current URL:", window.location.href);
 console.log("📄 Document ready state:", document.readyState);
@@ -23,9 +25,9 @@ class FACEITDemoViewer {
   async init() {
     this.log("Initializing extension...");
 
-    // Load demoViewerUrl from chrome.storage
+    // Load demoViewerUrl from browser.storage
     try {
-      const result = await chrome.storage.sync.get({
+      const result = await browser.storage.sync.get({
         demoViewerUrl: this.demoViewerUrl, // Use default if not set
       });
       this.demoViewerUrl = result.demoViewerUrl || this.demoViewerUrl;
