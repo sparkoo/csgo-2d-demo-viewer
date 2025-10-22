@@ -1,5 +1,5 @@
 .map {
-  background-color: black;
+  background: linear-gradient(to right, #222, var(--BlackColor));
 }
 
 .map-container {

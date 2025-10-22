@@ -11,7 +11,7 @@ class Map2d extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      mapName: "de_dust2",
+      mapName: "empty",
       players: [],
       shots: [],
       nades: [],
