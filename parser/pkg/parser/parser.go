@@ -356,6 +356,11 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 
 	//TODO: Grenades should have priority left to right flash > he > smoke > molotov/inc > decoy
 	for _, w := range p.Weapons() {
+		if w.Class() == common.EqClassUnknown {
+			// we don't know what this is, nothing to do here
+			log.L().Debug("unknown eq", zap.Any("weapon", w))
+			continue
+		}
 		weaponString := convertWeapon(w.Type)
 		switch w.Class() {
 		case common.EqClassSMG, common.EqClassHeavy, common.EqClassRifle:
@@ -379,8 +384,6 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 			default:
 				log.Printf("what is this ? '%+v'\n", w)
 			}
-		case common.EqClassUnknown:
-			log.Printf("what is that??? %+v\n", w)
 		}
 	}
 	sort.Slice(player.Grenades, func(i, j int) bool {
