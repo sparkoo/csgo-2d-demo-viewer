@@ -1,7 +1,9 @@
 # This workflow will build the FACEIT browser extension for Chrome and Firefox
 # It installs dependencies, builds the extension, and packages it for distribution
 
-name: Browser Plugin CI
+name: Node.js CI - browser plugin
+permissions:
+  contents: read
 
 on:
   push:
