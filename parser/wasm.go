@@ -4,12 +4,15 @@ package main
 
 import (
 	"bytes"
+	"csgo-2d-demo-player/conf"
+	"csgo-2d-demo-player/pkg/log"
 	"csgo-2d-demo-player/pkg/parser"
 	"fmt"
 	"syscall/js"
 )
 
 func main() {
+	log.Init(conf.MODE_PROD)
 	done := make(chan struct{}, 0)
 	fmt.Println("HEHEHEH")
 	js.Global().Set("wasmParseDemo", js.FuncOf(wasmParseDemo))
