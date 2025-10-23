@@ -8,11 +8,11 @@ permissions:
 on:
   push:
     branches: ["master", "dev"]
+  pull_request:
+    branches: ["master", "dev"]
     paths:
       - "browserplugin/faceit/**"
       - ".github/workflows/nodejs_browserplugin.yml"
-  pull_request:
-    branches: ["master", "dev"]
 
 jobs:
   build:
