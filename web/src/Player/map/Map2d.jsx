@@ -1,4 +1,5 @@
 import { Component } from "react";
+import React from "react";
 import { MSG_PLAY_CHANGE } from "../constants";
 import KillFeed from "./KillFeed";
 import "./Map.css";
@@ -19,6 +20,12 @@ class Map2d extends Component {
       nades: [],
       nadeExplosions: [],
       bomb: { x: -100, y: -100 },
+      zoom: 1,
+      panX: 0,
+      panY: 0,
+      isDragging: false,
+      lastMouseX: 0,
+      lastMouseY: 0,
     };
 
     props.messageBus.listen([4], this.onMessage.bind(this));
@@ -111,9 +118,52 @@ class Map2d extends Component {
     }
   }
 
+  handleMouseDown = (e) => {
+    if (this.state.zoom > 1) {
+      this.setState({
+        isDragging: true,
+        lastMouseX: e.clientX,
+        lastMouseY: e.clientY,
+      });
+    }
+  };
+
+  handleMouseMove = (e) => {
+    if (this.state.isDragging) {
+      const deltaX = e.clientX - this.state.lastMouseX;
+      const deltaY = e.clientY - this.state.lastMouseY;
+      this.setState({
+        panX: this.state.panX + deltaX,
+        panY: this.state.panY + deltaY,
+        lastMouseX: e.clientX,
+        lastMouseY: e.clientY,
+      });
+    }
+  };
+
+  handleMouseUp = () => {
+    this.setState({ isDragging: false });
+  };
+
+  handleWheel = (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+    this.setState({
+      zoom: Math.min(Math.max(this.state.zoom * zoomFactor, 1), 2.5),
+    });
+  };
+
   render() {
     const style = {
       backgroundImage: `url("/overviews/${this.state.mapName}${this.state.layer}.png")`,
+      transform: `scale(${this.state.zoom}) translate(${this.state.panX}px, ${this.state.panY}px)`,
+      transformOrigin: "center",
+      cursor:
+        this.state.zoom > 1
+          ? this.state.isDragging
+            ? "grabbing"
+            : "grab"
+          : "default",
     };
     const playerComponents = [];
     if (this.state.players && this.state.players.length > 0) {
@@ -155,7 +205,16 @@ class Map2d extends Component {
       return null;
     });
     return (
-      <div className="map-container" id="map" style={style}>
+      <div
+        className="map-container"
+        id="map"
+        style={style}
+        onMouseDown={this.handleMouseDown}
+        onMouseMove={this.handleMouseMove}
+        onMouseUp={this.handleMouseUp}
+        onMouseLeave={this.handleMouseUp}
+        onWheel={this.handleWheel}
+      >
         <KillFeed messageBus={this.props.messageBus} />
         {this.state.hasLower && (
           <button
