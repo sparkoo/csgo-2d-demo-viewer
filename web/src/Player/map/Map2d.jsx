@@ -19,6 +19,12 @@ class Map2d extends Component {
       nades: [],
       nadeExplosions: [],
       bomb: { x: -100, y: -100 },
+      zoom: 1,
+      panX: 0,
+      panY: 0,
+      isDragging: false,
+      lastMouseX: 0,
+      lastMouseY: 0,
     };
 
     props.messageBus.listen([4], this.onMessage.bind(this));
@@ -108,12 +114,61 @@ class Map2d extends Component {
   handleKeyDown(event) {
     if (event.key === "q" || event.key === "Q") {
       this.toggleLayer();
+    } else if (event.key === "w" || event.key === "W") {
+      this.resetZoom();
     }
+  }
+
+  handleMouseDown = (e) => {
+    if (this.state.zoom > 1) {
+      this.setState({
+        isDragging: true,
+        lastMouseX: e.clientX,
+        lastMouseY: e.clientY,
+      });
+    }
+  };
+
+  handleMouseMove = (e) => {
+    if (this.state.isDragging) {
+      const deltaX = e.clientX - this.state.lastMouseX;
+      const deltaY = e.clientY - this.state.lastMouseY;
+      this.setState({
+        panX: this.state.panX + deltaX,
+        panY: this.state.panY + deltaY,
+        lastMouseX: e.clientX,
+        lastMouseY: e.clientY,
+      });
+    }
+  };
+
+  handleMouseUp = () => {
+    this.setState({ isDragging: false });
+  };
+
+  handleWheel = (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+    this.setState({
+      zoom: Math.min(Math.max(this.state.zoom * zoomFactor, 1), 2.5),
+    });
+  };
+
+  resetZoom() {
+    this.setState({ zoom: 1, panX: 0, panY: 0 });
   }
 
   render() {
     const style = {
       backgroundImage: `url("/overviews/${this.state.mapName}${this.state.layer}.png")`,
+      transform: `scale(${this.state.zoom}) translate(${this.state.panX}px, ${this.state.panY}px)`,
+      transformOrigin: "center",
+      cursor:
+        this.state.zoom > 1
+          ? this.state.isDragging
+            ? "grabbing"
+            : "grab"
+          : "default",
     };
     const playerComponents = [];
     if (this.state.players && this.state.players.length > 0) {
@@ -155,11 +210,27 @@ class Map2d extends Component {
       return null;
     });
     return (
-      <div className="map-container" id="map" style={style}>
+      <div className="map-wrapper">
+        <div
+          className="map-container"
+          id="map"
+          style={style}
+          onMouseDown={this.handleMouseDown}
+          onMouseMove={this.handleMouseMove}
+          onMouseUp={this.handleMouseUp}
+          onMouseLeave={this.handleMouseUp}
+          onWheel={this.handleWheel}
+        >
+          {playerComponents}
+          {nadeComponents}
+          {shots}
+          {nadeExplosions}
+          <MapBomb bomb={this.state.bomb} />
+        </div>
         <KillFeed messageBus={this.props.messageBus} />
         {this.state.hasLower && (
           <button
-            className={`layer-toggle ${
+            className={`map-button layer-toggle ${
               this.state.layer === "_lower" ? "lower-active" : ""
             }`}
             onClick={this.toggleLayer.bind(this)}
@@ -168,11 +239,15 @@ class Map2d extends Component {
             <div className="layer-hint">Q</div>
           </button>
         )}
-        {playerComponents}
-        {nadeComponents}
-        {shots}
-        {nadeExplosions}
-        <MapBomb bomb={this.state.bomb} />
+        {this.state.zoom > 1 && (
+          <button
+            className="map-button zoom-reset"
+            onClick={this.resetZoom.bind(this)}
+          >
+            <div className="zoom-icon">⌕</div>
+            <div className="zoom-hint">W</div>
+          </button>
+        )}
       </div>
     );
   }
