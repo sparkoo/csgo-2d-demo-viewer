@@ -6,7 +6,7 @@ import (
 )
 
 // var zstDemofileName = "1-cde451fd-6cd4-4c87-a432-d97d2235021a-1-1.dem.zst"
-var zstDemofileName = "1-5264a308-d0ce-4f3b-ac1b-b3e3c7bd6c3a-1-1.dem.zst"
+var zstDemofileName = "1-e9789885-ebda-4f07-90de-8e38d73e174b-1-1.dem.zst"
 var gzDemofileName = "1-cde451fd-6cd4-4c87-a432-d97d2235021a-1-1.dem.gz"
 var testDemosFolderPath = "../../../testdemos"
 
@@ -36,5 +36,21 @@ func TestParseUnsupportedDemoArchive(t *testing.T) {
 	parseErr := WasmParseDemo("not_supported.demo", nil, func(payload []byte) {})
 	if parseErr == nil {
 		t.Fatalf("parse should fail: %v", parseErr)
+	}
+}
+
+func BenchmarkParseDemo(b *testing.B) {
+	demoFile, err := os.Open(testDemosFolderPath + "/" + zstDemofileName)
+	if err != nil {
+		b.Skip("failed to open the demo testfile. skipping for now as I have testdemos just locally")
+	}
+	defer demoFile.Close()
+
+	for b.Loop() {
+		demoFile.Seek(0, 0)
+		parseErr := WasmParseDemo(zstDemofileName, demoFile, func(payload []byte) {})
+		if parseErr != nil {
+			b.Fatalf("failed to parse the demo: %v", parseErr)
+		}
 	}
 }
