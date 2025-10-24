@@ -115,6 +115,8 @@ class Map2d extends Component {
   handleKeyDown(event) {
     if (event.key === "q" || event.key === "Q") {
       this.toggleLayer();
+    } else if (event.key === "w" || event.key === "W") {
+      this.resetZoom();
     }
   }
 
@@ -152,6 +154,10 @@ class Map2d extends Component {
       zoom: Math.min(Math.max(this.state.zoom * zoomFactor, 1), 2.5),
     });
   };
+
+  resetZoom() {
+    this.setState({ zoom: 1, panX: 0, panY: 0 });
+  }
 
   render() {
     const style = {
@@ -225,13 +231,22 @@ class Map2d extends Component {
         <KillFeed messageBus={this.props.messageBus} />
         {this.state.hasLower && (
           <button
-            className={`layer-toggle ${
+            className={`map-button layer-toggle ${
               this.state.layer === "_lower" ? "lower-active" : ""
             }`}
             onClick={this.toggleLayer.bind(this)}
           >
             <div className="layer-icon">⇅</div>
             <div className="layer-hint">Q</div>
+          </button>
+        )}
+        {this.state.zoom > 1 && (
+          <button
+            className="map-button zoom-reset"
+            onClick={this.resetZoom.bind(this)}
+          >
+            <div className="zoom-icon">⌕</div>
+            <div className="zoom-hint">W</div>
           </button>
         )}
       </div>

@@ -20,10 +20,9 @@
   transition: transform 0.2s ease;
 }
 
-.layer-toggle {
+.map-button {
   position: absolute;
   bottom: 32px;
-  right: 32px;
   z-index: 1000;
   font-size: 32px;
   padding: 5px;
@@ -40,9 +39,22 @@
   justify-content: center;
 }
 
-.layer-toggle:hover {
+.map-button:hover {
   background-color: rgba(50, 50, 50, 0.3);
   color: #fff;
+}
+
+.zoom-reset {
+  right: 32px;
+}
+
+.zoom-reset:hover {
+  background-color: rgba(50, 50, 50, 0.3);
+  color: #fff;
+}
+
+.layer-toggle {
+  right: 100px;
 }
 
 .layer-toggle.lower-active {
@@ -55,6 +67,18 @@
 }
 
 .layer-hint {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 2px;
+  line-height: 1;
+}
+
+.zoom-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.zoom-hint {
   font-size: 13px;
   color: #aaa;
   margin-top: 2px;
