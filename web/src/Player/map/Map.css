@@ -2,6 +2,12 @@
   background: linear-gradient(to right, #222, var(--BlackColor));
 }
 
+.map-wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
 .map-container {
   position: relative;
   height: 100%;

@@ -205,16 +205,23 @@ class Map2d extends Component {
       return null;
     });
     return (
-      <div
-        className="map-container"
-        id="map"
-        style={style}
-        onMouseDown={this.handleMouseDown}
-        onMouseMove={this.handleMouseMove}
-        onMouseUp={this.handleMouseUp}
-        onMouseLeave={this.handleMouseUp}
-        onWheel={this.handleWheel}
-      >
+      <div className="map-wrapper">
+        <div
+          className="map-container"
+          id="map"
+          style={style}
+          onMouseDown={this.handleMouseDown}
+          onMouseMove={this.handleMouseMove}
+          onMouseUp={this.handleMouseUp}
+          onMouseLeave={this.handleMouseUp}
+          onWheel={this.handleWheel}
+        >
+          {playerComponents}
+          {nadeComponents}
+          {shots}
+          {nadeExplosions}
+          <MapBomb bomb={this.state.bomb} />
+        </div>
         <KillFeed messageBus={this.props.messageBus} />
         {this.state.hasLower && (
           <button
@@ -227,11 +234,6 @@ class Map2d extends Component {
             <div className="layer-hint">Q</div>
           </button>
         )}
-        {playerComponents}
-        {nadeComponents}
-        {shots}
-        {nadeExplosions}
-        <MapBomb bomb={this.state.bomb} />
       </div>
     );
   }
