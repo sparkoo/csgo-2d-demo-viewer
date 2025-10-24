@@ -67,13 +67,17 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	bombH := newBombHandler(parser)
 
 	parser.RegisterEventHandler(func(ge events.GrenadeEventIf) {
-		msg := handleGrenadeEvent(ge, &mapCS, NewRoundMessage(parser))
-		roundMessage.Add(msg)
+		msg := handleGrenadeEvent(ge, &mapCS, parser.CurrentFrame())
+		if msg != nil {
+			roundMessage.Add(msg)
+		}
 	})
 
 	parser.RegisterEventHandler(func(e events.WeaponFire) {
-		msg := handleWeaponFireEvent(e, &mapCS, NewRoundMessage(parser))
-		roundMessage.Add(msg)
+		msg := handleWeaponFireEvent(e, &mapCS, parser.CurrentFrame())
+		if msg != nil {
+			roundMessage.Add(msg)
+		}
 	})
 
 	parser.RegisterEventHandler(func(e events.Kill) {
@@ -194,12 +198,14 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 
 		if parser.CurrentFrame()%16 == 0 {
 			roundTime := parser.CurrentTime() - currentRoundTimer.lastRoundStart
-			minutes := int(roundTime.Minutes())
+			totalSeconds := int(roundTime.Seconds())
+			minutes := totalSeconds / 60
+			seconds := totalSeconds - (minutes * 60)
 			roundMessage.Add(&message.Message{
 				MsgType: message.Message_TimeUpdateType,
 				Tick:    int32(parser.CurrentFrame()),
 				RoundTime: &message.RoundTime{
-					RoundTime: fmt.Sprintf("%d:%02d", minutes, int(roundTime.Seconds())-(60*minutes)),
+					RoundTime: fmt.Sprintf("%d:%02d", minutes, seconds),
 				},
 			})
 		}
@@ -218,72 +224,82 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	}
 }
 
-func handleGrenadeEvent(ge events.GrenadeEventIf, mapCS *MapCS, msg *message.Message) *message.Message {
-	x, y := translatePosition(ge.Base().Position, mapCS)
+func handleGrenadeEvent(ge events.GrenadeEventIf, mapCS *MapCS, currentFrame int) *message.Message {
 	switch ge.(type) {
 	case events.FlashExplode, events.HeExplode:
-		msg.MsgType = message.Message_GrenadeEventType
-		msg.GrenadeEvent = &message.Grenade{
-			Id:     int32(ge.Base().GrenadeEntityID),
-			Kind:   WeaponsEqType[ge.Base().Grenade.Type],
-			X:      x,
-			Y:      y,
-			Z:      ge.Base().Position.Z,
-			Action: "explode",
+		x, y := translatePosition(ge.Base().Position, mapCS)
+		base := ge.Base()
+		return &message.Message{
+			MsgType: message.Message_GrenadeEventType,
+			Tick:    int32(currentFrame),
+			GrenadeEvent: &message.Grenade{
+				Id:     int32(base.GrenadeEntityID),
+				Kind:   WeaponsEqType[base.Grenade.Type],
+				X:      x,
+				Y:      y,
+				Z:      base.Position.Z,
+				Action: "explode",
+			},
 		}
-		return msg
 	}
 	return nil
 }
 
-func handleWeaponFireEvent(e events.WeaponFire, mapCS *MapCS, msg *message.Message) *message.Message {
+func handleWeaponFireEvent(e events.WeaponFire, mapCS *MapCS, currentFrame int) *message.Message {
 	if c := e.Weapon.Class(); c == common.EqClassPistols || c == common.EqClassSMG || c == common.EqClassHeavy || c == common.EqClassRifle {
 		x, y := translatePosition(e.Shooter.Position(), mapCS)
-		msg.MsgType = message.Message_ShotType
-		msg.Shot = &message.Shot{
-			PlayerId: int32(e.Shooter.UserID),
-			X:        x,
-			Y:        y,
-			Rotation: -(e.Shooter.ViewDirectionX() - 90.0),
+		return &message.Message{
+			MsgType: message.Message_ShotType,
+			Tick:    int32(currentFrame),
+			Shot: &message.Shot{
+				PlayerId: int32(e.Shooter.UserID),
+				X:        x,
+				Y:        y,
+				Rotation: -(e.Shooter.ViewDirectionX() - 90.0),
+			},
 		}
-		return msg
 	}
 	return nil
-}
-
-func NewRoundMessage(parser dem.Parser) *message.Message {
-	return &message.Message{
-		Tick: int32(parser.CurrentFrame()),
-	}
 }
 
 func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser, bombH *bombHandler) *message.Message {
-	msgPlayers := make([]*message.Player, 0)
-	for _, p := range tick.TeamTerrorists().Members() {
+	// Pre-allocate slice with known capacity to reduce allocations
+	tMembers := tick.TeamTerrorists().Members()
+	ctMembers := tick.TeamCounterTerrorists().Members()
+	msgPlayers := make([]*message.Player, 0, len(tMembers)+len(ctMembers))
+
+	for _, p := range tMembers {
 		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
 	}
-	for _, p := range tick.TeamCounterTerrorists().Members() {
+	for _, p := range ctMembers {
 		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
 	}
 	sort.Slice(msgPlayers, func(i, j int) bool {
 		return msgPlayers[i].PlayerId < msgPlayers[j].PlayerId
 	})
 
-	nades := make([]*message.Grenade, 0)
-	for _, g := range tick.GrenadeProjectiles() {
+	// Pre-allocate grenades slice
+	grenadeProjectiles := tick.GrenadeProjectiles()
+	infernos := tick.Infernos()
+	// Estimate capacity: grenades + approximate fire entities
+	estimatedNades := len(grenadeProjectiles) + len(infernos)*10
+	nades := make([]*message.Grenade, 0, estimatedNades)
+
+	for _, g := range grenadeProjectiles {
 		var action string
-		if g.WeaponInstance.Type == common.EqHE {
+		weaponType := g.WeaponInstance.Type
+
+		if weaponType == common.EqHE {
 			// HE for some reason keep on map longer. we want to remove them after they explode
 			if exploded, ok := g.Entity.PropertyValue("m_nExplodeEffectIndex"); ok && exploded.UInt64() > 0 {
 				continue
 			}
-		}
-		if g.WeaponInstance.Type == common.EqSmoke {
+		} else if weaponType == common.EqSmoke {
 			if exploded, ok := g.Entity.PropertyValue("m_bDidSmokeEffect"); ok && exploded.BoolVal() {
 				action = "explode"
 			}
 		}
-		// if g.WeaponInstance.Type == common.EqDecoy {
+		// if weaponType == common.EqDecoy {
 		// TODO: fix decoy firing when not moving
 		// vel := g.Velocity()
 		// if vel.Distance(zeroVector) <= velocityDelta {
@@ -293,7 +309,7 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 		x, y := translatePosition(g.Position(), mapCS)
 		nades = append(nades, &message.Grenade{
 			Id:     int32(g.Entity.ID()),
-			Kind:   WeaponsEqType[g.WeaponInstance.Type],
+			Kind:   WeaponsEqType[weaponType],
 			X:      x,
 			Y:      y,
 			Z:      g.Position().Z,
@@ -301,7 +317,7 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 		})
 	}
 
-	for _, inferno := range tick.Infernos() {
+	for _, inferno := range infernos {
 		for _, fire := range inferno.Fires().Active().ConvexHull3D().Vertices {
 			x, y := translatePosition(fire, mapCS)
 			dist := int(fire.Distance(zeroVector) * 100_000)
@@ -354,8 +370,12 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 		player.Weapon = convertWeapon(w.Type)
 	}
 
+	// Pre-allocate grenades slice - max grenades per player is typically 4
+	weapons := p.Weapons()
+	player.Grenades = make([]string, 0, 4)
+
 	//TODO: Grenades should have priority left to right flash > he > smoke > molotov/inc > decoy
-	for _, w := range p.Weapons() {
+	for _, w := range weapons {
 		if w.Class() == common.EqClassUnknown {
 			// we don't know what this is, nothing to do here
 			log.L().Debug("unknown eq", zap.Any("weapon", w))
@@ -394,9 +414,9 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 }
 
 func translatePosition(position r3.Vector, mapCS *MapCS) (float64, float64) {
-	x, y := mapCS.TranslateScale(position.X, position.Y)
-	x = x / 1024 * 100
-	y = y / 1024 * 100
+	// Combine translation and scaling operations
+	x := (position.X - mapCS.PZero.X) / mapCS.Scale * 0.09765625 // 100/1024 = 0.09765625
+	y := (mapCS.PZero.Y - position.Y) / mapCS.Scale * 0.09765625
 	return x, y
 }
 

@@ -57,19 +57,20 @@ func (b *bombHandler) tick() {
 	// because there is no event that tells us bomb is in zero state (in game, not planted), we detect
 	// bomb movement by calculating distance between frames. this happens at the end of the round when bomb was
 	// previously in different state (planted, exploded)
-	bombPos := b.parser.GameState().Bomb().Position()
-	bombPos.Z = 0
-	oldBombPos := b.position
-	oldBombPos.Z = 0
-	distance := bombPos.Distance(oldBombPos)
+	newBombPos := b.parser.GameState().Bomb().Position()
 
-	if distance > distanceDelta &&
+	// Calculate 2D distance without creating new vectors
+	dx := newBombPos.X - b.position.X
+	dy := newBombPos.Y - b.position.Y
+	distance := dx*dx + dy*dy // Use squared distance to avoid sqrt
+
+	if distance > (distanceDelta*distanceDelta) &&
 		(b.state == message.Bomb_Planted || b.state == message.Bomb_Explode || b.state == message.Bomb_Defused) {
 		//log.Printf("bomb movement detected '%v', state back to ZERO from '%v'", distance, b.state)
 		b.state = message.Bomb_Zero
 	}
 
-	b.position = b.parser.GameState().Bomb().Position()
+	b.position = newBombPos
 }
 
 func (b *bombHandler) message(mapCS *MapCS) *message.Bomb {
