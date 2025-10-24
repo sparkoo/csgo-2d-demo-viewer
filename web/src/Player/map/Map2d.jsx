@@ -12,6 +12,8 @@ class Map2d extends Component {
     super(props);
     this.state = {
       mapName: "empty",
+      layer: "",
+      hasLower: false,
       players: [],
       shots: [],
       nades: [],
@@ -32,6 +34,8 @@ class Map2d extends Component {
       }.bind(this)
     );
     props.messageBus.listen([14], this.handleNadeExplosion.bind(this));
+
+    document.addEventListener("keydown", this.handleKeyDown.bind(this));
   }
 
   tickUpdate(message) {
@@ -68,8 +72,12 @@ class Map2d extends Component {
   }
 
   setMapName(name) {
+    const hasLower =
+      name === "de_nuke" || name === "de_train" || name === "de_vertigo";
     this.setState({
       mapName: name,
+      layer: "",
+      hasLower: hasLower,
     });
   }
 
@@ -89,9 +97,23 @@ class Map2d extends Component {
     });
   }
 
+  toggleLayer() {
+    if (this.state.hasLower) {
+      this.setState({
+        layer: this.state.layer === "_lower" ? "" : "_lower",
+      });
+    }
+  }
+
+  handleKeyDown(event) {
+    if (event.key === "q" || event.key === "Q") {
+      this.toggleLayer();
+    }
+  }
+
   render() {
     const style = {
-      backgroundImage: `url("/overviews/${this.state.mapName}.png")`,
+      backgroundImage: `url("/overviews/${this.state.mapName}${this.state.layer}.png")`,
     };
     const playerComponents = [];
     if (this.state.players && this.state.players.length > 0) {
@@ -135,6 +157,17 @@ class Map2d extends Component {
     return (
       <div className="map-container" id="map" style={style}>
         <KillFeed messageBus={this.props.messageBus} />
+        {this.state.hasLower && (
+          <button
+            className={`layer-toggle ${
+              this.state.layer === "_lower" ? "lower-active" : ""
+            }`}
+            onClick={this.toggleLayer.bind(this)}
+          >
+            <div className="layer-icon">⇅</div>
+            <div className="layer-hint">Q</div>
+          </button>
+        )}
         {playerComponents}
         {nadeComponents}
         {shots}
