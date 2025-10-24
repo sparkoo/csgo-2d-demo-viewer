@@ -27,6 +27,10 @@
   border-radius: 8px;
   color: #aaa;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .layer-toggle:hover {
@@ -36,13 +40,6 @@
 
 .layer-toggle.lower-active {
   background-color: rgba(20, 20, 20, 0.3);
-}
-
-.layer-toggle {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
 .layer-icon {
