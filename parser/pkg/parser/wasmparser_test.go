@@ -44,10 +44,13 @@ func BenchmarkParseDemo(b *testing.B) {
 	if err != nil {
 		b.Skip("failed to open the demo testfile. skipping for now as I have testdemos just locally")
 	}
-	defer demoFile.Close()
+	defer func() { _ = demoFile.Close() }()
 
 	for b.Loop() {
-		demoFile.Seek(0, 0)
+		_, err := demoFile.Seek(0, 0)
+		if err != nil {
+			b.Fatalf("failed to seek: %v", err)
+		}
 		parseErr := WasmParseDemo(zstDemofileName, demoFile, func(payload []byte) {})
 		if parseErr != nil {
 			b.Fatalf("failed to parse the demo: %v", parseErr)
