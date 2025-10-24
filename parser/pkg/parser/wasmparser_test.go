@@ -46,6 +46,7 @@ func BenchmarkParseDemo(b *testing.B) {
 	}
 	defer func() { _ = demoFile.Close() }()
 
+	b.ReportAllocs()
 	for b.Loop() {
 		_, err := demoFile.Seek(0, 0)
 		if err != nil {
