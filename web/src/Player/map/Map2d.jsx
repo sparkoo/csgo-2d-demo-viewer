@@ -111,6 +111,10 @@ class Map2d extends Component {
     }
   }
 
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeyDown.bind(this));
+  }
+
   render() {
     const style = {
       backgroundImage: `url("/overviews/${this.state.mapName}${this.state.layer}.png")`,
