@@ -40,6 +40,10 @@ html, body {
   height: calc(100vh);
 }
 
+.map {
+  overflow: hidden;
+}
+
 .dead {
   background-image: url("./assets/icons/csgo/dead.svg");
   background-repeat: no-repeat;
