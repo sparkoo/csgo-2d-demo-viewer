@@ -12,3 +12,44 @@
   margin: 0 auto;
   z-index: 0;
 }
+
+.layer-toggle {
+  position: absolute;
+  bottom: 32px;
+  right: 32px;
+  z-index: 1000;
+  font-size: 32px;
+  padding: 5px;
+  width: 64px;
+  height: 64px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 3px solid #333;
+  border-radius: 8px;
+  color: #aaa;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.layer-toggle:hover {
+  background-color: rgba(50, 50, 50, 0.3);
+  color: #fff;
+}
+
+.layer-toggle.lower-active {
+  background-color: rgba(20, 20, 20, 0.3);
+}
+
+.layer-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.layer-hint {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 2px;
+  line-height: 1;
+}
