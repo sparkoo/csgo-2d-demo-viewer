@@ -1,5 +1,4 @@
 import { Component } from "react";
-import React from "react";
 import { MSG_PLAY_CHANGE } from "../constants";
 import KillFeed from "./KillFeed";
 import "./Map.css";
