@@ -1,5 +1,10 @@
 # Enforce LF line endings for text files across the repository
 * text eol=lf
 
-# Keep binary files (compressed demo files) as binary
+# Keep binary files as binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
 *.dem.gz filter=lfs diff=lfs merge=lfs -text
