@@ -1,12 +1,12 @@
 import "./Uploader.css";
-import { FileUpload } from "primereact/fileupload";
 import { useLocation } from "preact-iso";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { DemoContext } from "../../context";
 
 const Uploader = () => {
   const demoData = useContext(DemoContext);
   const { route } = useLocation();
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const uploadHandler = function ({ files }) {
     const [file] = files;
@@ -28,18 +28,52 @@ const Uploader = () => {
     reader.readAsArrayBuffer(file);
   };
 
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      uploadHandler({ files });
+    }
+  };
+
   return (
-    <div>
-      <FileUpload
-        mode="basic"
-        name="demoFile"
-        accept="application/zstd"
-        maxFileSize={500_000_000}
-        // onProgress={onProgress}
-        customUpload={true}
-        uploadHandler={uploadHandler}
-        auto
-      />
+    <div className="upload-container">
+      <div
+        className={`upload-area ${isDragOver ? 'dragover' : ''}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <span className="upload-icon">📁</span>
+        <div className="upload-text">
+          Drop your demo file here or click to browse
+        </div>
+        <div className="upload-subtext">
+          Supports .dem.gz and .dem.zst files up to 500MB
+        </div>
+        <input
+          type="file"
+          accept=".dem.gz,.dem.zst"
+          onChange={(e) => {
+            const file = e.target.files[0];
+            if (file) {
+              uploadHandler({ files: [file] });
+            }
+          }}
+          className="upload-input"
+        />
+      </div>
     </div>
   );
 };

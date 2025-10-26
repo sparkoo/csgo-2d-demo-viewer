@@ -1,0 +1,296 @@
+/* Modern Landing Page Styles - Single Area Layout */
+
+:root {
+  --primary-color: #f39c12;
+  --secondary-color: #e67e22;
+  --dark-color: #333;
+  --light-color: #f8f9fa;
+  --accent-color: #3498db;
+  --gradient-primary: linear-gradient(135deg, #f4d03f 0%, #f39c12 100%);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --border-radius: 10px;
+  --transition: all 0.3s ease;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f8f9fa;
+  color: #333;
+  overflow-x: hidden;
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.w3-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== Hero Section ===== */
+.hero-section {
+  position: relative;
+  height: 50vh;
+  min-height: 300px;
+  max-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  overflow: hidden;
+}
+
+.hero-video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.hero-background-video {
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  filter: brightness(50%);
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 100%);
+  z-index: 2;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+}
+
+.hero-section h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-section p {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  opacity: 0.9;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* ===== Main Content Area ===== */
+.main-content {
+  padding: 30px 0;
+  background-color: #f8f9fa;
+}
+
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Upload Section */
+.upload-section {
+  padding: 20px;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+}
+
+.upload-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #333;
+  text-align: center;
+}
+
+/* Links Section */
+.links-section {
+  padding: 20px;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+}
+
+.links-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #333;
+  text-align: center;
+}
+
+.links-container {
+  text-align: center;
+}
+
+.tool-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: 600;
+  transition: var(--transition);
+  min-width: 180px;
+}
+
+.chrome-btn {
+  background: #4285f4;
+}
+
+.chrome-btn:hover {
+  background: #3367d6;
+}
+
+.firefox-btn {
+  background: #ff9400;
+}
+
+.firefox-btn:hover {
+  background: #e68200;
+}
+
+.github-btn {
+  background: #333;
+}
+
+.github-btn:hover {
+  background: #555;
+}
+
+.tool-icon {
+  fill: white;
+}
+
+/* ===== Footer ===== */
+.site-footer {
+  background: var(--dark-color);
+  color: white;
+  padding: 15px 0;
+  margin-top: auto;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.footer-copyright {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: var(--transition);
+  font-size: 0.9rem;
+}
+
+.footer-links a:hover {
+  color: var(--primary-color);
+}
+
+/* Responsive styles for larger screens */
+@media (min-width: 768px) {
+  .content-wrapper {
+    flex-direction: row;
+  }
+  
+  .upload-section {
+    flex: 3;
+  }
+  
+  .links-section {
+    flex: 2;
+  }
+  
+  .links-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .tool-buttons {
+    flex-direction: column;
+  }
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+  
+  .content-wrapper {
+    flex-direction: column;
+  }
+  
+  .tool-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    min-height: 250px;
+  }
+  
+  .tool-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Utility Classes */
+.loader {
+  min-height: 20px;
+}
