@@ -97,7 +97,7 @@ export function Home() {
                   </a>
 
                   <a
-                    href="https://github.com/user/csgo-2d-demo-viewer"
+                    href="https://github.com/sparkoo/csgo-2d-demo-viewer"
                     className="tool-btn github-btn"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -131,7 +131,7 @@ export function Home() {
             </div>
             <div className="footer-links">
               <a
-                href="https://github.com/user/csgo-2d-demo-viewer"
+                href="https://github.com/sparkoo/csgo-2d-demo-viewer"
                 target="_blank"
                 rel="noopener noreferrer"
               >
