@@ -41,7 +41,22 @@ This will:
 
 ### Uploading Assets to Cloud Storage
 
-#### Google Cloud Storage (GCP)
+#### Quick Start with Helper Script (GCP only)
+
+For Google Cloud Storage, use the provided helper script:
+
+```bash
+./hack/upload-assets-to-gcs.sh YOUR-BUCKET-NAME
+```
+
+This script will:
+1. Create the bucket if it doesn't exist
+2. Make it publicly readable
+3. Upload all assets
+4. Set appropriate cache headers
+5. Display the CDN URL to use for building
+
+#### Manual Upload to Google Cloud Storage (GCP)
 
 1. Create a storage bucket:
 ```bash
