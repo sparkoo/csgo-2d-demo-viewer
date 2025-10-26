@@ -356,6 +356,10 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 
 	//TODO: Grenades should have priority left to right flash > he > smoke > molotov/inc > decoy
 	for _, w := range p.Weapons() {
+		// Skip weapons not owned by this player to avoid using ammo from dropped weapons
+		if w.Owner != p {
+			continue
+		}
 		if w.Class() == common.EqClassUnknown {
 			// we don't know what this is, nothing to do here
 			log.L().Debug("unknown eq", zap.Any("weapon", w))
