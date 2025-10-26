@@ -98,7 +98,7 @@ export VITE_ASSETS_BASE_URL="https://storage.googleapis.com/csgo-demo-viewer-ass
 
 1. Create a storage account and container
 2. Upload the assets
-3. Use the blob storage URL: `https://youraccounst.blob.core.windows.net/container-name`
+3. Use the blob storage URL: `https://youraccount.blob.core.windows.net/container-name`
 
 ## Development
 

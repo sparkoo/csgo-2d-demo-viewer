@@ -12,7 +12,7 @@
 #   - gsutil installed
 #   - Appropriate permissions to create and manage GCS buckets
 
-set -e
+set -euo pipefail
 
 if [ $# -ne 1 ]; then
     echo "Usage: $0 BUCKET_NAME"
