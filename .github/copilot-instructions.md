@@ -1,14 +1,14 @@
-# CS:GO 2D Demo Viewer - Copilot Instructions
+# CS2 2D Demo Viewer - Copilot Instructions
 
-This repository contains a CS:GO 2D demo viewer with multiple components. Please follow these guidelines when making changes.
+This repository contains a CS2 2D demo viewer with multiple components. Please follow these guidelines when making changes.
 
 ## Project Overview
 
-This is a full-stack application for visualizing CS:GO demo files in 2D:
-- **Parser**: Go-based WebAssembly parser for CS:GO demo files
+This is a full-stack application for visualizing CS2 demo files in 2D:
+- **Parser**: Go-based WebAssembly parser for CS2 demo files
 - **Server**: Go HTTP server for demo file downloads and proxying
 - **Web**: Preact-based frontend application
-- **Browser Plugin**: Browser extension for integration with external sites
+- **Browser Plugin**: Browser extension for integration with Faceit
 
 ## Technologies
 
