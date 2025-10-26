@@ -1,16 +1,15 @@
 /* Modern Upload Component Styles */
 
 .upload-container {
-  max-width: 600px;
-  margin: 0 auto;
+  width: 100%;
   text-align: center;
 }
 
 .upload-area {
   border: 3px dashed #f39c12;
   border-radius: 20px;
-  padding: 40px 20px;
-  background: rgba(244, 208, 63, 0.1);
+  padding: 20px 20px;
+  background: rgba(243, 156, 18, 0.15);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -19,14 +18,14 @@
 
 .upload-area:hover {
   border-color: #e67e22;
-  background: rgba(244, 208, 63, 0.2);
+  background: rgba(243, 156, 18, 0.25);
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
+  box-shadow: 0 8px 16px rgba(243, 156, 18, 0.4);
 }
 
 .upload-area.dragover {
   border-color: #e67e22;
-  background: rgba(244, 208, 63, 0.3);
+  background: rgba(243, 156, 18, 0.35);
   transform: scale(1.02);
 }
 
@@ -39,14 +38,14 @@
 
 .upload-text {
   font-size: 1.2rem;
-  color: #333;
+  color: #e0e0e0;
   margin-bottom: 10px;
   font-weight: 600;
 }
 
 .upload-subtext {
   font-size: 0.9rem;
-  color: #666;
+  color: #b0b0b0;
   margin-bottom: 20px;
 }
 
