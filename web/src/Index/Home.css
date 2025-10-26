@@ -2,10 +2,12 @@
 
 :root {
   --primary-color: #f39c12;
-  --secondary-color: #e67e22;
+  --secondary-color: #e4c330;
   --dark-color: #1a1a1a;
   --light-color: #2c2c2c;
-  --accent-color: #3498db;
+  --accent-color: var(--secondary-color);
+  --text-color: #e0e0e0 !important; 
+  --text-muted: #b0b0b0;
   --gradient-primary: linear-gradient(135deg, #f4d03f 0%, #f39c12 100%);
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -91,13 +93,16 @@ body {
   position: relative;
   z-index: 3;
   text-align: center;
+  padding: 20px;
+  border-radius: var(--border-radius);
 }
 
 .hero-section h1 {
   font-size: 3rem;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   font-weight: 700;
   text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  color: var(--secondary-color);
 }
 
 .hero-section p {
@@ -105,6 +110,7 @@ body {
   margin-bottom: 0;
   opacity: 0.9;
   text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  color: var(--text-color);
 }
 
 /* ===== Main Content Area ===== */
@@ -128,88 +134,89 @@ body {
 
 /* Upload Section */
 .upload-section {
-  padding: 20px;
-  background: #2c2c2c;
+  padding: 25px;
+  background: var(--light-color);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
 }
 
 .upload-section h2 {
   font-size: 1.5rem;
-  margin-bottom: 15px;
-  color: #e0e0e0;
+  margin-bottom: 20px;
+  color: var(--secondary-color);
   text-align: center;
 }
 
-/* Links Section */
-.links-section {
-  padding: 20px;
-  background: #2c2c2c;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
-}
-
-.links-section h2 {
-  font-size: 1.5rem;
-  margin-bottom: 15px;
-  color: #e0e0e0;
-  text-align: center;
-}
-
-/* Open-Source Section */
+/* Section Styling */
+.links-section,
 .open-source-section {
-  padding: 20px;
-  background: #2c2c2c;
+  padding: 25px;
+  background: var(--light-color);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
 }
 
+.links-section h2,
 .open-source-section h2 {
   font-size: 1.5rem;
-  margin-bottom: 15px;
-  color: #e0e0e0;
+  margin-bottom: 20px;
+  color: var(--secondary-color);
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .links-container {
   text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .tool-buttons {
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 20px;
   flex-wrap: wrap;
   align-items: center;
+  margin-top: 15px;
 }
 
 .tool-btn {
   display: flex;
   text-decoration: none;
-  height: 73px;
+  height: 70px;
   width: 200px;
-  border: 2px solid #ddd;
-  background-color: #f8f8f8;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  background-color: var(--light-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
   transition: var(--transition);
-  vertical-align: middle;
   align-items: center;
   justify-content: center;
 }
 
 .tool-btn:hover {
-  box-shadow: 0 0 12px 4px rgba(100, 100, 100, 0.75);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  border-color: var(--secondary-color);
+}
+
+.chrome-btn {
+  background-color: #f8f8f8;
 }
 
 .faceit-icon {
-  margin-right: 8px;
+  margin-right: 10px;
   vertical-align: middle;
 }
 
 .github-btn {
   background: #3a3a3a;
-  font-size: 1.2rem;
+  color: #fff;
+  font-size: 1.1rem;
   font-weight: 500;
 }
 
@@ -235,10 +242,11 @@ body {
 
 /* ===== Footer ===== */
 .site-footer {
-  background: #0f0f0f;
-  color: #e0e0e0;
-  padding: 15px 0;
+  background: var(--dark-color);
+  color: var(--text-color);
+  padding: 20px 0;
   margin-top: auto;
+  border-top: 1px solid #333;
 }
 
 .footer-content {
@@ -250,8 +258,18 @@ body {
 }
 
 .footer-copyright {
-  color: rgba(224, 224, 224, 0.7);
+  color: var(--text-muted);
   font-size: 0.9rem;
+}
+
+.footer-copyright a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.footer-copyright a:hover {
+  color: var(--secondary-color);
 }
 
 .footer-links {
@@ -260,14 +278,16 @@ body {
 }
 
 .footer-links a {
-  color: rgba(224, 224, 224, 0.7);
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
   text-decoration: none;
   transition: var(--transition);
   font-size: 0.9rem;
 }
 
 .footer-links a:hover {
-  color: var(--primary-color);
+  color: var(--secondary-color);
 }
 
 /* Responsive styles for larger screens */
@@ -284,12 +304,6 @@ body {
     flex: 1;
   }
 
-  .links-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
 
   .tool-buttons {
     flex-direction: row;

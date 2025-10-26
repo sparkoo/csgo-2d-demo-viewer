@@ -39,11 +39,17 @@ export function Home() {
           <video
             autoPlay
             muted
-            loop
             className="hero-background-video"
             key={shuffledVideos[currentIndex]}
             onEnded={() =>
-              setCurrentIndex((prev) => (prev + 1) % shuffledVideos.length)
+              setCurrentIndex((prev) => {
+                const nextIndex = prev + 1;
+                if (nextIndex >= shuffledVideos.length) {
+                  setShuffledVideos(shuffleArray(videos));
+                  return 0;
+                }
+                return nextIndex;
+              })
             }
           >
             <source
@@ -68,7 +74,7 @@ export function Home() {
           <div className="content-wrapper">
             {/* Upload Section */}
             <div className="upload-section">
-              <h2>Play the demo</h2>
+              <h2>Play The Demo</h2>
               <Uploader />
             </div>
 
@@ -85,7 +91,7 @@ export function Home() {
                       width="24"
                       height="24"
                     />
-                    Faceit extension
+                    <span>Faceit Extension</span>
                   </h2>
                   <div className="tool-buttons">
                     <a
@@ -120,7 +126,9 @@ export function Home() {
               {/* Open-Source Section */}
               <div className="open-source-section">
                 <div className="links-container">
-                  <h2>Open-Source</h2>
+                  <h2>
+                    <span>Open-Source</span>
+                  </h2>
                   <div className="tool-buttons">
                     <a
                       href="https://github.com/sparkoo/csgo-2d-demo-viewer"
@@ -135,7 +143,7 @@ export function Home() {
                         width="24"
                         height="24"
                       />
-                      GitHub
+                      GitHub Repository
                     </a>
                   </div>
                 </div>
@@ -168,10 +176,10 @@ export function Home() {
                   src="/github_icon.svg"
                   alt="GitHub Icon"
                   className="github-icon"
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                 />
-                GitHub
+                <span>GitHub</span>
               </a>
             </div>
           </div>

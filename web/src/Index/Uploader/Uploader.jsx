@@ -55,9 +55,9 @@ const Uploader = () => {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <span className="upload-icon">📁</span>
+        <span className="upload-icon">📂</span>
         <div className="upload-text">
-          Drop your demo file here or click to browse
+          Drop Your Demo File Here or Click to Browse
         </div>
         <div className="upload-subtext">
           Supports .dem.gz and .dem.zst files up to 500MB
