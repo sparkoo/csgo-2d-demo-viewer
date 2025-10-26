@@ -1,1 +1,5 @@
+# Enforce LF line endings for text files across the repository
+* text eol=lf
+
+# Keep binary files (compressed demo files) as binary
 *.dem.gz filter=lfs diff=lfs merge=lfs -text
