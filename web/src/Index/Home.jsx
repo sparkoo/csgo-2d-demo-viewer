@@ -2,24 +2,8 @@ import { useState, useEffect } from "react";
 import "./Home.css";
 import Uploader from "./Uploader/Uploader";
 
-const videos = Array.from(
-  { length: 12 },
-  (_, i) => `highlights_${String(i + 1).padStart(2, "0")}.mp4`
-);
-
-function shuffleArray(array) {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-
 export function Home() {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [shuffledVideos, setShuffledVideos] = useState(() => shuffleArray(videos));
-  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -31,30 +15,14 @@ export function Home() {
 
   return (
     <div className="App">
-      {/* Hero Section with Background Video */}
+      {/* Hero Section with Background Image */}
       <section className="hero-section">
-        <div className="hero-video-container">
-          <video
-            autoPlay
-            muted
-            className="hero-background-video"
-            key={shuffledVideos[currentIndex]}
-            onEnded={() =>
-              setCurrentIndex((prev) => {
-                const nextIndex = prev + 1;
-                if (nextIndex >= shuffledVideos.length) {
-                  setShuffledVideos(shuffleArray(videos));
-                  return 0;
-                }
-                return nextIndex;
-              })
-            }
-          >
-            <source
-              src={`homeheader_video/${shuffledVideos[currentIndex]}`}
-              type="video/mp4"
-            />
-          </video>
+        <div className="hero-image-container">
+          <img
+            src="/header.png"
+            alt="Header background"
+            className="hero-background-image"
+          />
           <div className="hero-overlay"></div>
         </div>
 
