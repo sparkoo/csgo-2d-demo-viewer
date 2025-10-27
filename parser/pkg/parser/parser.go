@@ -331,6 +331,17 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 	}
 }
 
+// getAmmoWithChamberedRound returns the total ammo count including the chambered round.
+// In CS2, weapons have one bullet chambered which is not included in the magazine count.
+// This function adds 1 to the magazine count to account for the chambered round.
+// Returns 0 if the magazine is empty (negative value from AmmoInMagazine).
+func getAmmoWithChamberedRound(ammoInMagazine int) int32 {
+	if ammoInMagazine >= 0 {
+		return int32(ammoInMagazine + 1)
+	}
+	return int32(ammoInMagazine)
+}
+
 func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 	x, y := translatePosition(p.Position(), mapCS)
 	player := &message.Player{
@@ -365,21 +376,11 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 		switch w.Class() {
 		case common.EqClassSMG, common.EqClassHeavy, common.EqClassRifle:
 			player.Primary = weaponString
-			// Add 1 to account for the chambered round in CS2
-			ammoInMag := w.AmmoInMagazine()
-			if ammoInMag >= 0 {
-				ammoInMag++
-			}
-			player.PrimaryAmmoMagazine = int32(ammoInMag)
+			player.PrimaryAmmoMagazine = getAmmoWithChamberedRound(w.AmmoInMagazine())
 			player.PrimaryAmmoReserve = int32(w.AmmoReserve())
 		case common.EqClassPistols:
 			player.Secondary = weaponString
-			// Add 1 to account for the chambered round in CS2
-			ammoInMag := w.AmmoInMagazine()
-			if ammoInMag >= 0 {
-				ammoInMag++
-			}
-			player.SecondaryAmmoMagazine = int32(ammoInMag)
+			player.SecondaryAmmoMagazine = getAmmoWithChamberedRound(w.AmmoInMagazine())
 			player.SecondaryAmmoReserve = int32(w.AmmoReserve())
 		case common.EqClassGrenade:
 			for gi := 0; gi < w.AmmoInMagazine()+w.AmmoReserve(); gi++ {
