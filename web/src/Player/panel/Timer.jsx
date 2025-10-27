@@ -77,7 +77,7 @@ class Timer extends Component {
              onMouseDown={this.mouseDown.bind(this)}
              onMouseUp={this.mouseUp.bind(this)}
              onMouseLeave={this.mouseLeave.bind(this)}>
-          <div className="w3-container">
+          <div className="w3-container progress-container">
             <div className="timer-progress" style={progress}></div>
             <div className="timer-text">{this.state.time}</div>
           </div>

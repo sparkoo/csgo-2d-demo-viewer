@@ -9,6 +9,10 @@
   transition: box-shadow 0.2s ease;
 }
 
+.progress-container {
+  min-width: 100%;
+}
+
 .timer-container:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
