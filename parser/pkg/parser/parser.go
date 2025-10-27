@@ -334,12 +334,12 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 // getAmmoWithChamberedRound returns the total ammo count including the chambered round.
 // In CS2, weapons have one bullet chambered which is not included in the magazine count.
 // This function adds 1 to the magazine count to account for the chambered round.
-// Returns 0 if the magazine is empty (negative value from AmmoInMagazine).
+// Returns 0 if the magazine is empty (negative or zero value from AmmoInMagazine).
 func getAmmoWithChamberedRound(ammoInMagazine int) int32 {
-	if ammoInMagazine >= 0 {
+	if ammoInMagazine > 0 {
 		return int32(ammoInMagazine + 1)
 	}
-	return int32(ammoInMagazine)
+	return 0
 }
 
 func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
