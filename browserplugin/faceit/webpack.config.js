@@ -63,7 +63,13 @@ module.exports = (env) => {
                 { from: "popup.html", to: "popup.html" },
                 { from: "content-styles.css", to: "content-styles.css" },
                 { from: "popup.css", to: "popup.css" },
-                { from: "icons", to: "icons" },
+                {
+                  from: "icons",
+                  to: "icons",
+                  globOptions: {
+                    ignore: ["**/icon.png"], // Exclude large 1024x1024 icon
+                  },
+                },
               ],
             }),
           ]),
