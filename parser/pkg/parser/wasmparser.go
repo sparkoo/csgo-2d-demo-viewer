@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"compress/bzip2"
 	"compress/gzip"
 	"csgo-2d-demo-player/pkg/log"
 	"csgo-2d-demo-player/pkg/message"
@@ -49,6 +50,10 @@ func decompress(filename string, demoFile io.Reader) (io.Reader, error) {
 
 	if strings.HasSuffix(filename, ".zst") {
 		return zstd.NewReader(demoFile)
+	}
+
+	if strings.HasSuffix(filename, ".bz2") {
+		return bzip2.NewReader(demoFile), nil
 	}
 
 	return nil, fmt.Errorf("unsupported file format %s", filename)
