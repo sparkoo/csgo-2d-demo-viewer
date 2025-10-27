@@ -67,7 +67,9 @@ class Timer extends Component {
 
   render() {
     const progress = {
-      width: `${this.state.progress * 100}%`
+      width: `${this.state.progress * 100}%`,
+      paddingLeft: '16px',
+      paddingRight: '16px'
     }
     return (
         <div className="timer-container"
