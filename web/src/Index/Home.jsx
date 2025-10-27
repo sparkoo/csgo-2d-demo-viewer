@@ -74,7 +74,7 @@ export function Home() {
                     </a>
 
                     <a
-                      href="https://addons.mozilla.org/en-US/firefox/addon/extension-id"
+                      href="https://addons.mozilla.org/en-US/firefox/addon/faceit-2d-replay/"
                       className="tool-btn firefox-btn"
                       target="_blank"
                       rel="noopener noreferrer"
