@@ -66,7 +66,9 @@ class Timer extends Component {
 
   render() {
     const progress = {
-      width: `${this.state.progress * 100}%`
+      width: `${this.state.progress * 100}%`,
+      paddingLeft: '16px',
+      paddingRight: '16px'
     }
     return (
         <div className="w3-xlarge w3-left-align w3-dark-gray"
@@ -74,7 +76,7 @@ class Timer extends Component {
              onMouseDown={this.mouseDown.bind(this)}
              onMouseUp={this.mouseUp.bind(this)}
              onMouseLeave={this.mouseLeave.bind(this)}>
-          <div className="w3-container w3-gray" style={progress}>
+          <div className="w3-gray" style={progress}>
             {this.state.time}
           </div>
         </div>
