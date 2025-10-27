@@ -365,11 +365,21 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 		switch w.Class() {
 		case common.EqClassSMG, common.EqClassHeavy, common.EqClassRifle:
 			player.Primary = weaponString
-			player.PrimaryAmmoMagazine = int32(w.AmmoInMagazine())
+			// Add 1 to account for the chambered round in CS2
+			ammoInMag := w.AmmoInMagazine()
+			if ammoInMag >= 0 {
+				ammoInMag++
+			}
+			player.PrimaryAmmoMagazine = int32(ammoInMag)
 			player.PrimaryAmmoReserve = int32(w.AmmoReserve())
 		case common.EqClassPistols:
 			player.Secondary = weaponString
-			player.SecondaryAmmoMagazine = int32(w.AmmoInMagazine())
+			// Add 1 to account for the chambered round in CS2
+			ammoInMag := w.AmmoInMagazine()
+			if ammoInMag >= 0 {
+				ammoInMag++
+			}
+			player.SecondaryAmmoMagazine = int32(ammoInMag)
 			player.SecondaryAmmoReserve = int32(w.AmmoReserve())
 		case common.EqClassGrenade:
 			for gi := 0; gi < w.AmmoInMagazine()+w.AmmoReserve(); gi++ {
