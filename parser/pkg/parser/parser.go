@@ -331,11 +331,11 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 	}
 }
 
-// getAmmoWithChamberedRound returns the total ammo count including the chambered round.
-// In CS2, weapons have one bullet chambered which is not included in the magazine count.
-// This function adds 1 to the magazine count to account for the chambered round.
-// Returns 0 if the magazine is empty (negative or zero value from AmmoInMagazine).
-func getAmmoWithChamberedRound(ammoInMagazine int) int32 {
+// adjustAmmoCount corrects the ammo count to match what players see in-game.
+// The demo parser's AmmoInMagazine() returns a value that's 1 less than the actual
+// magazine capacity shown to players (e.g., USP shows 11 instead of 12).
+// This function adds 1 to correct the count and ensures negative values are clamped to 0.
+func adjustAmmoCount(ammoInMagazine int) int32 {
 	if ammoInMagazine > 0 {
 		return int32(ammoInMagazine + 1)
 	}
@@ -376,14 +376,14 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 		switch w.Class() {
 		case common.EqClassSMG, common.EqClassHeavy, common.EqClassRifle:
 			player.Primary = weaponString
-			player.PrimaryAmmoMagazine = getAmmoWithChamberedRound(w.AmmoInMagazine())
+			player.PrimaryAmmoMagazine = adjustAmmoCount(w.AmmoInMagazine())
 			player.PrimaryAmmoReserve = int32(w.AmmoReserve())
 		case common.EqClassPistols:
 			player.Secondary = weaponString
-			player.SecondaryAmmoMagazine = getAmmoWithChamberedRound(w.AmmoInMagazine())
+			player.SecondaryAmmoMagazine = adjustAmmoCount(w.AmmoInMagazine())
 			player.SecondaryAmmoReserve = int32(w.AmmoReserve())
 		case common.EqClassGrenade:
-			// Grenades don't have chambered rounds, so we use AmmoInMagazine() directly
+			// Grenades are counted directly without adjustment
 			for gi := 0; gi < w.AmmoInMagazine()+w.AmmoReserve(); gi++ {
 				player.Grenades = append(player.Grenades, weaponString)
 			}
