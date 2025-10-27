@@ -10,7 +10,7 @@
       "id": "cs2-2d-replay-faceit-firefox@sparko.cz"
     }
   },
-  "description": "View CS2 demo replays in 2D directly from FACEIT match pages.",
+  "description": "View CS2 demo replays in 2D directly from FACEIT match pages in single click.",
   "permissions": ["storage"],
   "host_permissions": [
     "https://www.faceit.com/*",
