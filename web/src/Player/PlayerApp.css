@@ -40,6 +40,11 @@ html, body {
   height: calc(100vh);
 }
 
+.grid-container > .infoPanel {
+  border-left: 1px solid rgba(58, 61, 66, 0.5);
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
 .map {
   overflow: hidden;
 }

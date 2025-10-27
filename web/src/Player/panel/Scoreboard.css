@@ -1,0 +1,52 @@
+.scoreboard-container {
+  margin: 20px 0;
+  padding: 20px 0;
+}
+
+.scoreboard-scores {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 15px;
+}
+
+.score-display {
+  text-align: center;
+  flex: 1;
+}
+
+.score-number {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.05em;
+}
+
+.score-number.T {
+  background: linear-gradient(135deg, var(--TColor) 0%, #9f822f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.score-number.CT {
+  background: linear-gradient(135deg, var(--CTColor) 0%, #3a7fb8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.scoreboard-teams {
+  display: flex;
+  justify-content: space-around;
+}
+
+.team-name {
+  text-align: center;
+  flex: 1;
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.9;
+  letter-spacing: 0.03em;
+}

@@ -37,7 +37,9 @@ class RoundNav extends Component {
 
   render() {
     return (
-      <div className="w3-bar w3-small w3-left-align">{this.state.rounds}</div>
+      <div className="round-nav-container">
+        <div className="w3-bar w3-small w3-left-align">{this.state.rounds}</div>
+      </div>
     );
   }
 }

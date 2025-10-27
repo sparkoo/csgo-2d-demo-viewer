@@ -4,6 +4,7 @@ import RoundNav from "./RoundNav";
 import Controls from "./Controls";
 import Timer from "./Timer";
 import PlayerList from "./PlayerList";
+import "./InfoPanel.css";
 
 class InfoPanel extends Component {
   constructor(props) {
@@ -13,12 +14,12 @@ class InfoPanel extends Component {
 
   render() {
     return (
-      <div className="w3-row">
+      <div className="info-panel-container">
         <Timer messageBus={this.messageBus} />
         <RoundNav messageBus={this.messageBus} />
         <Controls messageBus={this.messageBus} />
         <Scoreboard messageBus={this.messageBus} />
-        <hr />
+        <div className="divider"></div>
         <PlayerList messageBus={this.messageBus} />
       </div>
     );

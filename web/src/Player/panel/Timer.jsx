@@ -1,5 +1,6 @@
 import {Component} from "react";
 import {MSG_PLAY, MSG_PLAY_ROUND_PROGRESS, MSG_PROGRESS_MOVE} from "../constants";
+import "./Timer.css";
 
 class Timer extends Component {
   constructor(props) {
@@ -71,13 +72,14 @@ class Timer extends Component {
       paddingRight: '16px'
     }
     return (
-        <div className="w3-xlarge w3-left-align w3-dark-gray"
+        <div className="timer-container"
              onMouseMove={this.mouseMove.bind(this)}
              onMouseDown={this.mouseDown.bind(this)}
              onMouseUp={this.mouseUp.bind(this)}
              onMouseLeave={this.mouseLeave.bind(this)}>
-          <div className="w3-gray" style={progress}>
-            {this.state.time}
+          <div className="w3-container">
+            <div className="timer-progress" style={progress}></div>
+            <div className="timer-text">{this.state.time}</div>
           </div>
         </div>
     );

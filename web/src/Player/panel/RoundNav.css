@@ -1,18 +1,38 @@
 .roundNav {
   width: 6%;
-  margin: 1px;
+  margin: 2px;
   color: var(--BlackColor) !important;
+  border-radius: 4px;
+  font-weight: 600;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.roundNav:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 .roundNav.T {
-  background-color: var(--TColor);
+  background: linear-gradient(135deg, var(--TColor) 0%, #9f822f 100%);
 }
 
 .roundNav.CT {
-  background-color: var(--CTColor);
+  background: linear-gradient(135deg, var(--CTColor) 0%, #3a7fb8 100%);
 }
 
 .roundNav.active {
   filter: brightness(1.5);
   font-weight: bold;
+  border-color: var(--LightColor);
+  box-shadow: 0 0 12px rgba(204, 186, 124, 0.5);
 }
+
+.round-nav-container {
+  margin: 15px 0;
+  padding: 10px 0;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
