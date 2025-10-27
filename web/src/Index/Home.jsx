@@ -61,7 +61,7 @@ export function Home() {
                   </h2>
                   <div className="tool-buttons">
                     <a
-                      href="https://chrome.google.com/webstore/detail/extension-id"
+                      href="https://chromewebstore.google.com/detail/faceit-2d-replay/kagfmemgilamfeoljmajifkbhfglebdb"
                       className="tool-btn chrome-btn"
                       target="_blank"
                       rel="noopener noreferrer"
