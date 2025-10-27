@@ -2,14 +2,15 @@
   "manifest_version": 3,
   "name": "FACEIT 2D Replay",
   "version": "0.2.1",
-  "author": "Michal Vala",
+  "author": "sparko",
+  "license": "MIT",
   "homepage_url": "https://github.com/sparkoo/csgo-2d-demo-viewer",
   "browser_specific_settings": {
     "gecko": {
       "id": "cs2-2d-replay-faceit-firefox@sparko.cz"
     }
   },
-  "description": "View CS2 demo replays in 2D directly from FACEIT match pages. Integrates seamlessly with the CS2 2D Demo Viewer for tactical analysis and match review.",
+  "description": "View CS2 demo replays in 2D directly from FACEIT match pages.",
   "permissions": ["storage"],
   "host_permissions": [
     "https://www.faceit.com/*",
