@@ -52,10 +52,12 @@ export function Home() {
               })
             }
           >
-            <source
-              src={`homeheader_video/${shuffledVideos[currentIndex]}`}
-              type="video/mp4"
-            />
+            {shuffledVideos[currentIndex] && (
+              <source
+                src={`homeheader_video/${shuffledVideos[currentIndex]}`}
+                type="video/mp4"
+              />
+            )}
           </video>
           <div className="hero-overlay"></div>
         </div>
