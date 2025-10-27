@@ -18,12 +18,10 @@ function shuffleArray(array) {
 
 export function Home() {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [shuffledVideos, setShuffledVideos] = useState([]);
+  const [shuffledVideos, setShuffledVideos] = useState(() => shuffleArray(videos));
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    setShuffledVideos(shuffleArray(videos));
-
     const timer = setTimeout(() => {
       setIsVideoLoaded(true);
     }, 500);
