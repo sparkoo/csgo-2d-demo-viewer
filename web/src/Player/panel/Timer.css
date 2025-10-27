@@ -14,10 +14,13 @@
 }
 
 .timer-progress {
-  background: linear-gradient(90deg, var(--CTColor) 0%, rgba(79, 158, 222, 0.7) 100%);
+  background: linear-gradient(90deg, var(--TColor) 0%, rgba(199, 162, 71, 0.8) 100%);
   height: 100%;
   transition: width 0.1s linear;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.4;
 }
 
 .timer-text {
@@ -40,4 +43,5 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }

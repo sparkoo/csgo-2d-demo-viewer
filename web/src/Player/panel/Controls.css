@@ -43,30 +43,31 @@ button {
 }
 
 .control-button.play-button {
-  background: linear-gradient(180deg, var(--CTColor) 0%, #3a7fb8 100%);
-  border-color: var(--CTColor) !important;
+  background: linear-gradient(180deg, #2a2d32 0%, #1a1d21 100%);
+  border: 2px solid var(--TColor) !important;
   width: 60px;
   height: 60px;
   font-size: 32px;
 }
 
 .control-button.play-button:hover {
-  background: linear-gradient(180deg, #5fb0f0 0%, var(--CTColor) 100%);
-  border-color: #5fb0f0 !important;
+  background: linear-gradient(180deg, #3a3d42 0%, #2a2d32 100%);
+  border-color: #d7b857 !important;
 }
 
 .control-button.speed-button {
-  background: linear-gradient(180deg, var(--TColor) 0%, #9f822f 100%);
-  border-color: var(--TColor) !important;
+  background: linear-gradient(180deg, #2a2d32 0%, #1a1d21 100%);
+  border: 2px solid var(--TColor) !important;
 }
 
 .control-button.speed-button:hover {
-  background: linear-gradient(180deg, #d7b857 0%, var(--TColor) 100%);
+  background: linear-gradient(180deg, #3a3d42 0%, #2a2d32 100%);
   border-color: #d7b857 !important;
 }
 
 .control-button.speed-button.active {
-  background: var(--TColor);
+  background: linear-gradient(180deg, #2a2d32 0%, #1a1d21 100%);
+  border-color: var(--TColor) !important;
   box-shadow: 0 0 15px rgba(199, 162, 71, 0.5);
 }
 
