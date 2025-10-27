@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "FACEIT 2D Replay",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": "sparko",
   "license": "MIT",
   "homepage_url": "https://github.com/sparkoo/csgo-2d-demo-viewer",
