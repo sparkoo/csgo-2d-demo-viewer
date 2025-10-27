@@ -331,6 +331,17 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 	}
 }
 
+// adjustAmmoCount corrects the ammo count to match what players see in-game.
+// The demo parser's AmmoInMagazine() returns a value that's 1 less than the actual
+// magazine capacity shown to players (e.g., USP shows 11 instead of 12).
+// This function adds 1 to correct the count and ensures negative values are clamped to 0.
+func adjustAmmoCount(ammoInMagazine int) int32 {
+	if ammoInMagazine > 0 {
+		return int32(ammoInMagazine + 1)
+	}
+	return 0
+}
+
 func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 	x, y := translatePosition(p.Position(), mapCS)
 	player := &message.Player{
@@ -365,13 +376,14 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 		switch w.Class() {
 		case common.EqClassSMG, common.EqClassHeavy, common.EqClassRifle:
 			player.Primary = weaponString
-			player.PrimaryAmmoMagazine = int32(w.AmmoInMagazine())
+			player.PrimaryAmmoMagazine = adjustAmmoCount(w.AmmoInMagazine())
 			player.PrimaryAmmoReserve = int32(w.AmmoReserve())
 		case common.EqClassPistols:
 			player.Secondary = weaponString
-			player.SecondaryAmmoMagazine = int32(w.AmmoInMagazine())
+			player.SecondaryAmmoMagazine = adjustAmmoCount(w.AmmoInMagazine())
 			player.SecondaryAmmoReserve = int32(w.AmmoReserve())
 		case common.EqClassGrenade:
+			// Grenades are counted directly without adjustment
 			for gi := 0; gi < w.AmmoInMagazine()+w.AmmoReserve(); gi++ {
 				player.Grenades = append(player.Grenades, weaponString)
 			}
