@@ -18,7 +18,6 @@
   height: 100%;
   z-index: 1;
   transition: width 0.3s ease;
-  opacity: 0.3;
 }
 
 .playerListHpValue.T {
