@@ -1,5 +1,6 @@
 import {Component} from "react";
 import {MSG_TEAMSTATE_UPDATE} from "../constants";
+import "./Scoreboard.css";
 
 class Scoreboard extends Component {
   constructor(props) {
@@ -30,21 +31,21 @@ class Scoreboard extends Component {
 
   render() {
     return (
-        <div>
-          <div className="w3-row">
-            <div className="w3-col l6 w3-center">
-              <h2 className="T">{this.state.TScore}</h2>
+        <div className="scoreboard-container">
+          <div className="scoreboard-scores">
+            <div className="score-display">
+              <h2 className="score-number T">{this.state.TScore}</h2>
             </div>
-            <div className="w3-col l6 w3-center">
-              <h2 className="CT">{this.state.CTScore}</h2>
+            <div className="score-display">
+              <h2 className="score-number CT">{this.state.CTScore}</h2>
             </div>
           </div>
-          <div className="w3-row">
-            <div className="w3-col l6 w3-center">
-              <h3 className="T">{this.state.TName}</h3>
+          <div className="scoreboard-teams">
+            <div className="score-display">
+              <h3 className="team-name T">{this.state.TName}</h3>
             </div>
-            <div className="w3-col l6 w3-center">
-              <h3 className="CT">{this.state.CTName}</h3>
+            <div className="score-display">
+              <h3 className="team-name CT">{this.state.CTName}</h3>
             </div>
           </div>
         </div>

@@ -1,0 +1,12 @@
+.info-panel-container {
+  padding: 15px;
+  height: 100%;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #0c0f12 0%, #15181c 100%);
+}
+
+.divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(204, 186, 124, 0.3) 50%, transparent 100%);
+  margin: 20px 0;
+}

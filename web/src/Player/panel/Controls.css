@@ -1,3 +1,72 @@
 button {
-  margin: 0 3px;
+  margin: 0 6px;
 }
+
+.controls-container {
+  margin: 15px 0;
+  padding: 15px 0;
+}
+
+.controls-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-button {
+  background: linear-gradient(180deg, #2a2d32 0%, #1a1d21 100%);
+  border: 2px solid #3a3d42 !important;
+  color: var(--LightColor) !important;
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.control-button:hover {
+  background: linear-gradient(180deg, #3a3d42 0%, #2a2d32 100%);
+  border-color: #4a4d52 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.control-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.control-button.play-button {
+  background: linear-gradient(180deg, var(--CTColor) 0%, #3a7fb8 100%);
+  border-color: var(--CTColor) !important;
+  width: 60px;
+  height: 60px;
+  font-size: 32px;
+}
+
+.control-button.play-button:hover {
+  background: linear-gradient(180deg, #5fb0f0 0%, var(--CTColor) 100%);
+  border-color: #5fb0f0 !important;
+}
+
+.control-button.speed-button {
+  background: linear-gradient(180deg, var(--TColor) 0%, #9f822f 100%);
+  border-color: var(--TColor) !important;
+}
+
+.control-button.speed-button:hover {
+  background: linear-gradient(180deg, #d7b857 0%, var(--TColor) 100%);
+  border-color: #d7b857 !important;
+}
+
+.control-button.speed-button.active {
+  background: var(--TColor);
+  box-shadow: 0 0 15px rgba(199, 162, 71, 0.5);
+}
+

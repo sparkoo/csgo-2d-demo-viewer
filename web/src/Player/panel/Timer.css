@@ -1,0 +1,43 @@
+.timer-container {
+  position: relative;
+  background: linear-gradient(180deg, #1a1d21 0%, #0f1215 100%);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.2s ease;
+}
+
+.timer-container:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.timer-progress {
+  background: linear-gradient(90deg, var(--CTColor) 0%, rgba(79, 158, 222, 0.7) 100%);
+  height: 100%;
+  transition: width 0.1s linear;
+  position: relative;
+}
+
+.timer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--LightColor);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  z-index: 2;
+  pointer-events: none;
+  letter-spacing: 0.05em;
+}
+
+.timer-container .w3-container {
+  padding: 12px 20px;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

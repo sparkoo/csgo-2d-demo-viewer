@@ -1,5 +1,6 @@
 import {Component} from "react";
 import PlayerListItem from "./PlayerListItem";
+import "./PlayerList.css";
 
 class PlayerList extends Component {
   constructor(props) {
@@ -24,14 +25,14 @@ class PlayerList extends Component {
         players[p.team].push(<PlayerListItem key={p.playerid} player={p} />)
       })
     }
-    return <div className="w3-row">
-      <div className="w3-col l6">
-        <div className="T w3-medium" id="TList">
+    return <div className="player-list-container w3-row">
+      <div className="w3-col l6 team-section">
+        <div className="T w3-medium team-list" id="TList">
           {players.T}
         </div>
       </div>
-      <div className="w3-col l6">
-        <div className="CT w3-medium" id="CTList">
+      <div className="w3-col l6 team-section">
+        <div className="CT w3-medium team-list" id="CTList">
           {players.CT}
         </div>
       </div>
