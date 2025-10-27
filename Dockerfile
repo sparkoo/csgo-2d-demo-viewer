@@ -30,7 +30,18 @@ COPY web/index.html .
 COPY web/vite.config.js .
 COPY web/public public
 COPY web/src src
+
+# Support for external CDN via build arg
+ARG VITE_ASSETS_BASE_URL=""
+ENV VITE_ASSETS_BASE_URL=$VITE_ASSETS_BASE_URL
+
 RUN npm run build
+
+# Remove large assets from build if using external CDN
+RUN if [ -n "$VITE_ASSETS_BASE_URL" ]; then \
+      echo "Using external CDN, removing large assets from build..."; \
+      rm -rf dist/homeheader_video dist/overviews; \
+    fi
 
 # Server build stage
 FROM golang:1.25 AS builder_server

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./Home.css";
 import Uploader from "./Uploader/Uploader";
+import { getAssetUrl } from "../utils/assetUrl";
 
 const videos = Array.from(
   { length: 12 },
@@ -51,7 +52,7 @@ export function Home() {
             }
           >
             <source
-              src={`homeheader_video/${shuffledVideos[currentIndex]}`}
+              src={getAssetUrl(`homeheader_video/${shuffledVideos[currentIndex]}`)}
               type="video/mp4"
             />
           </video>

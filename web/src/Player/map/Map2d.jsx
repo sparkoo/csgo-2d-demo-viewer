@@ -6,6 +6,7 @@ import MapBomb from "./MapBomb";
 import MapNade from "./MapNade";
 import MapPlayer from "./MapPlayer";
 import MapShot from "./MapShot";
+import { getAssetUrl } from "../../utils/assetUrl";
 
 class Map2d extends Component {
   constructor(props) {
@@ -160,7 +161,7 @@ class Map2d extends Component {
 
   render() {
     const style = {
-      backgroundImage: `url("/overviews/${this.state.mapName}${this.state.layer}.png")`,
+      backgroundImage: `url("${getAssetUrl(`overviews/${this.state.mapName}${this.state.layer}.png`)}")`,
       transform: `scale(${this.state.zoom}) translate(${this.state.panX}px, ${this.state.panY}px)`,
       transformOrigin: "center",
       cursor:
