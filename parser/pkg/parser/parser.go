@@ -383,6 +383,7 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 			player.SecondaryAmmoMagazine = getAmmoWithChamberedRound(w.AmmoInMagazine())
 			player.SecondaryAmmoReserve = int32(w.AmmoReserve())
 		case common.EqClassGrenade:
+			// Grenades don't have chambered rounds, so we use AmmoInMagazine() directly
 			for gi := 0; gi < w.AmmoInMagazine()+w.AmmoReserve(); gi++ {
 				player.Grenades = append(player.Grenades, weaponString)
 			}
