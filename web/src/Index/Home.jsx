@@ -18,11 +18,6 @@ export function Home() {
       {/* Hero Section with Background Image */}
       <section className="hero-section">
         <div className="hero-image-container">
-          <img
-            src="/header.png"
-            alt="Header background"
-            className="hero-background-image"
-          />
           <div className="hero-overlay"></div>
         </div>
 

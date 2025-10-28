@@ -58,10 +58,17 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 170%;
   overflow: hidden;
   z-index: 1;
-  background-color: black;
+  background-image: url('/header.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(50%);
+  transform: rotate(-7deg);
+    margin-top: -3%;
+    margin-left: -5%;
 }
 
 .hero-background-image {
@@ -71,6 +78,7 @@ body {
   filter: brightness(50%);
   background-color: black;
   transform: rotate(-7deg);
+  margin-left: -5%;
 }
 
 .hero-overlay {
