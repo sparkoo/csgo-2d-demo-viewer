@@ -269,11 +269,13 @@ class FACEITDemoViewer {
     this.log("🔍 Checking stats page for matches...");
 
     // Find all links that point to match room pages
-    const matchLinks = Array.from(document.querySelectorAll("a")).filter((a) => {
-      const href = a.getAttribute("href") || "";
-      // Match URLs ending with cs2/room/{matchId} pattern
-      return /\/cs2\/room\/[^\/]+$/.test(href);
-    });
+    const matchLinks = Array.from(document.querySelectorAll("a")).filter(
+      (a) => {
+        const href = a.getAttribute("href") || "";
+        // Match URLs ending with cs2/room/{matchId} pattern
+        return /\/cs2\/room\/[^\/]+\/scoreboard$/.test(href);
+      }
+    );
 
     this.log(`✅ Found ${matchLinks.length} match links on stats page`);
 
@@ -284,18 +286,28 @@ class FACEITDemoViewer {
       }
 
       // Try to find a suitable place to insert the button
-      // Look for the first div inside the anchor, or use the anchor itself
-      let targetElement = anchor.querySelector("div");
-      
-      // If no div found, append directly to the anchor
-      if (!targetElement) {
-        targetElement = anchor;
+      // Add a new td before the last td, or fall back to first div or anchor
+      const lastTd = anchor.querySelector("td:last-child");
+      let targetElement;
+
+      if (lastTd) {
+        // Create a new td and insert it before the last td
+        const newTd = document.createElement("td");
+        newTd.className = lastTd.className; // Copy the class from the last td
+        newTd.style.textAlign = "center";
+        lastTd.parentNode.insertBefore(newTd, lastTd);
+        targetElement = newTd;
+      } else {
+        targetElement = anchor.querySelector("div");
+
+        if (!targetElement) {
+          targetElement = anchor;
+        }
       }
 
       const button = document.createElement("button");
-      button.className = "history-match-btn";
+      button.className = "history-match-btn stats-match-btn";
       button.title = "Open CS2 Demo Viewer";
-      button.style.marginLeft = "5px";
       button.textContent = "2D";
       button.name = "replay2d";
 
@@ -304,7 +316,9 @@ class FACEITDemoViewer {
         e.preventDefault();
         e.stopPropagation();
         const href = anchor.getAttribute("href") || "";
-        const matchId = href.split("/").pop();
+        const links = href.split("/");
+        links.pop();
+        const matchId = links.pop();
         if (matchId) {
           await this.handleReplayClick(matchId, button);
         }
@@ -343,7 +357,6 @@ class FACEITDemoViewer {
           <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
         </path>
       </svg>
-      Opening...
     `;
     button.disabled = true;
     try {

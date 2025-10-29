@@ -23,7 +23,7 @@
   line-height: 16px;
   text-transform: uppercase;
   color: rgb(18, 18, 18);
-  background-color: #FFD500;
+  background-color: #ffd500;
   border: none;
   padding: 8px;
   display: flex;
@@ -36,7 +36,7 @@
 }
 
 .cs2-demo-viewer-btn:hover {
-  background-color: #FFDD33;
+  background-color: #ffdd33;
   border-color: rgb(255, 108, 32);
   box-shadow: 0 0 8px rgba(255, 85, 0, 0.7);
 }
@@ -61,8 +61,12 @@
 
 /* Animation for loading state */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .cs2-demo-viewer-btn:disabled svg {
@@ -98,7 +102,7 @@
 
 /* History match button styles */
 .history-match-btn {
-  background-color: #FFD500;
+  background-color: #ffd500;
   color: rgb(18, 18, 18);
   border: none;
   border-radius: 4px;
@@ -115,8 +119,13 @@
   min-width: 32px;
 }
 
+.stats-match-btn {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
 .history-match-btn:hover {
-  background-color: #FFDD33;
+  background-color: #ffdd33;
   box-shadow: 0 0 6px rgba(255, 213, 0, 0.5);
 }
 
