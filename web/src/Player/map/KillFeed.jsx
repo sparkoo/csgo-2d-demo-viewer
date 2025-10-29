@@ -91,8 +91,8 @@ class Kill extends Component {
     return (
       <div className={"killfeedRow"}>
         {killer}
-        {headshot}
         <span className={`killfeedIcon ${this.props.frag.weapon}`}>&nbsp;</span>
+        {headshot}
         {victim}
       </div>
     );
