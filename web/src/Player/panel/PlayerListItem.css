@@ -30,7 +30,9 @@
   float: right;
 }
 
-.playerListItemName, .playerListHpText, .playerListVest {
+.playerListItemName,
+.playerListHpText,
+.playerListVest {
   color: white;
   z-index: 5;
   position: relative;
@@ -62,7 +64,7 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  filter: brightness(.5);
+  filter: brightness(0.5);
   transition: filter 0.2s ease;
 }
 
@@ -92,14 +94,17 @@
 }
 
 .playerListWeapons .c4 {
-  filter: brightness(.7) !important;
+  filter: brightness(0.7) !important;
 }
 
 .playerListWeapons .c4.active {
   filter: brightness(1.5) drop-shadow(0 0 6px rgba(255, 165, 0, 0.6)) !important;
 }
 
-.playerListPrimaryAmmo, .playerListSecondaryAmmo, .playerListMoney {
+.playerListPrimaryAmmo,
+.playerListSecondaryAmmo,
+.playerListKAD,
+.playerListMoney {
   color: var(--LightColor);
   opacity: 0.8;
   padding: 4px 0;
@@ -110,3 +115,17 @@
   opacity: 1;
 }
 
+/* Team-colored stats (ammo, KAD, money) */
+.T .playerListPrimaryAmmo,
+.T .playerListSecondaryAmmo,
+.T .playerListKAD,
+.T .playerListMoney {
+  color: var(--TColor);
+}
+
+.CT .playerListPrimaryAmmo,
+.CT .playerListSecondaryAmmo,
+.CT .playerListKAD,
+.CT .playerListMoney {
+  color: var(--CTColor);
+}

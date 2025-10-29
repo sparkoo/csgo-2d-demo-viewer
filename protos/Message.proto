@@ -60,6 +60,9 @@ message Player {
   int32 SecondaryAmmoMagazine = 21;
   int32 SecondaryAmmoReserve = 22;
   repeated string Grenades = 23;
+  int32 Kills = 24;
+  int32 Assists = 25;
+  int32 Deaths = 26;
 }
 
 message TeamUpdate {
