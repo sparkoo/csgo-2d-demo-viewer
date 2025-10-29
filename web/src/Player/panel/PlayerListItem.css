@@ -87,6 +87,10 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
+.CT .playerListItemContainer:hover {
+  border-color: rgba(0, 123, 255, 0.3);
+}
+
 .bckg {
   background-size: contain;
   background-repeat: no-repeat;
@@ -108,11 +112,13 @@
   color: var(--LightColor);
   opacity: 0.8;
   padding: 4px 0;
+  line-height: 18px;
 }
 
 .playerListMoney {
   font-weight: 600;
   opacity: 1;
+  padding-right: 8px;
 }
 
 /* Team-colored stats (ammo, KAD, money) */
