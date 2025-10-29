@@ -10,8 +10,9 @@
 // GENERATED CODE -- DO NOT EDIT!
 /* eslint-disable */
 // @ts-nocheck
+import jspb from "google-protobuf";
 
-var jspb = require('google-protobuf');
+// var jspb = require('google-protobuf');
 var goog = jspb;
 var global =
     (typeof globalThis !== 'undefined' && globalThis) ||
@@ -4519,5 +4520,4 @@ proto.csgo.Demo.prototype.setPlatform = function(value) {
   return jspb.Message.setProto3EnumField(this, 2, value);
 };
 
-
-goog.object.extend(exports, proto.csgo);
+goog.object.extend((window.proto = window.proto || {}), proto.csgo);
