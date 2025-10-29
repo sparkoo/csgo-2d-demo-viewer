@@ -342,19 +342,19 @@ proto.csgo.Message.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.Message.toObject = function(includeInstance, msg) {
   var f, obj = {
-msgtype: jspb.Message.getFieldWithDefault(msg, 1, 0),
-tick: jspb.Message.getFieldWithDefault(msg, 2, 0),
-teamupdate: (f = msg.getTeamupdate()) && proto.csgo.TeamUpdate.toObject(includeInstance, f),
-tickstate: (f = msg.getTickstate()) && proto.csgo.TickState.toObject(includeInstance, f),
-init: (f = msg.getInit()) && proto.csgo.Init.toObject(includeInstance, f),
-round: (f = msg.getRound()) && proto.csgo.Round.toObject(includeInstance, f),
-progress: (f = msg.getProgress()) && proto.csgo.Progress.toObject(includeInstance, f),
-roundtime: (f = msg.getRoundtime()) && proto.csgo.RoundTime.toObject(includeInstance, f),
-shot: (f = msg.getShot()) && proto.csgo.Shot.toObject(includeInstance, f),
-frag: (f = msg.getFrag()) && proto.csgo.Frag.toObject(includeInstance, f),
-demo: (f = msg.getDemo()) && proto.csgo.Demo.toObject(includeInstance, f),
-grenadeevent: (f = msg.getGrenadeevent()) && proto.csgo.Grenade.toObject(includeInstance, f),
-message: (f = jspb.Message.getField(msg, 13)) == null ? undefined : f
+    msgtype: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    tick: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    teamupdate: (f = msg.getTeamupdate()) && proto.csgo.TeamUpdate.toObject(includeInstance, f),
+    tickstate: (f = msg.getTickstate()) && proto.csgo.TickState.toObject(includeInstance, f),
+    init: (f = msg.getInit()) && proto.csgo.Init.toObject(includeInstance, f),
+    round: (f = msg.getRound()) && proto.csgo.Round.toObject(includeInstance, f),
+    progress: (f = msg.getProgress()) && proto.csgo.Progress.toObject(includeInstance, f),
+    roundtime: (f = msg.getRoundtime()) && proto.csgo.RoundTime.toObject(includeInstance, f),
+    shot: (f = msg.getShot()) && proto.csgo.Shot.toObject(includeInstance, f),
+    frag: (f = msg.getFrag()) && proto.csgo.Frag.toObject(includeInstance, f),
+    demo: (f = msg.getDemo()) && proto.csgo.Demo.toObject(includeInstance, f),
+    grenadeevent: (f = msg.getGrenadeevent()) && proto.csgo.Grenade.toObject(includeInstance, f),
+    message: jspb.Message.getFieldWithDefault(msg, 13, "")
   };
 
   if (includeInstance) {
@@ -1087,32 +1087,32 @@ proto.csgo.Player.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.Player.toObject = function(includeInstance, msg) {
   var f, obj = {
-playerid: jspb.Message.getFieldWithDefault(msg, 1, 0),
-name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-team: jspb.Message.getFieldWithDefault(msg, 3, ""),
-x: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0),
-y: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
-z: jspb.Message.getFloatingPointFieldWithDefault(msg, 6, 0.0),
-rotation: jspb.Message.getFloatingPointFieldWithDefault(msg, 7, 0.0),
-alive: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
-weapon: jspb.Message.getFieldWithDefault(msg, 9, ""),
-flashed: jspb.Message.getBooleanFieldWithDefault(msg, 10, false),
-hp: jspb.Message.getFieldWithDefault(msg, 11, 0),
-armor: jspb.Message.getFieldWithDefault(msg, 12, 0),
-helmet: jspb.Message.getBooleanFieldWithDefault(msg, 13, false),
-defuse: jspb.Message.getBooleanFieldWithDefault(msg, 14, false),
-bomb: jspb.Message.getBooleanFieldWithDefault(msg, 15, false),
-money: jspb.Message.getFieldWithDefault(msg, 16, 0),
-primary: jspb.Message.getFieldWithDefault(msg, 17, ""),
-primaryammomagazine: jspb.Message.getFieldWithDefault(msg, 18, 0),
-primaryammoreserve: jspb.Message.getFieldWithDefault(msg, 19, 0),
-secondary: jspb.Message.getFieldWithDefault(msg, 20, ""),
-secondaryammomagazine: jspb.Message.getFieldWithDefault(msg, 21, 0),
-secondaryammoreserve: jspb.Message.getFieldWithDefault(msg, 22, 0),
-grenadesList: (f = jspb.Message.getRepeatedField(msg, 23)) == null ? undefined : f,
-kills: jspb.Message.getFieldWithDefault(msg, 24, 0),
-assists: jspb.Message.getFieldWithDefault(msg, 25, 0),
-deaths: jspb.Message.getFieldWithDefault(msg, 26, 0)
+    playerid: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    team: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    x: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0),
+    y: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
+    z: jspb.Message.getFloatingPointFieldWithDefault(msg, 6, 0.0),
+    rotation: jspb.Message.getFloatingPointFieldWithDefault(msg, 7, 0.0),
+    alive: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
+    weapon: jspb.Message.getFieldWithDefault(msg, 9, ""),
+    flashed: jspb.Message.getBooleanFieldWithDefault(msg, 10, false),
+    hp: jspb.Message.getFieldWithDefault(msg, 11, 0),
+    armor: jspb.Message.getFieldWithDefault(msg, 12, 0),
+    helmet: jspb.Message.getBooleanFieldWithDefault(msg, 13, false),
+    defuse: jspb.Message.getBooleanFieldWithDefault(msg, 14, false),
+    bomb: jspb.Message.getBooleanFieldWithDefault(msg, 15, false),
+    money: jspb.Message.getFieldWithDefault(msg, 16, 0),
+    primary: jspb.Message.getFieldWithDefault(msg, 17, ""),
+    primaryammomagazine: jspb.Message.getFieldWithDefault(msg, 18, 0),
+    primaryammoreserve: jspb.Message.getFieldWithDefault(msg, 19, 0),
+    secondary: jspb.Message.getFieldWithDefault(msg, 20, ""),
+    secondaryammomagazine: jspb.Message.getFieldWithDefault(msg, 21, 0),
+    secondaryammoreserve: jspb.Message.getFieldWithDefault(msg, 22, 0),
+    grenadesList: (f = jspb.Message.getRepeatedField(msg, 23)) == null ? undefined : f,
+    kills: jspb.Message.getFieldWithDefault(msg, 24, 0),
+    assists: jspb.Message.getFieldWithDefault(msg, 25, 0),
+    deaths: jspb.Message.getFieldWithDefault(msg, 26, 0)
   };
 
   if (includeInstance) {
@@ -1986,10 +1986,10 @@ proto.csgo.TeamUpdate.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.TeamUpdate.toObject = function(includeInstance, msg) {
   var f, obj = {
-tname: jspb.Message.getFieldWithDefault(msg, 1, ""),
-tscore: jspb.Message.getFieldWithDefault(msg, 2, 0),
-ctname: jspb.Message.getFieldWithDefault(msg, 3, ""),
-ctscore: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    tname: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    tscore: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    ctname: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    ctscore: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
 
   if (includeInstance) {
@@ -2213,11 +2213,11 @@ proto.csgo.TickState.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.TickState.toObject = function(includeInstance, msg) {
   var f, obj = {
-playersList: jspb.Message.toObjectList(msg.getPlayersList(),
+    playersList: jspb.Message.toObjectList(msg.getPlayersList(),
     proto.csgo.Player.toObject, includeInstance),
-nadesList: jspb.Message.toObjectList(msg.getNadesList(),
+    nadesList: jspb.Message.toObjectList(msg.getNadesList(),
     proto.csgo.Grenade.toObject, includeInstance),
-bomb: (f = msg.getBomb()) && proto.csgo.Bomb.toObject(includeInstance, f)
+    bomb: (f = msg.getBomb()) && proto.csgo.Bomb.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -2470,9 +2470,9 @@ proto.csgo.Init.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.Init.toObject = function(includeInstance, msg) {
   var f, obj = {
-mapname: jspb.Message.getFieldWithDefault(msg, 1, ""),
-tname: jspb.Message.getFieldWithDefault(msg, 2, ""),
-ctname: jspb.Message.getFieldWithDefault(msg, 3, "")
+    mapname: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    tname: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    ctname: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -2660,12 +2660,12 @@ proto.csgo.Frag.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.Frag.toObject = function(includeInstance, msg) {
   var f, obj = {
-victimname: jspb.Message.getFieldWithDefault(msg, 1, ""),
-victimteam: jspb.Message.getFieldWithDefault(msg, 2, ""),
-killername: jspb.Message.getFieldWithDefault(msg, 3, ""),
-killerteam: jspb.Message.getFieldWithDefault(msg, 4, ""),
-weapon: jspb.Message.getFieldWithDefault(msg, 5, ""),
-isheadshot: jspb.Message.getBooleanFieldWithDefault(msg, 6, false)
+    victimname: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    victimteam: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    killername: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    killerteam: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    weapon: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    isheadshot: jspb.Message.getBooleanFieldWithDefault(msg, 6, false)
   };
 
   if (includeInstance) {
@@ -2940,10 +2940,10 @@ proto.csgo.Shot.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.Shot.toObject = function(includeInstance, msg) {
   var f, obj = {
-playerid: jspb.Message.getFieldWithDefault(msg, 1, 0),
-x: jspb.Message.getFloatingPointFieldWithDefault(msg, 2, 0.0),
-y: jspb.Message.getFloatingPointFieldWithDefault(msg, 3, 0.0),
-rotation: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0)
+    playerid: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    x: jspb.Message.getFloatingPointFieldWithDefault(msg, 2, 0.0),
+    y: jspb.Message.getFloatingPointFieldWithDefault(msg, 3, 0.0),
+    rotation: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0)
   };
 
   if (includeInstance) {
@@ -3160,12 +3160,12 @@ proto.csgo.Grenade.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.Grenade.toObject = function(includeInstance, msg) {
   var f, obj = {
-id: jspb.Message.getFieldWithDefault(msg, 1, 0),
-kind: jspb.Message.getFieldWithDefault(msg, 2, ""),
-x: jspb.Message.getFloatingPointFieldWithDefault(msg, 3, 0.0),
-y: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0),
-z: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
-action: jspb.Message.getFieldWithDefault(msg, 6, "")
+    id: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    kind: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    x: jspb.Message.getFloatingPointFieldWithDefault(msg, 3, 0.0),
+    y: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0),
+    z: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
+    action: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -3440,10 +3440,10 @@ proto.csgo.Bomb.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.Bomb.toObject = function(includeInstance, msg) {
   var f, obj = {
-x: jspb.Message.getFloatingPointFieldWithDefault(msg, 1, 0.0),
-y: jspb.Message.getFloatingPointFieldWithDefault(msg, 2, 0.0),
-z: jspb.Message.getFloatingPointFieldWithDefault(msg, 3, 0.0),
-state: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    x: jspb.Message.getFloatingPointFieldWithDefault(msg, 1, 0.0),
+    y: jspb.Message.getFloatingPointFieldWithDefault(msg, 2, 0.0),
+    z: jspb.Message.getFloatingPointFieldWithDefault(msg, 3, 0.0),
+    state: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
 
   if (includeInstance) {
@@ -3679,15 +3679,15 @@ proto.csgo.Round.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.Round.toObject = function(includeInstance, msg) {
   var f, obj = {
-roundno: jspb.Message.getFieldWithDefault(msg, 1, 0),
-roundtookseconds: jspb.Message.getFieldWithDefault(msg, 2, 0),
-starttick: jspb.Message.getFieldWithDefault(msg, 3, 0),
-freezetimeendtick: jspb.Message.getFieldWithDefault(msg, 4, 0),
-endtick: jspb.Message.getFieldWithDefault(msg, 5, 0),
-ticksList: jspb.Message.toObjectList(msg.getTicksList(),
+    roundno: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    roundtookseconds: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    starttick: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    freezetimeendtick: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    endtick: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    ticksList: jspb.Message.toObjectList(msg.getTicksList(),
     proto.csgo.Message.toObject, includeInstance),
-teamstate: (f = msg.getTeamstate()) && proto.csgo.TeamUpdate.toObject(includeInstance, f),
-winner: jspb.Message.getFieldWithDefault(msg, 8, "")
+    teamstate: (f = msg.getTeamstate()) && proto.csgo.TeamUpdate.toObject(includeInstance, f),
+    winner: jspb.Message.getFieldWithDefault(msg, 8, "")
   };
 
   if (includeInstance) {
@@ -4063,8 +4063,8 @@ proto.csgo.Progress.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.Progress.toObject = function(includeInstance, msg) {
   var f, obj = {
-progress: jspb.Message.getFieldWithDefault(msg, 1, 0),
-message: jspb.Message.getFieldWithDefault(msg, 2, "")
+    progress: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    message: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -4223,8 +4223,8 @@ proto.csgo.RoundTime.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.RoundTime.toObject = function(includeInstance, msg) {
   var f, obj = {
-roundtime: jspb.Message.getFieldWithDefault(msg, 1, ""),
-freezetime: jspb.Message.getFieldWithDefault(msg, 2, 0)
+    roundtime: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    freezetime: jspb.Message.getFieldWithDefault(msg, 2, 0)
   };
 
   if (includeInstance) {
@@ -4383,8 +4383,8 @@ proto.csgo.Demo.prototype.toObject = function(opt_includeInstance) {
  */
 proto.csgo.Demo.toObject = function(includeInstance, msg) {
   var f, obj = {
-matchid: jspb.Message.getFieldWithDefault(msg, 1, ""),
-platform: jspb.Message.getFieldWithDefault(msg, 2, 0)
+    matchid: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    platform: jspb.Message.getFieldWithDefault(msg, 2, 0)
   };
 
   if (includeInstance) {
