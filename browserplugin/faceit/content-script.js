@@ -66,6 +66,7 @@ class FACEITDemoViewer {
     this.observePageChanges();
     this.injectButtons();
     this.checkScrollableMatchHistory();
+    this.checkStatsPageMatches();
   }
 
   isMatchRoomPage() {
@@ -73,6 +74,13 @@ class FACEITDemoViewer {
     const url = window.location.href;
     const matchRoomPattern = /\/cs2\/room\/[^\/]+$/;
     return matchRoomPattern.test(url);
+  }
+
+  isStatsPage() {
+    // Check if current URL is a player stats page
+    const url = window.location.href;
+    const statsPattern = /\/players\/[^\/]+\/stats\/cs2/;
+    return statsPattern.test(url);
   }
 
   observePageChanges() {
@@ -84,6 +92,7 @@ class FACEITDemoViewer {
       clearTimeout(this.historyCheckTimeout);
       this.historyCheckTimeout = setTimeout(() => {
         this.checkScrollableMatchHistory();
+        this.checkStatsPageMatches();
       }, 500);
 
       mutations.forEach((mutation) => {
@@ -136,6 +145,7 @@ class FACEITDemoViewer {
         // Separate timeout for history check
         setTimeout(() => {
           this.checkScrollableMatchHistory();
+          this.checkStatsPageMatches();
         }, 500);
       }
     });
@@ -248,6 +258,60 @@ class FACEITDemoViewer {
     } else {
       this.log("❌ scrollable-match-history div not found");
     }
+  }
+
+  checkStatsPageMatches() {
+    if (!this.isStatsPage()) {
+      this.log("❌ Not on stats page, skipping stats page match check");
+      return;
+    }
+
+    this.log("🔍 Checking stats page for matches...");
+
+    // Find all links that point to match room pages
+    const matchLinks = Array.from(document.querySelectorAll("a")).filter((a) => {
+      const href = a.getAttribute("href") || "";
+      return /\/cs2\/room\/[^\/]+/.test(href);
+    });
+
+    this.log(`✅ Found ${matchLinks.length} match links on stats page`);
+
+    matchLinks.forEach((anchor) => {
+      // Check if button already exists
+      if (anchor.querySelector("button[name='replay2d']")) {
+        return;
+      }
+
+      // Try to find a suitable place to insert the button
+      // Look for the innermost div or the anchor's direct children
+      let targetElement = anchor.querySelector("div");
+      
+      // If no div found, create a wrapper
+      if (!targetElement) {
+        targetElement = anchor;
+      }
+
+      const button = document.createElement("button");
+      button.className = "history-match-btn";
+      button.title = "Open CS2 Demo Viewer";
+      button.style.marginLeft = "5px";
+      button.textContent = "2D";
+      button.name = "replay2d";
+
+      // Add click handler
+      button.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const href = anchor.getAttribute("href") || "";
+        const matchId = href.split("/").pop();
+        if (matchId) {
+          await this.handleReplayClick(matchId, button);
+        }
+      });
+
+      targetElement.appendChild(button);
+      this.log("Inserted 2D button into stats page match link:", anchor);
+    });
   }
 
   createReplayButton(matchId) {
