@@ -83,9 +83,15 @@ class Kill extends Component {
     ) : (
       ""
     );
+    const headshot = this.props.frag.isheadshot ? (
+      <span className="killfeedIcon headshot">&nbsp;</span>
+    ) : (
+      ""
+    );
     return (
       <div className={"killfeedRow"}>
         {killer}
+        {headshot}
         <span className={`killfeedIcon ${this.props.frag.weapon}`}>&nbsp;</span>
         {victim}
       </div>

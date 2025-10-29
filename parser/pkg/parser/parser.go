@@ -79,7 +79,8 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	parser.RegisterEventHandler(func(e events.Kill) {
 		// log.Printf("r: '%d', '%+v'", parser.GameState().TotalRoundsPlayed(), e)
 		frag := &message.Frag{
-			Weapon: convertWeapon(e.Weapon.Type),
+			Weapon:     convertWeapon(e.Weapon.Type),
+			IsHeadshot: e.IsHeadshot,
 		}
 		if e.Victim != nil {
 			frag.VictimName = e.Victim.Name
