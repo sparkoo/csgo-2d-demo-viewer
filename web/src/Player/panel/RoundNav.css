@@ -1,5 +1,5 @@
 .roundNav {
-  width: 6%;
+  width: 7%;
   margin: 2px;
   color: var(--BlackColor) !important;
   border-radius: 4px;
@@ -36,4 +36,3 @@
   border-radius: 8px;
   min-height: 104px;
 }
-
