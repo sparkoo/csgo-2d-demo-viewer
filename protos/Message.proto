@@ -90,6 +90,7 @@ message Frag {
   string KillerName = 3;
   string KillerTeam = 4;
   string Weapon = 5;
+  bool IsHeadshot = 6;
 }
 
 message Shot {
