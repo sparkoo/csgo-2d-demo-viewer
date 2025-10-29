@@ -66,6 +66,7 @@ class FACEITDemoViewer {
     this.observePageChanges();
     this.injectButtons();
     this.checkScrollableMatchHistory();
+    this.checkStatsPageMatches();
   }
 
   isMatchRoomPage() {
@@ -73,6 +74,13 @@ class FACEITDemoViewer {
     const url = window.location.href;
     const matchRoomPattern = /\/cs2\/room\/[^\/]+$/;
     return matchRoomPattern.test(url);
+  }
+
+  isStatsPage() {
+    // Check if current URL is a player stats page
+    const url = window.location.href;
+    const statsPattern = /\/players\/[^\/]+\/stats\/cs2/;
+    return statsPattern.test(url);
   }
 
   observePageChanges() {
@@ -84,6 +92,7 @@ class FACEITDemoViewer {
       clearTimeout(this.historyCheckTimeout);
       this.historyCheckTimeout = setTimeout(() => {
         this.checkScrollableMatchHistory();
+        this.checkStatsPageMatches();
       }, 500);
 
       mutations.forEach((mutation) => {
@@ -136,6 +145,7 @@ class FACEITDemoViewer {
         // Separate timeout for history check
         setTimeout(() => {
           this.checkScrollableMatchHistory();
+          this.checkStatsPageMatches();
         }, 500);
       }
     });
@@ -250,6 +260,75 @@ class FACEITDemoViewer {
     }
   }
 
+  checkStatsPageMatches() {
+    if (!this.isStatsPage()) {
+      this.log("❌ Not on stats page, skipping stats page match check");
+      return;
+    }
+
+    this.log("🔍 Checking stats page for matches...");
+
+    // Find all links that point to match room pages
+    const matchLinks = Array.from(document.querySelectorAll("a")).filter(
+      (a) => {
+        const href = a.getAttribute("href") || "";
+        // Match URLs ending with cs2/room/{matchId} pattern
+        return /\/cs2\/room\/[^\/]+\/scoreboard$/.test(href);
+      }
+    );
+
+    this.log(`✅ Found ${matchLinks.length} match links on stats page`);
+
+    matchLinks.forEach((anchor) => {
+      // Check if button already exists
+      if (anchor.querySelector("button[name='replay2d']")) {
+        return;
+      }
+
+      // Try to find a suitable place to insert the button
+      // Add a new td before the last td, or fall back to first div or anchor
+      const lastTd = anchor.querySelector("td:last-child");
+      let targetElement;
+
+      if (lastTd) {
+        // Create a new td and insert it before the last td
+        const newTd = document.createElement("td");
+        newTd.className = lastTd.className; // Copy the class from the last td
+        newTd.style.textAlign = "center";
+        lastTd.parentNode.insertBefore(newTd, lastTd);
+        targetElement = newTd;
+      } else {
+        targetElement = anchor.querySelector("div");
+
+        if (!targetElement) {
+          targetElement = anchor;
+        }
+      }
+
+      const button = document.createElement("button");
+      button.className = "history-match-btn stats-match-btn";
+      button.title = "Open CS2 Demo Viewer";
+      button.textContent = "2D";
+      button.name = "replay2d";
+
+      // Add click handler
+      button.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const href = anchor.getAttribute("href") || "";
+        const links = href.split("/");
+        links.pop();
+        const matchId = links.pop();
+        if (matchId) {
+          await this.handleReplayClick(matchId, button);
+        }
+      });
+
+      targetElement.appendChild(button);
+      this.log("Inserted 2D button into stats page match link:", anchor);
+    });
+  }
+
   createReplayButton(matchId) {
     const button = document.createElement("button");
     button.className = `${this.buttonClass}`;
@@ -278,7 +357,6 @@ class FACEITDemoViewer {
           <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
         </path>
       </svg>
-      Opening...
     `;
     button.disabled = true;
     try {
