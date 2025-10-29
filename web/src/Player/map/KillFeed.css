@@ -28,11 +28,15 @@
   width: 40px;
 }
 
-.killfeedIcon.he, .killfeedIcon.molotov, .killfeedIcon.smoke, .killfeedIcon.world {
+.killfeedIcon.he,
+.killfeedIcon.molotov,
+.killfeedIcon.smoke,
+.killfeedIcon.world {
   width: 10px;
 }
 
-.killfeedIcon.world, .killfeedIcon.c4 {
+.killfeedIcon.world,
+.killfeedIcon.c4 {
   width: 20px;
 }
 
@@ -42,6 +46,6 @@
 
 .killfeedIcon.headshot {
   background-image: url("../assets/icons/csgo/headshot.svg");
-  width: 16px;
+  width: 20px;
   margin: 0 5px;
 }
