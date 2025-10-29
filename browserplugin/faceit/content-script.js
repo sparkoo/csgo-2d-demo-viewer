@@ -271,7 +271,8 @@ class FACEITDemoViewer {
     // Find all links that point to match room pages
     const matchLinks = Array.from(document.querySelectorAll("a")).filter((a) => {
       const href = a.getAttribute("href") || "";
-      return /\/cs2\/room\/[^\/]+/.test(href);
+      // Match URLs ending with cs2/room/{matchId} pattern
+      return /\/cs2\/room\/[^\/]+$/.test(href);
     });
 
     this.log(`✅ Found ${matchLinks.length} match links on stats page`);
@@ -283,10 +284,10 @@ class FACEITDemoViewer {
       }
 
       // Try to find a suitable place to insert the button
-      // Look for the innermost div or the anchor's direct children
+      // Look for the first div inside the anchor, or use the anchor itself
       let targetElement = anchor.querySelector("div");
       
-      // If no div found, create a wrapper
+      // If no div found, append directly to the anchor
       if (!targetElement) {
         targetElement = anchor;
       }
