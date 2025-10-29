@@ -2,7 +2,7 @@
 
 # protoc -I="./protos" --go_out="./pkg" --js_out=library=blubli,binary:"web/src/Player/protos" ./protos/*.proto
 # protoc -I="./protos" --js_out=library=Message_pb,binary:"web/src/Player/protos" ./protos/*.proto
-protoc -I="./protos" --js_out=import_style=commonjs,binary:"web/src/Player/protos" ./protos/*.proto
+protoc -I="./protos" --go_out="./parser/pkg" --js_out=import_style=commonjs,binary:"web/src/Player/protos" ./protos/*.proto
 
 # import jspb from 'google-protobuf'
 

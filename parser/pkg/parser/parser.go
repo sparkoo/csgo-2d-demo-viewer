@@ -359,6 +359,9 @@ func transformPlayer(p *common.Player, mapCS *MapCS) *message.Player {
 		Helmet:   p.HasHelmet(),
 		Defuse:   p.HasDefuseKit(),
 		Money:    int32(p.Money()),
+		Kills:    int32(p.Kills()),
+		Assists:  int32(p.Assists()),
+		Deaths:   int32(p.Deaths()),
 	}
 
 	if w := p.ActiveWeapon(); w != nil {
