@@ -100,6 +100,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	parser.RegisterEventHandler(func(e events.RoundEnd) {
 		//log.Printf("round end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		roundMessage.Winner = team(e.Winner)
+		roundMessage.EndReason = convertRoundEndReason(e.Reason)
 	})
 	parser.RegisterEventHandler(func(e events.RoundEndOfficial) {
 		//log.Printf("round end offic '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
@@ -426,4 +427,21 @@ func team(team common.Team) string {
 		log.Printf("I don't know the team '%v'. Should not get here, but apparently it sometimes happen that spectators wins the round.", team)
 	}
 	return ""
+}
+
+func convertRoundEndReason(reason events.RoundEndReason) message.Round_RoundEndReason {
+	switch reason {
+	case events.RoundEndReasonTargetBombed:
+		return message.Round_TargetBombed
+	case events.RoundEndReasonBombDefused:
+		return message.Round_BombDefused
+	case events.RoundEndReasonCTWin:
+		return message.Round_CTWin
+	case events.RoundEndReasonTerroristsWin:
+		return message.Round_TerroristsWin
+	case events.RoundEndReasonTargetSaved:
+		return message.Round_TargetSaved
+	default:
+		return message.Round_StillInProgress
+	}
 }
