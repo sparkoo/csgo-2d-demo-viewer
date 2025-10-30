@@ -1,6 +1,6 @@
 :root {
-  --TColor: #C7A247;
-  --CTColor: #4F9EDE;
+  --TColor: #c7a247;
+  --CTColor: #4f9ede;
   --BlackColor: #0c0f12;
   --LightColor: #ccba7c;
   --DarkColor: #413a27;
@@ -14,7 +14,8 @@
   color: var(--CTColor);
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0 auto;
   padding: 0;
@@ -50,7 +51,7 @@ html, body {
 }
 
 .dead {
-  background-image: url("./assets/icons/csgo/dead.svg");
+  background-image: url("./assets/icons/csgo/death.svg");
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
@@ -82,8 +83,12 @@ html, body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-overlay {
