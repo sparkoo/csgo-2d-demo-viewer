@@ -2,6 +2,16 @@ import { Component } from "react";
 import { MSG_INIT_ROUNDS, MSG_PLAY, MSG_PLAY_ROUND_UPDATE } from "../constants";
 import "./RoundNav.css";
 
+// Round end reason constants from protobuf (proto.csgo.Round.RoundEndReason)
+const RoundEndReason = {
+  STILLINPROGRESS: 0,
+  TARGETBOMBED: 1,
+  BOMBDEFUSED: 7,
+  CTWIN: 8,
+  TERRORISTSWIN: 9,
+  TARGETSAVED: 12
+};
+
 class RoundNav extends Component {
   constructor(props) {
     super(props);
@@ -73,19 +83,16 @@ class Round extends Component {
 
   getRoundEndIcon() {
     const endReason = this.props.endReason;
-    // RoundEndReason enum values from protobuf:
-    // STILLINPROGRESS: 0, TARGETBOMBED: 1, BOMBDEFUSED: 7, 
-    // CTWIN: 8, TERRORISTSWIN: 9, TARGETSAVED: 12
     
     switch (endReason) {
-      case 1: // TARGETBOMBED - bomb exploded
+      case RoundEndReason.TARGETBOMBED:
         return "💣";
-      case 7: // BOMBDEFUSED - bomb defused
+      case RoundEndReason.BOMBDEFUSED:
         return "🔧";
-      case 8: // CTWIN - full kills (CT)
-      case 9: // TERRORISTSWIN - full kills (T)
+      case RoundEndReason.CTWIN:
+      case RoundEndReason.TERRORISTSWIN:
         return "☠️";
-      case 12: // TARGETSAVED - time expired
+      case RoundEndReason.TARGETSAVED:
         return "⏱️";
       default:
         return "";
@@ -111,14 +118,14 @@ class Round extends Component {
   getRoundEndReasonText() {
     const endReason = this.props.endReason;
     switch (endReason) {
-      case 1:
+      case RoundEndReason.TARGETBOMBED:
         return "Bomb exploded";
-      case 7:
+      case RoundEndReason.BOMBDEFUSED:
         return "Bomb defused";
-      case 8:
-      case 9:
+      case RoundEndReason.CTWIN:
+      case RoundEndReason.TERRORISTSWIN:
         return "Full kills";
-      case 12:
+      case RoundEndReason.TARGETSAVED:
         return "Time expired";
       default:
         return "";
