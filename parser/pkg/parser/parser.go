@@ -126,7 +126,7 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 		roundMessage.Winner = team(e.Winner)
 
 		// we're checking if the roundMessage was set by GamePhaseChanged handler for the last round
-		if parser.CurrentFrame() == int(roundMessage.EndTick) {
+		if roundMessage.EndTick > 0 && parser.CurrentFrame() == int(roundMessage.EndTick) {
 			msg := &message.Message{
 				MsgType: message.Message_RoundType,
 				Tick:    int32(parser.CurrentFrame()),
