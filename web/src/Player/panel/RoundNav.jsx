@@ -19,6 +19,7 @@ class RoundNav extends Component {
               key={`round${r.roundno}`}
               winner={r.winner}
               roundNo={r.roundno}
+              endReason={r.endreason}
               messageBus={this.messageBus}
             />
           );
@@ -70,16 +71,57 @@ class Round extends Component {
     });
   }
 
+  getRoundEndIcon() {
+    const endReason = this.props.endReason;
+    // RoundEndReason enum values from protobuf:
+    // STILLINPROGRESS: 0, TARGETBOMBED: 1, BOMBDEFUSED: 7, 
+    // CTWIN: 8, TERRORISTSWIN: 9, TARGETSAVED: 12
+    
+    switch (endReason) {
+      case 1: // TARGETBOMBED - bomb exploded
+        return "💣";
+      case 7: // BOMBDEFUSED - bomb defused
+        return "🔧";
+      case 8: // CTWIN - full kills (CT)
+      case 9: // TERRORISTSWIN - full kills (T)
+        return "☠️";
+      case 12: // TARGETSAVED - time expired
+        return "⏱️";
+      default:
+        return "";
+    }
+  }
+
   render() {
+    const icon = this.getRoundEndIcon();
     return (
       <button
         className={`w3-button roundNav ${this.props.winner} ${
           this.state.active ? "active" : ""
         }`}
         onClick={(_) => this.playRound(this.props.roundNo)}
+        title={this.getRoundEndReasonText()}
       >
-        {this.props.roundNo}
+        <span className="round-number">{this.props.roundNo}</span>
+        {icon && <span className="round-icon">{icon}</span>}
       </button>
     );
+  }
+
+  getRoundEndReasonText() {
+    const endReason = this.props.endReason;
+    switch (endReason) {
+      case 1:
+        return "Bomb exploded";
+      case 7:
+        return "Bomb defused";
+      case 8:
+      case 9:
+        return "Full kills";
+      case 12:
+        return "Time expired";
+      default:
+        return "";
+    }
   }
 }
