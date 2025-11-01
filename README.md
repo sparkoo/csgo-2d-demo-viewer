@@ -34,7 +34,7 @@ Custom message format to send demo data between parser and the *Player* applicat
 ### Faceit browser plugin (`browserplugin/faceit/`)
 Adds several buttons to Faceit interface to play the demo. Internaly it resolves the real demo URL and opens player link with the demo url in parameter. Works for Firefox and Chrome-based browsers.
 
-### Containter
+### Container
 Whole application is built into container and deployed to GCP. Everything is server by Go server.
 
 ### CI/CD (`.github/workflows/`)
