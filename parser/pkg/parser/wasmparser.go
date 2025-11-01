@@ -56,5 +56,9 @@ func decompress(filename string, demoFile io.Reader) (io.Reader, error) {
 		return bzip2.NewReader(demoFile), nil
 	}
 
+	if strings.HasSuffix(filename, ".dem") {
+		return demoFile, nil
+	}
+
 	return nil, fmt.Errorf("unsupported file format %s", filename)
 }

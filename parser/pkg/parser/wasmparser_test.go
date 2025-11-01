@@ -44,6 +44,17 @@ func TestParseBz2DemoArchive(t *testing.T) {
 	}
 }
 
+func TestParseUnarchivedDemFile(t *testing.T) {
+	demoFile, err := os.Open(testDemosFolderPath + "/" + "1-e9789885-ebda-4f07-90de-8e38d73e174b-1-1.dem")
+	if err != nil {
+		t.Skip("failed to open the demo testfile. skipping for now as I have testdemos just locally")
+	}
+	parseErr := WasmParseDemo("test.dem", demoFile, func(payload []byte) {})
+	if parseErr != nil {
+		t.Fatalf("failed to parse the demo: %v", parseErr)
+	}
+}
+
 func TestParseUnsupportedDemoArchive(t *testing.T) {
 	parseErr := WasmParseDemo("not_supported.demo", nil, func(payload []byte) {})
 	if parseErr == nil {
