@@ -1,59 +1,99 @@
 # CS2 2D Demo Viewer
 
-A web-based application for visualizing Counter-Strike 2 (CS2) demo files in 2D.
+A web application for visualizing Counter-Strike 2 (CS2) demo files in 2D.
 
- - [Live environment](https://2d.sparko.cz)
- - [Staging environment](https://dev.2d.sparko.cz)
- - [Chrome extension](https://chromewebstore.google.com/detail/kagfmemgilamfeoljmajifkbhfglebdb?utm_source=item-share-cb)
- - [Firefix extension](https://addons.mozilla.org/en-US/firefox/addon/faceit-2d-replay/)
+- Production: https://2d.sparko.cz
+- Staging: https://dev.2d.sparko.cz
+- Chrome extension: https://chromewebstore.google.com/detail/kagfmemgilamfeoljmajifkbhfglebdb
+- Firefox extension: https://addons.mozilla.org/en-US/firefox/addon/faceit-2d-replay/
 
-## Project Components
+## Overview
 
-### Parser (`parser/`)
-Written in Go, built into WebAssembly.
+This project parses CS2 demo files in a WebAssembly (WASM) module written in Go and renders the replay in a lightweight Preact frontend. A small Go server serves static assets and proxies demo downloads when needed.
 
-Using CS demo parser library https://github.com/markus-wa/demoinfocs-golang ❤️
+## Project structure
 
-### Frontend (`web/`)
-Written in JavaScript using Preact.
+- Parser (WASM) — `parser/`
+  - Go → WebAssembly module for parsing CS2 demos
+  - Powered by demoinfocs: https://github.com/markus-wa/demoinfocs-golang ❤️
+- Frontend — `web/`
+  - Preact + Vite application
+  - Key areas:
+    - Homepage: `web/src/Index`
+    - Player: `web/src/Player` (consumes the WASM parser and plays back parsed data)
+- Protocol Buffers — `protos/`
+  - Custom message format for parser ↔ player communication
+- Backend — `server/`
+  - Serves static web content
+  - Provides a secure demo download proxy
+- FACEIT browser extension — `browserplugin/faceit/`
+  - Adds buttons to FACEIT to open demos in the 2D viewer
+  - Internally resolves the real demo URL and opens the player with the URL as a parameter
+  - Works in Firefox and Chromium-based browsers
+- Containerization
+  - The whole application is packaged into a container and deployed to GCP
+  - Assets are served by the Go server
 
- - Homepage component at `web/src/Index` (only static page, nothing interesting here)
- - Player component at `web/src/Player`
+## Requirements
 
-**Player** is using *parser webassembly* to parse the binary demo. It then stores received data from the parser into the memory and plays them.
-
-### Protocol Buffers ( `protos/`)
-
-Custom message format to send demo data between parser and the *Player* application.
-
-### Backend (`server/`)
-
- - Serving of static web content
- - Demo download proxy
-
-### Faceit browser plugin (`browserplugin/faceit/`)
-Adds several buttons to Faceit interface to play the demo. Internaly it resolves the real demo URL and opens player link with the demo url in parameter. Works for Firefox and Chrome-based browsers.
-
-### Container
-Whole application is built into container and deployed to GCP. Everything is server by Go server.
-
-### CI/CD (`.github/workflows/`)
-Using GitHub Actions
+- Go 1.25+
+- Node.js 18+ and npm
+- Make (for the provided targets)
+- Optional: Docker, if you want to build and run the container image
 
 ## Development
-`Makefile` to ease the development.
 
-To build the Parser WebAssembly
+The top-level Makefile provides convenient targets.
+
+- Build the parser WebAssembly
+  ```sh
+  make wasm
+  ```
+  Outputs the WASM artifacts to `web/public/wasm/` so the frontend can load them in dev.
+
+- Run the frontend (Vite dev server)
+  ```sh
+  make dev
+  ```
+  This starts the Vite dev server for the frontend. Open http://localhost:5173. The previously built WASM is served from `web/public/wasm/`.
+
+- Run the backend server (useful for testing the proxy or a built frontend)
+  ```sh
+  make server
+  ```
+  Starts the Go server on http://localhost:8080 with development flags enabled.
+
+Notes:
+- The frontend dev server (Vite) and the Go server are separate processes. Use `make dev` during UI development. Use `make server` to test the proxy and SPA serving behavior against a built `dist/`.
+
+## Production build and Docker
+
+Build the production assets and server into a container:
 ```sh
-make wasm
+docker build -t cs2-2d-demo-viewer .
 ```
 
-To run the frontend (together with *wasm*, it is enough to )
+Run the container:
 ```sh
-make dev
+docker run --rm -p 8080:8080 cs2-2d-demo-viewer
 ```
 
-To run the server
-```sh
-make server
-```
+The server serves the built SPA from `/web/dist` and exposes a download proxy at `/download`.
+
+## Security notes
+
+The download proxy restricts what can be fetched:
+- Only HTTPS is allowed
+- Only approved hosts are permitted
+- Fragments in URLs are rejected
+- Match IDs are validated
+
+This reduces the risk of abusing the proxy to access arbitrary resources.
+
+## CI/CD
+
+GitHub Actions are used for CI/CD workflows located under `.github/workflows/`.
+
+## License
+
+See the LICENSE file for details.
