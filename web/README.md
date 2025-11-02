@@ -72,11 +72,6 @@ make dev
 
 The development server will start at [http://localhost:5173](http://localhost:5173).
 
-**Vite Dev Server Commands:**
-- Press `o` + `Enter` to open in the browser
-- Press `h` + `Enter` to print all available commands
-- Press `q` + `Enter` to quit
-
 ### Building for Production
 
 Build the application:
@@ -130,46 +125,3 @@ Key dependencies (see `package.json` for full list):
 - `axios` - HTTP client for demo downloads
 - `google-protobuf` - Protocol Buffers runtime
 - `vite` - Build tool and dev server
-
-## Configuration
-
-### Vite Config
-
-The Vite configuration (`vite.config.js`) includes:
-- Preact plugin setup
-- React compatibility aliases
-- Build optimizations
-
-### Environment Variables
-
-Create a `.env` file in the `web/` directory for local configuration (if needed).
-
-## Testing
-
-Currently, there is no test suite for the web application. Manual testing is performed through the development server.
-
-## Browser Support
-
-Supports all modern browsers with WebAssembly support:
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-
-## Integration with Other Components
-
-- **Parser**: Loads `csdemoparser.wasm` to parse demo files
-- **Server**: Proxies demo downloads via `/download` endpoint
-- **Browser Plugin**: Receives demo URLs from the FACEIT extension
-
-## Assets
-
-- **Map Overviews**: Located in `public/overviews/` (PNG images)
-- **Weapon Icons**: SVG icons in `src/Player/assets/icons/csgo/`
-- **Other Assets**: UI icons, images, etc.
-
-## Notes
-
-- The app uses Preact with React compatibility for a smaller bundle size
-- Vite provides fast hot module replacement during development
-- WebAssembly files must be rebuilt separately when parser changes
-- Map overviews must be manually added for new CS2 maps

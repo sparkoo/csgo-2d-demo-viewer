@@ -13,15 +13,6 @@ This server component provides two main functions:
 - **Language**: Go 1.25.1
 - **HTTP Server**: Standard library `net/http`
 
-## Project Structure
-
-```
-server/
-├── main.go         # Server implementation and handlers
-├── main_test.go    # Server tests
-└── go.mod          # Go module dependencies
-```
-
 ## Development
 
 ### Prerequisites
@@ -106,25 +97,7 @@ All other requests serve static files from the web application build directory.
 
 ## Configuration
 
-### Command-line Flags
-
 - `-dev`: Enable development mode (default: `false`)
-
-### Environment Variables
-
-The server can be configured through environment variables when running in containers:
-
-- `PORT`: Server port (default: determined by code or deployment platform)
-
-## Deployment
-
-The server is designed to be deployed as a Docker container:
-
-1. Build the web application: `cd web && npm run build`
-2. Build the Docker image: `docker build -t csgo-viewer .`
-3. Run the container: `docker run -p 8080:8080 csgo-viewer`
-
-See `Dockerfile` in the project root for the complete build configuration.
 
 ## How It Works
 
@@ -142,10 +115,3 @@ See `Dockerfile` in the project root for the complete build configuration.
 - **No Redirects**: HTTP redirects are blocked to prevent Server-Side Request Forgery (SSRF)
 - **Timeout**: Requests to external sources timeout after 60 seconds
 - **Streaming**: Large files are streamed in 32KB chunks to prevent memory exhaustion
-
-## Dependencies
-
-The server has minimal dependencies and uses only the Go standard library:
-- `net/http` - HTTP server
-- `net/url` - URL parsing and validation
-- `io` - Stream handling
