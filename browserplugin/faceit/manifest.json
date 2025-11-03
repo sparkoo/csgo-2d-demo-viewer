@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "FACEIT 2D Replay",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "author": "sparko",
   "license": "MIT",
-  "homepage_url": "https://github.com/sparkoo/csgo-2d-demo-viewer",
+  "homepage_url": "https://2d.sparko.cz/",
   "browser_specific_settings": {
     "gecko": {
       "id": "cs2-2d-replay-faceit-firefox@sparko.cz"
