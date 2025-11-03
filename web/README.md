@@ -25,19 +25,10 @@ web/
 ├── src/
 │   ├── Index/          # Homepage component
 │   ├── Player/         # 2D demo player component
-│   │   ├── assets/     # Icons, images, and static assets
-│   │   ├── hooks/      # Custom React hooks
-│   │   └── ...         # Player-related components
-│   ├── App.jsx         # Main app component with routing
-│   ├── index.jsx       # Application entry point
-│   └── context.js      # React context providers
 ├── public/
 │   ├── wasm/           # WebAssembly parser files
 │   │   ├── csdemoparser.wasm
 │   │   └── wasm_exec.js
-│   └── overviews/      # Map overview images
-├── package.json        # npm dependencies and scripts
-└── vite.config.js      # Vite configuration
 ```
 
 ## Development
