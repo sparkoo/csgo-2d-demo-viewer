@@ -47,6 +47,8 @@ cd web
 npm ci
 ```
 
+**Note:** To successfully parse demo files, you need to build the parser WebAssembly first. See the [Parser README](../parser/README.md) for build instructions.
+
 ### Running the Development Server
 
 #### From the web directory:
