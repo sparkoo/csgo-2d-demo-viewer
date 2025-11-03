@@ -44,6 +44,39 @@ func TestParseBz2DemoArchive(t *testing.T) {
 	}
 }
 
+func TestEverythingInTestDir(t *testing.T) {
+	info, err := os.Stat(testDemosFolderPath)
+	if os.IsNotExist(err) {
+		t.Skip("testdemos directory does not exist")
+	}
+	if err != nil {
+		t.Fatalf("error checking directory: %v", err)
+	}
+	if !info.IsDir() {
+		t.Skip("testdemos is not a directory")
+	}
+	entries, err := os.ReadDir(testDemosFolderPath)
+	if err != nil {
+		t.Fatalf("failed to read directory: %v", err)
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		filename := entry.Name()
+		demoFile, err := os.Open(testDemosFolderPath + "/" + filename)
+		if err != nil {
+			t.Errorf("failed to open %s: %v", filename, err)
+			continue
+		}
+		parseErr := WasmParseDemo(filename, demoFile, func(payload []byte) {})
+		demoFile.Close()
+		if parseErr != nil {
+			t.Errorf("failed to parse %s: %v", filename, parseErr)
+		}
+	}
+}
+
 func TestParseUnarchivedDemFile(t *testing.T) {
 	demoFile, err := os.Open(testDemosFolderPath + "/" + "1-e9789885-ebda-4f07-90de-8e38d73e174b-1-1.dem")
 	if err != nil {
@@ -69,7 +102,7 @@ func BenchmarkParseDemo(b *testing.B) {
 	}
 	defer func() { _ = demoFile.Close() }()
 
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_, err := demoFile.Seek(0, 0)
 		if err != nil {
 			b.Fatalf("failed to seek: %v", err)
