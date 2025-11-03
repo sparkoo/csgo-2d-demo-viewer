@@ -60,11 +60,11 @@ const Uploader = () => {
           Drop Your Demo File Here or Click to Browse
         </div>
         <div className="upload-subtext">
-          Supports .dem.gz, .dem.zst and .dem.bz2 files up to 500MB
+          Supports .dem, .dem.gz, .dem.zst and .dem.bz2 files up to 1GB
         </div>
         <input
           type="file"
-          accept=".dem.gz,.dem.zst,.dem.bz2"
+          accept=".dem,.dem.gz,.dem.zst,.dem.bz2"
           onChange={(e) => {
             const file = e.target.files[0];
             if (file) {

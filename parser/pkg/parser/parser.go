@@ -77,7 +77,6 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	})
 
 	parser.RegisterEventHandler(func(e events.Kill) {
-		// log.Printf("r: '%d', '%+v'", parser.GameState().TotalRoundsPlayed(), e)
 		frag := &message.Frag{
 			Weapon:     convertWeapon(e.Weapon.Type),
 			IsHeadshot: e.IsHeadshot,
@@ -97,13 +96,8 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			Frag:    frag,
 		})
 	})
-	parser.RegisterEventHandler(func(e events.RoundEnd) {
-		//log.Printf("round end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
-		roundMessage.Winner = team(e.Winner)
-		roundMessage.EndReason = convertRoundEndReason(e.Reason)
-	})
+
 	parser.RegisterEventHandler(func(e events.RoundEndOfficial) {
-		//log.Printf("round end offic '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
 		roundMessage.RoundTookSeconds = int32((parser.CurrentTime() - currentRoundTimer.lastRoundStart).Seconds())
 		roundMessage.RoundNo = int32(parser.GameState().TotalRoundsPlayed())
 		roundMessage.EndTick = int32(parser.CurrentFrame())
@@ -112,24 +106,36 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			Tick:    int32(parser.CurrentFrame()),
 			Round:   roundMessage,
 		}
-		//log.Printf("sending round, messages '%v', roundNo '%v'   T [%v : %v] CT", len(msg.Round.Ticks), msg.Round.RoundNo, msg.Round.TeamState.TScore, msg.Round.TeamState.CTScore)
 		handler(msg, parser.GameState())
 	})
+
 	parser.RegisterEventHandler(func(e events.GamePhaseChanged) {
+		// because last round does not end with RoundEndOfficial event, we're catching it like this.
+		// after that, RoundEnd should be called, which will send the last round message
+		// this is because RoundEndOfficial happens after a little time players can still run around, collect stuff etc.
+		// this does not happen in the last round as everybody just freezes in the last frame.
+		// That's why we don't get proper RoundEndOfficial event
 		if e.NewGamePhase == common.GamePhaseGameEnded {
-			//log.Printf("sending last round ? tick '%v' time '%v', winner '%v'", parser.CurrentFrame(), parser.CurrentTime(), roundMessage.Winner)
 			roundMessage.RoundTookSeconds = int32((parser.CurrentTime() - currentRoundTimer.lastRoundStart).Seconds())
 			roundMessage.RoundNo = int32(parser.GameState().TotalRoundsPlayed() + 1)
 			roundMessage.EndTick = int32(parser.CurrentFrame())
+		}
+	})
+
+	parser.RegisterEventHandler(func(e events.RoundEnd) {
+		roundMessage.Winner = team(e.Winner)
+
+		// send round message if this is the last round (EndTick set by GamePhaseChanged handler)
+		if roundMessage.EndTick > 0 && parser.CurrentFrame() == int(roundMessage.EndTick) {
 			msg := &message.Message{
 				MsgType: message.Message_RoundType,
 				Tick:    int32(parser.CurrentFrame()),
 				Round:   roundMessage,
 			}
-			//log.Printf("sending round, messages '%v', roundNo '%v'   T [%v : %v] CT", len(msg.Round.Ticks), msg.Round.RoundNo, msg.Round.TeamState.TScore, msg.Round.TeamState.CTScore)
 			handler(msg, parser.GameState())
 		}
 	})
+
 	parser.RegisterEventHandler(func(e events.RoundStart) {
 		readyForNewRound = true
 	})
@@ -137,8 +143,6 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 	bombH.registerEvents()
 
 	parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
-		//log.Printf("freezetime end '%+v' tick '%v' time '%v'", e, parser.CurrentFrame(), parser.CurrentTime())
-
 		if readyForNewRound {
 			readyForNewRound = false
 			roundMessage = message.NewRound(parser.CurrentFrame())
