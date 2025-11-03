@@ -83,36 +83,3 @@ This creates an optimized production build in the `dist/` folder.
 4. **Data Streaming**: Parser sends game events via Protocol Buffers
 5. **Visualization**: The Player component renders the 2D map view
 6. **Playback**: User can play/pause, seek, and interact with the demo
-
-## Key Features
-
-- **2D Map Visualization**: Top-down view of CS2 maps
-- **Player Tracking**: Real-time player positions and movements
-- **Event Markers**: Kills, bomb plants, defuses, and more
-- **Timeline Control**: Seek to any point in the demo
-- **Performance**: Efficient rendering using Canvas API
-- **WASM Integration**: Fast demo parsing in the browser
-
-## Components
-
-### Index (Homepage)
-Located in `src/Index/`, provides information and links to the player.
-
-### Player
-Located in `src/Player/`, the main demo visualization component with:
-- Map rendering
-- Player tracking
-- Event timeline
-- Playback controls
-- Various hooks for state management
-
-## Dependencies
-
-Key dependencies (see `package.json` for full list):
-
-- `@preact/compat` - React compatibility layer for Preact
-- `preact-iso` - Routing for Preact
-- `primereact` - UI component library
-- `axios` - HTTP client for demo downloads
-- `google-protobuf` - Protocol Buffers runtime
-- `vite` - Build tool and dev server
