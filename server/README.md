@@ -75,21 +75,10 @@ Proxies demo file downloads from external sources.
 **Query Parameters:**
 - `url`: The URL of the demo file to download
 
-**Response Headers:**
-- `Content-Type`: Set from the upstream response
-- `Content-Disposition`: Attachment with filename based on match ID
-- `X-Demo-Length`: Content length from the upstream response (if available)
-- `Access-Control-Allow-Origin`: `*` (only in dev mode)
-
 **Example:**
 ```bash
 curl "http://localhost:8080/download?url=https://example.com/demo.dem.zst"
 ```
-
-**Security:**
-- In production mode, only whitelisted domains are allowed
-- No HTTP redirects are followed to prevent SSRF attacks
-- 60-second timeout on upstream requests
 
 ### Static File Serving
 
@@ -108,10 +97,3 @@ All other requests serve static files from the web application build directory.
    - The server fetches the file from the external source
    - The file is streamed back to the client in chunks
 3. **CORS**: In dev mode, CORS headers allow the web app to make requests from different origins
-
-## Security Considerations
-
-- **URL Validation**: In production, only specific domains are allowed for demo downloads
-- **No Redirects**: HTTP redirects are blocked to prevent Server-Side Request Forgery (SSRF)
-- **Timeout**: Requests to external sources timeout after 60 seconds
-- **Streaming**: Large files are streamed in 32KB chunks to prevent memory exhaustion
