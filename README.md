@@ -53,7 +53,7 @@ To run the frontend (together with *wasm*, it is enough to develop a Player with
 make dev
 ```
 
-To run the server (runs the server in dev mode, which enables local testing with url like 'http://localhost:5173/player?demourl=http://localhost:8080/testdemos/1-6e537ed7-b125-44f8-add6-14e814af55a6-1-1.dem.zst')
+To run the server (runs the server in dev mode, which enables local testing using url like `http://localhost:5173/player?demourl=http://localhost:8080/testdemos/1-6e537ed7-b125-44f8-add6-14e814af55a6-1-1.dem.zst`)
 ```sh
 make server
 ```
