@@ -462,6 +462,7 @@ class FACEITDemoViewer {
             setTimeout(() => {
               button.innerHTML = originalContent;
               button.disabled = false;
+              button.title = "Open CS2 Demo Viewer";
             }, 2000);
           }
         });
