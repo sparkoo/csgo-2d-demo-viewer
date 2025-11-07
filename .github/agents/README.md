@@ -64,6 +64,18 @@ Use this agent for:
 
 **Example tasks**: "Add new GitHub Actions workflow", "Optimize Docker build", "Update build dependencies"
 
+### 6. Agent Writer Specialist (`agent-writer-specialist.md`)
+**Expertise**: Agent design, prompt engineering, documentation structure
+
+Use this agent for:
+- Creating new GitHub Copilot agents
+- Updating existing agent definitions
+- Ensuring agent quality and consistency
+- Agent structure and best practices
+- Maintaining the agents directory
+
+**Example tasks**: "Create a new agent for testing", "Update agents after repository refactoring", "Improve agent documentation quality"
+
 ## How to Use These Agents
 
 ### In GitHub Copilot Chat
@@ -91,6 +103,7 @@ Is it about...
 ├─ Frontend/UI code? → frontend-specialist
 ├─ Documentation? → documentation-specialist
 ├─ Builds/CI/CD? → build-devops-specialist
+├─ Creating/updating agents? → agent-writer-specialist
 └─ Multiple areas? → Start with most relevant agent, then consult others
 ```
 
@@ -132,6 +145,8 @@ These agent definitions should be updated when:
 - Build processes change
 - Dependencies or tooling updates
 - Best practices evolve
+
+**To create or update agents**, use the `agent-writer-specialist` agent for guidance on structure, best practices, and consistency.
 
 ## Contributing
 
