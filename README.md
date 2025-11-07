@@ -40,6 +40,9 @@ Whole application is built into container and deployed to GCP. Everything is ser
 ### CI/CD (`.github/workflows/`)
 Using GitHub Actions
 
+### GitHub Copilot Agents (`.github/agents/`)
+Agent Writer Specialist - a meta agent that helps create custom GitHub Copilot agents for any area of the codebase. See [.github/agents/README.md](.github/agents/README.md) for details.
+
 ## Development
 `Makefile` to ease the development.
 
