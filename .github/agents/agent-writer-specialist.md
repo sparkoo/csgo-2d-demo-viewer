@@ -34,6 +34,7 @@ Every agent should follow this structure:
 name: new-agent-name
 description: New Agent description
 ---
+
 # [Agent Name] Agent
 
 You are a specialist in [area], with [expertise description].
