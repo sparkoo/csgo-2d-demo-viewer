@@ -11,9 +11,18 @@ export default defineConfig(({ mode }) => {
       {
         name: 'html-transform',
         transformIndexHtml(html) {
-          return html
-            .replace('%VITE_UMAMI_SCRIPT_URL%', env.VITE_UMAMI_SCRIPT_URL || '')
-            .replace('%VITE_UMAMI_WEBSITE_ID%', env.VITE_UMAMI_WEBSITE_ID || '');
+          const umamiScriptUrl = env.VITE_UMAMI_SCRIPT_URL;
+          const umamiWebsiteId = env.VITE_UMAMI_WEBSITE_ID;
+          
+          // Only inject Umami script if both variables are set
+          if (umamiScriptUrl && umamiWebsiteId) {
+            const umamiScript = `<!-- Umami Analytics -->
+    <script defer src="${umamiScriptUrl}" data-website-id="${umamiWebsiteId}"></script>`;
+            return html.replace('<!-- UMAMI_ANALYTICS_PLACEHOLDER -->', umamiScript);
+          }
+          
+          // Remove placeholder if analytics is not configured
+          return html.replace('<!-- UMAMI_ANALYTICS_PLACEHOLDER -->', '');
         },
       },
     ],
