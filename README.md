@@ -41,7 +41,7 @@ Whole application is built into container and deployed to GCP. Everything is ser
 Using GitHub Actions
 
 ### GitHub Copilot Agents (`.github/agents/`)
-Specialized AI agents to assist with development in different areas of the codebase. See [.github/agents/README.md](.github/agents/README.md) for details.
+Agent Writer Specialist - a meta agent that helps create custom GitHub Copilot agents for any area of the codebase. See [.github/agents/README.md](.github/agents/README.md) for details.
 
 ## Development
 `Makefile` to ease the development.
