@@ -371,7 +371,10 @@ class FACEITDemoViewer {
       fetch(`https://www.faceit.com/api/match/v2/match/${actualMatchId}`)
         .then((response) => {
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Create error object with status code
+            const error = new Error(`HTTP error! status: ${response.status}`);
+            error.status = response.status;
+            throw error;
           }
           return response.json();
         })
@@ -398,7 +401,10 @@ class FACEITDemoViewer {
         })
         .then((response) => {
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Create error object with status code
+            const error = new Error(`HTTP error! status: ${response.status}`);
+            error.status = response.status;
+            throw error;
           }
           return response.json();
         })
@@ -420,19 +426,44 @@ class FACEITDemoViewer {
         .catch((error) => {
           console.error("Error in API calls:", error);
 
-          // Show error feedback
-          button.innerHTML = `
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
-            </svg>
-            Error
-          `;
+          // Check if this is a 403 error (FACEIT blocked our request)
+          if (error.status === 403) {
+            // Show helpful message for 403 errors
+            button.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+              </svg>
+              Blocked
+            `;
+            button.title = "FACEIT API blocked. Click the 'Watch demo' button on FACEIT first to unblock, then try again.";
 
-          // Reset button after 2 seconds
-          setTimeout(() => {
-            button.innerHTML = originalContent;
-            button.disabled = false;
-          }, 2000);
+            // Log the helpful message
+            this.log("⚠️ FACEIT API returned 403 (blocked). User needs to click 'Watch demo' button on FACEIT to unblock.");
+            console.warn(
+              "🔧 [CS2 Extension] FACEIT API blocked (403). To fix this, click the 'Watch demo' button on the FACEIT page, then try the 2D replay button again."
+            );
+
+            // Reset button after 4 seconds (longer for 403 to let user read the tooltip)
+            setTimeout(() => {
+              button.innerHTML = originalContent;
+              button.disabled = false;
+              button.title = "Open CS2 Demo Viewer";
+            }, 4000);
+          } else {
+            // Show generic error feedback for other errors
+            button.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+              </svg>
+              Error
+            `;
+
+            // Reset button after 2 seconds
+            setTimeout(() => {
+              button.innerHTML = originalContent;
+              button.disabled = false;
+            }, 2000);
+          }
         });
     } catch (error) {
       console.error("Error opening demo viewer:", error);
