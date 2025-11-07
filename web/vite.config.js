@@ -16,8 +16,12 @@ export default defineConfig(({ mode }) => {
           
           // Only inject Umami script if both variables are set
           if (umamiScriptUrl && umamiWebsiteId) {
+            // Sanitize values to prevent XSS
+            const sanitizedUrl = umamiScriptUrl.replace(/[<>"']/g, '');
+            const sanitizedId = umamiWebsiteId.replace(/[<>"']/g, '');
+            
             const umamiScript = `<!-- Umami Analytics -->
-    <script defer src="${umamiScriptUrl}" data-website-id="${umamiWebsiteId}"></script>`;
+    <script defer src="${sanitizedUrl}" data-website-id="${sanitizedId}"></script>`;
             return html.replace('<!-- UMAMI_ANALYTICS_PLACEHOLDER -->', umamiScript);
           }
           
