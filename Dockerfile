@@ -1,3 +1,6 @@
+ARG VITE_UMAMI_SCRIPT_URL
+ARG VITE_UMAMI_WEBSITE_ID
+
 # WASM build stage
 FROM golang:1.25 AS builder_parser
 
@@ -17,6 +20,9 @@ RUN CGO_ENABLED=0 GOOS=js GOARCH=wasm GO111MODULE=on go build \
 
 # Frontend build stage
 FROM node:lts-alpine AS builder_npm
+
+ENV VITE_UMAMI_SCRIPT_URL=$VITE_UMAMI_SCRIPT_URL
+ENV VITE_UMAMI_WEBSITE_ID=$VITE_UMAMI_WEBSITE_ID
 
 USER root
 
