@@ -244,7 +244,9 @@ class FACEITDemoViewer {
               const href = anchor.href || "";
               const matchId = href.split("/").pop();
               if (matchId) {
-                await this.handleReplayClick(matchId, button);
+                // Pass match room URL for 403 error handling
+                const matchRoomUrl = `https://www.faceit.com/en/cs2/room/${matchId}`;
+                await this.handleReplayClick(matchId, button, matchRoomUrl);
               }
             });
 
@@ -320,7 +322,9 @@ class FACEITDemoViewer {
         links.pop();
         const matchId = links.pop();
         if (matchId) {
-          await this.handleReplayClick(matchId, button);
+          // Pass match room URL for 403 error handling
+          const matchRoomUrl = `https://www.faceit.com/en/cs2/room/${matchId}`;
+          await this.handleReplayClick(matchId, button, matchRoomUrl);
         }
       });
 
@@ -339,13 +343,14 @@ class FACEITDemoViewer {
     button.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      await this.handleReplayClick(matchId, button);
+      // No match room URL passed - we're already on the match room page
+      await this.handleReplayClick(matchId, button, null);
     });
 
     return button;
   }
 
-  async handleReplayClick(matchId, button) {
+  async handleReplayClick(matchId, button, matchRoomUrl = null) {
     this.log("handle click on match", matchId);
 
     const originalContent = button.innerHTML;
@@ -435,19 +440,47 @@ class FACEITDemoViewer {
               </svg>
               Blocked
             `;
-            button.title = "FACEIT API blocked. Click the 'Watch demo' button on FACEIT first to unblock, then try again.";
-
-            // Log the helpful message
-            this.log("⚠️ FACEIT API returned 403 (blocked). User needs to click 'Watch demo' button on FACEIT to unblock.");
-            console.warn(
-              "🔧 [CS2 Extension] FACEIT API blocked (403). To fix this, click the 'Watch demo' button on the FACEIT page, then try the 2D replay button again."
-            );
+            
+            // If we have a match room URL and we're not on the match room page, provide a link
+            if (matchRoomUrl && !this.isMatchRoomPage()) {
+              button.title = "FACEIT API blocked. Click here to go to match page, then click 'Watch demo' to unblock.";
+              
+              // Make the button clickable to navigate to match room
+              button.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(matchRoomUrl, '_blank');
+              };
+              button.disabled = false;
+              button.style.cursor = 'pointer';
+              
+              // Log the helpful message with link
+              this.log(`⚠️ FACEIT API returned 403 (blocked). User needs to go to match page: ${matchRoomUrl}`);
+              console.warn(
+                `🔧 [CS2 Extension] FACEIT API blocked (403). Go to the match page (${matchRoomUrl}) and click 'Watch demo' to unblock, then try again.`
+              );
+            } else {
+              button.title = "FACEIT API blocked. Click the 'Watch demo' button on FACEIT first to unblock, then try again.";
+              
+              // Log the helpful message
+              this.log("⚠️ FACEIT API returned 403 (blocked). User needs to click 'Watch demo' button on FACEIT to unblock.");
+              console.warn(
+                "🔧 [CS2 Extension] FACEIT API blocked (403). To fix this, click the 'Watch demo' button on the FACEIT page, then try the 2D replay button again."
+              );
+            }
 
             // Reset button after 4 seconds (longer for 403 to let user read the tooltip)
             setTimeout(() => {
               button.innerHTML = originalContent;
               button.disabled = false;
               button.title = "Open CS2 Demo Viewer";
+              button.style.cursor = '';
+              // Restore original click handler
+              button.onclick = async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                await this.handleReplayClick(matchId, button, matchRoomUrl);
+              };
             }, 4000);
           } else {
             // Show generic error feedback for other errors
