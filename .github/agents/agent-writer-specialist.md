@@ -30,6 +30,10 @@ When assigned agent-related tasks, you should:
 Every agent should follow this structure:
 
 ```markdown
+---
+name: new-agent-name
+description: New Agent description
+---
 # [Agent Name] Agent
 
 You are a specialist in [area], with [expertise description].
