@@ -41,7 +41,15 @@ Whole application is built into container and deployed to GCP. Everything is ser
 Using GitHub Actions
 
 ### GitHub Copilot Agents (`.github/agents/`)
-Agent Writer Specialist - a meta agent that helps create custom GitHub Copilot agents for any area of the codebase. See [.github/agents/README.md](.github/agents/README.md) for details.
+Specialized agents provide expert guidance for different areas of the codebase:
+- **Go Parser Specialist** - WebAssembly parser development
+- **Frontend Specialist** - Preact/JavaScript UI and visualization
+- **Server Specialist** - Go HTTP server and proxying
+- **Build & CI Specialist** - Build processes and GitHub Actions
+- **Browser Plugin Specialist** - Browser extension and FACEIT integration
+- **Agent Writer Specialist** - Meta agent for creating/maintaining agents
+
+See [.github/agents/README.md](.github/agents/README.md) for details on using these agents.
 
 ## Development
 `Makefile` to ease the development.
