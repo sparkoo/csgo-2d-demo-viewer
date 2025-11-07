@@ -86,6 +86,23 @@ Use this agent for:
 - "Add new Makefile target"
 - "Configure new linter rules"
 
+### 6. Browser Plugin Specialist (`browser-plugin-specialist.md`)
+**Expertise**: Browser extensions, WebExtensions API, FACEIT integration, Webpack
+
+Use this agent for:
+- Working with the browser extension in `browserplugin/faceit/` directory
+- Developing content scripts for FACEIT website
+- Managing Manifest V3 configuration
+- Building and packaging Chrome/Firefox extensions
+- Debugging extension issues
+
+**Example tasks**:
+- "Add 2D button to new FACEIT page type"
+- "Update selectors after FACEIT website changes"
+- "Add new setting to extension popup"
+- "Fix button injection not working"
+- "Prepare extension for Chrome Web Store submission"
+
 ## How to Use These Agents
 
 ### In GitHub Copilot Chat
@@ -112,12 +129,18 @@ Add rate limiting to the download endpoint
 Update the GitHub Actions workflow to use Go 1.26
 ```
 
+```
+@workspace /agent browser-plugin-specialist
+Add 2D replay button to FACEIT team match pages
+```
+
 ### Choosing the Right Agent
 
 - **Parser work** (Go, WASM, demo parsing) → Use `go-parser-specialist`
 - **Frontend work** (UI, components, visualization) → Use `frontend-specialist`
 - **Server work** (HTTP, proxying, security) → Use `server-specialist`
 - **Build/CI work** (workflows, Docker, dependencies) → Use `build-ci-specialist`
+- **Browser extension work** (FACEIT integration, extensions) → Use `browser-plugin-specialist`
 - **Creating new agents** → Use `agent-writer-specialist`
 
 ### Agent Capabilities
@@ -147,12 +170,12 @@ csgo-2d-demo-viewer/
 ├── parser/              → go-parser-specialist
 ├── server/              → server-specialist
 ├── web/                 → frontend-specialist
+├── browserplugin/       → browser-plugin-specialist
 ├── .github/
 │   ├── workflows/       → build-ci-specialist
 │   └── agents/          → agent-writer-specialist
 ├── Makefile             → build-ci-specialist
-├── Dockerfile           → build-ci-specialist
-└── browserplugin/       → (Use frontend-specialist or create dedicated agent)
+└── Dockerfile           → build-ci-specialist
 ```
 
 ## When to Create New Agents
@@ -164,7 +187,6 @@ The `agent-writer-specialist` can help you create new agents when:
 - The component is stable enough to document patterns
 
 Consider creating agents for:
-- Browser plugin development
 - Protocol buffer management
 - Database or storage layer (if added)
 - API client libraries

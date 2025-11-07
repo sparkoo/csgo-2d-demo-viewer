@@ -46,6 +46,7 @@ Specialized agents provide expert guidance for different areas of the codebase:
 - **Frontend Specialist** - Preact/JavaScript UI and visualization
 - **Server Specialist** - Go HTTP server and proxying
 - **Build & CI Specialist** - Build processes and GitHub Actions
+- **Browser Plugin Specialist** - Browser extension and FACEIT integration
 - **Agent Writer Specialist** - Meta agent for creating/maintaining agents
 
 See [.github/agents/README.md](.github/agents/README.md) for details on using these agents.
