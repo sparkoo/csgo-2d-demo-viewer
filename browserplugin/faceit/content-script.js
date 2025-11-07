@@ -474,8 +474,8 @@ class FACEITDemoViewer {
               button.innerHTML = originalContent;
               button.disabled = false;
               button.title = "Open CS2 Demo Viewer";
-              button.style.cursor = '';
-              // Restore original click handler
+              button.style.removeProperty('cursor');
+              // Restore original click handler with proper context binding
               button.onclick = async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
