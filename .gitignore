@@ -8,3 +8,6 @@ assets/icons/shapes
 *.wasm
 web/public/wasm/
 testdemos/
+.env
+.env.local
+web/dist/
