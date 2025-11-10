@@ -244,7 +244,9 @@ class FACEITDemoViewer {
               const href = anchor.href || "";
               const matchId = href.split("/").pop();
               if (matchId) {
-                await this.handleReplayClick(matchId, button);
+                // Pass match room URL for 403 error handling
+                const matchRoomUrl = `https://www.faceit.com/en/cs2/room/${matchId}`;
+                await this.handleReplayClick(matchId, button, matchRoomUrl);
               }
             });
 
@@ -320,7 +322,9 @@ class FACEITDemoViewer {
         links.pop();
         const matchId = links.pop();
         if (matchId) {
-          await this.handleReplayClick(matchId, button);
+          // Pass match room URL for 403 error handling
+          const matchRoomUrl = `https://www.faceit.com/en/cs2/room/${matchId}`;
+          await this.handleReplayClick(matchId, button, matchRoomUrl);
         }
       });
 
@@ -339,13 +343,14 @@ class FACEITDemoViewer {
     button.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      await this.handleReplayClick(matchId, button);
+      // No match room URL passed - we're already on the match room page
+      await this.handleReplayClick(matchId, button, null);
     });
 
     return button;
   }
 
-  async handleReplayClick(matchId, button) {
+  async handleReplayClick(matchId, button, matchRoomUrl = null) {
     this.log("handle click on match", matchId);
 
     const originalContent = button.innerHTML;
@@ -371,7 +376,10 @@ class FACEITDemoViewer {
       fetch(`https://www.faceit.com/api/match/v2/match/${actualMatchId}`)
         .then((response) => {
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Create error object with status code
+            const error = new Error(`HTTP error! status: ${response.status}`);
+            error.status = response.status;
+            throw error;
           }
           return response.json();
         })
@@ -398,7 +406,10 @@ class FACEITDemoViewer {
         })
         .then((response) => {
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Create error object with status code
+            const error = new Error(`HTTP error! status: ${response.status}`);
+            error.status = response.status;
+            throw error;
           }
           return response.json();
         })
@@ -420,19 +431,123 @@ class FACEITDemoViewer {
         .catch((error) => {
           console.error("Error in API calls:", error);
 
-          // Show error feedback
-          button.innerHTML = `
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
-            </svg>
-            Error
+          // Create a nice popup for the suggestion message
+          const popup = document.createElement("div");
+          popup.id = "faceit-extension-popup";
+          popup.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 10000;
+            max-width: 300px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            font-family: Arial, sans-serif;
+            font-size: 14px;
           `;
+          popup.innerHTML = `
+            <strong>CS2 Demo Viewer Extension</strong><br>
+            <span id="popup-message"></span>
+            <br>
+            <button onclick="this.parentElement.remove()" style="margin-top: 10px; background: none; border: 1px solid white; color: white; padding: 5px 10px; cursor: pointer; border-radius: 3px;">Close</button>
+          `;
+          document.body.appendChild(popup);
 
-          // Reset button after 2 seconds
+          // Auto-remove popup after 10 seconds
           setTimeout(() => {
-            button.innerHTML = originalContent;
-            button.disabled = false;
-          }, 2000);
+            if (popup.parentElement) {
+              popup.remove();
+            }
+          }, 10000);
+
+          // Check if this is a 403 error (FACEIT blocked our request)
+          if (error.status === 403) {
+            // Set popup message for 403 error with link if available
+            let message =
+              "FACEIT API blocked. Click the 'Watch demo' button on FACEIT first to unblock, then try again.";
+            if (matchRoomUrl) {
+              message = `FACEIT API blocked. Go to the <a href="${matchRoomUrl}" target="_blank" style="color: yellow; text-decoration: underline;">match page</a> and click 'Watch demo' to unblock, then try again.`;
+            }
+            document.getElementById("popup-message").innerHTML = message;
+
+            // Show helpful message for 403 errors
+            button.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+              </svg>
+              Blocked
+            `;
+
+            // If we have a match room URL and we're not on the match room page, provide a link
+            if (matchRoomUrl && !this.isMatchRoomPage()) {
+              button.title =
+                "FACEIT API blocked. Click here to go to match page, then click 'Watch demo' to unblock.";
+
+              // Make the button clickable to navigate to match room
+              button.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(matchRoomUrl, "_blank");
+              };
+              button.disabled = false;
+              button.style.cursor = "pointer";
+
+              // Log the helpful message with link
+              this.log(
+                `⚠️ FACEIT API returned 403 (blocked). User needs to go to match page: ${matchRoomUrl}`
+              );
+              console.warn(
+                `🔧 [CS2 Extension] FACEIT API blocked (403). Go to the match page (${matchRoomUrl}) and click 'Watch demo' to unblock, then try again.`
+              );
+            } else {
+              button.title =
+                "FACEIT API blocked. Click the 'Watch demo' button on FACEIT first to unblock, then try again.";
+
+              // Log the helpful message
+              this.log(
+                "⚠️ FACEIT API returned 403 (blocked). User needs to click 'Watch demo' button on FACEIT to unblock."
+              );
+              console.warn(
+                "🔧 [CS2 Extension] FACEIT API blocked (403). To fix this, click the 'Watch demo' button on the FACEIT page, then try the 2D replay button again."
+              );
+            }
+
+            // Reset button after 4 seconds (longer for 403 to let user read the tooltip)
+            setTimeout(() => {
+              button.innerHTML = originalContent;
+              button.disabled = false;
+              button.title = "Open CS2 Demo Viewer";
+              button.style.removeProperty("cursor");
+              // Restore original click handler with proper context binding
+              button.onclick = async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                await this.handleReplayClick(matchId, button, matchRoomUrl);
+              };
+            }, 4000);
+          } else {
+            // Set popup message for other errors
+            document.getElementById("popup-message").textContent =
+              "An error occurred while fetching the demo. Please try again.";
+
+            // Show generic error feedback for other errors
+            button.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+              </svg>
+              Error
+            `;
+
+            // Reset button after 2 seconds
+            setTimeout(() => {
+              button.innerHTML = originalContent;
+              button.disabled = false;
+              button.title = "Open CS2 Demo Viewer";
+            }, 2000);
+          }
         });
     } catch (error) {
       console.error("Error opening demo viewer:", error);
