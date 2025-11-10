@@ -11,3 +11,6 @@ testdemos/
 .env
 .env.local
 web/dist/
+# Build artifacts
+server/csgo-2d-demo-player
+parser/csgo-2d-demo-player
