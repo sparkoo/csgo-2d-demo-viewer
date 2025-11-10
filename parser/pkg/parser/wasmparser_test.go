@@ -70,7 +70,9 @@ func TestEverythingInTestDir(t *testing.T) {
 			continue
 		}
 		parseErr := WasmParseDemo(filename, demoFile, func(payload []byte) {})
-		demoFile.Close()
+		if closeErr := demoFile.Close(); closeErr != nil {
+			t.Errorf("failed to close %s: %v", filename, closeErr)
+		}
 		if parseErr != nil {
 			t.Errorf("failed to parse %s: %v", filename, parseErr)
 		}

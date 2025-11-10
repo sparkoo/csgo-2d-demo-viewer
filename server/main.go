@@ -66,7 +66,11 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to fetch URL", http.StatusInternalServerError)
 		return
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("Error closing response body: %v", err)
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("Non-OK status from URL %s: %d", demoUrl, resp.StatusCode)
@@ -209,5 +213,8 @@ func main() {
 		http.Handle("/testdemos/", http.StripPrefix("/testdemos/", http.FileServer(http.Dir("./testdemos"))))
 	}
 
-	http.ListenAndServe(":8080", nil)
+	log.Println("Starting server on :8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }
