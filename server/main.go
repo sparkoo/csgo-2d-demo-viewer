@@ -134,35 +134,30 @@ func spaHandler(dir string) http.Handler {
 	scriptURL, websiteID := getAnalyticsConfig()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// For SPA routes, serve index.html with analytics injection
+		if slices.Contains(validPaths, r.URL.Path) {
+			indexPath := filepath.Join(dir, "index.html")
+			htmlContent, err := os.ReadFile(indexPath)
+			if err != nil {
+				log.Printf("Error reading index.html: %v", err)
+				http.NotFound(w, r)
+				return
+			}
+
+			// Inject analytics script if HTML contains placeholder
+			modifiedHTML := injectAnalyticsScript(string(htmlContent), scriptURL, websiteID)
+
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Write([]byte(modifiedHTML))
+			return
+		}
+
+		// For other requests, serve files normally
 		// Sanitize the path to prevent directory traversal
 		path := filepath.Clean(filepath.Join(dir, r.URL.Path))
 		rel, pathFormatErr := filepath.Rel(dir, path)
 
 		if pathFormatErr != nil || strings.Contains(rel, "..") {
-			http.NotFound(w, r)
-			return
-		}
-
-		// check if the file from path exists
-		if _, filePathErr := os.Stat(path); filePathErr != nil {
-			if os.IsNotExist(filePathErr) && slices.Contains(validPaths, r.URL.Path) {
-				// serve index on listed paths with analytics injection
-				indexPath := filepath.Join(dir, "index.html")
-				htmlContent, err := os.ReadFile(indexPath)
-				if err != nil {
-					log.Printf("Error reading index.html: %v", err)
-					http.NotFound(w, r)
-					return
-				}
-
-				// Inject analytics script if HTML contains placeholder
-				modifiedHTML := injectAnalyticsScript(string(htmlContent), scriptURL, websiteID)
-
-				w.Header().Set("Content-Type", "text/html; charset=utf-8")
-				w.Write([]byte(modifiedHTML))
-				return
-			}
-
 			http.NotFound(w, r)
 			return
 		}
