@@ -10,6 +10,7 @@
   border-radius: 50%;
 
   transition: left 60ms linear, top 60ms linear, opacity 60ms linear, background 60ms linear;
+  will-change: left, top;
 
   position: absolute;
   box-shadow: 0 0 1vh 0 var(--BlackColor);
