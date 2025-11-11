@@ -8,7 +8,8 @@
   /*make it round*/
   border-radius: 50%;
 
-  transition: 60ms linear;
+  transition: left 60ms linear, top 60ms linear, opacity 60ms linear, background-color 60ms linear;
+  will-change: left, top;
 
   position: absolute;
   opacity: 1;
