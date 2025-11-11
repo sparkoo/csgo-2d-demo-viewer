@@ -68,23 +68,3 @@ To run the server (runs the server in dev mode, which enables local testing usin
 ```sh
 make server
 ```
-
-### Analytics Configuration
-
-The application supports [Umami Analytics](https://umami.is/) for privacy-focused, lightweight page analytics. To enable analytics:
-
-1. Copy the example environment file:
-   ```sh
-   cd web
-   cp .env.example .env
-   ```
-
-2. Configure your Umami instance in `web/.env`:
-   ```
-   VITE_UMAMI_SCRIPT_URL=https://your-umami-instance.com/script.js
-   VITE_UMAMI_WEBSITE_ID=your-website-id
-   ```
-
-3. The analytics script will be automatically injected during the build process.
-
-If the environment variables are not set, the application will work normally without analytics.
