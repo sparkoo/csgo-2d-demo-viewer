@@ -9,7 +9,7 @@
   /*make it round*/
   border-radius: 50%;
 
-  transition: 60ms linear;
+  transition: left 60ms linear, top 60ms linear, opacity 60ms linear, background 60ms linear;
 
   position: absolute;
   box-shadow: 0 0 1vh 0 var(--BlackColor);

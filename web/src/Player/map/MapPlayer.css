@@ -8,7 +8,7 @@
   /*make it round*/
   border-radius: 50%;
 
-  transition: 60ms linear;
+  transition: left 60ms linear, top 60ms linear, opacity 60ms linear, background 60ms linear;
 
   position: absolute;
   opacity: 1;
@@ -45,7 +45,7 @@
 }
 
 .playerShot {
-  transition: 100ms linear;
+  transition: transform 100ms linear;
   transform-origin: top;
   width: 1px;
   height: 5%;
