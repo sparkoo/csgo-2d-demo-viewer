@@ -2,6 +2,16 @@ import { Component } from "react";
 import { MSG_INIT_ROUNDS, MSG_PLAY, MSG_PLAY_ROUND_UPDATE } from "../constants";
 import "./RoundNav.css";
 
+// Round end reason constants from protobuf (proto.csgo.Round.RoundEndReason)
+const RoundEndReason = {
+  STILLINPROGRESS: 0,
+  TARGETBOMBED: 1,
+  BOMBDEFUSED: 7,
+  CTWIN: 8,
+  TERRORISTSWIN: 9,
+  TARGETSAVED: 12
+};
+
 class RoundNav extends Component {
   constructor(props) {
     super(props);
@@ -19,6 +29,7 @@ class RoundNav extends Component {
               key={`round${r.roundno}`}
               winner={r.winner}
               roundNo={r.roundno}
+              endReason={r.endreason}
               messageBus={this.messageBus}
             />
           );
@@ -70,16 +81,54 @@ class Round extends Component {
     });
   }
 
+  getRoundEndIcon() {
+    const endReason = this.props.endReason;
+    
+    switch (endReason) {
+      case RoundEndReason.TARGETBOMBED:
+        return "💣";
+      case RoundEndReason.BOMBDEFUSED:
+        return "🔧";
+      case RoundEndReason.CTWIN:
+      case RoundEndReason.TERRORISTSWIN:
+        return "☠️";
+      case RoundEndReason.TARGETSAVED:
+        return "⏱️";
+      default:
+        return "";
+    }
+  }
+
   render() {
+    const icon = this.getRoundEndIcon();
     return (
       <button
         className={`w3-button roundNav ${this.props.winner} ${
           this.state.active ? "active" : ""
         }`}
         onClick={(_) => this.playRound(this.props.roundNo)}
+        title={this.getRoundEndReasonText()}
       >
-        {this.props.roundNo}
+        <span className="round-number">{this.props.roundNo}</span>
+        {icon && <span className="round-icon">{icon}</span>}
       </button>
     );
+  }
+
+  getRoundEndReasonText() {
+    const endReason = this.props.endReason;
+    switch (endReason) {
+      case RoundEndReason.TARGETBOMBED:
+        return "Bomb exploded";
+      case RoundEndReason.BOMBDEFUSED:
+        return "Bomb defused";
+      case RoundEndReason.CTWIN:
+      case RoundEndReason.TERRORISTSWIN:
+        return "Full kills";
+      case RoundEndReason.TARGETSAVED:
+        return "Time expired";
+      default:
+        return "";
+    }
   }
 }

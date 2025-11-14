@@ -125,6 +125,14 @@ message Bomb {
 }
 
 message Round {
+  enum RoundEndReason {
+    StillInProgress = 0;
+    TargetBombed = 1;
+    BombDefused = 7;
+    CTWin = 8;
+    TerroristsWin = 9;
+    TargetSaved = 12;
+  }
   int32 RoundNo = 1;
   int32 RoundTookSeconds = 2;
   int32 StartTick = 3;
@@ -133,6 +141,7 @@ message Round {
   repeated Message Ticks = 6;
   TeamUpdate TeamState = 7;
   string Winner = 8;
+  RoundEndReason EndReason = 9;
 }
 
 message Progress {
