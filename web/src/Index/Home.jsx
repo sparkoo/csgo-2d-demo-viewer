@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import "./Home.css";
 import Uploader from "./Uploader/Uploader";
+import faceitIcon from "../assets/faceit_icon.svg";
+import chromeBadge from "../assets/extension_chrome_badge.png";
+import firefoxBadge from "../assets/extension_firefox_badge.png";
+import githubIcon from "../assets/github_icon.svg";
 
 export function Home() {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
@@ -46,7 +50,7 @@ export function Home() {
                 <div className="links-container">
                   <h2>
                     <img
-                      src="/faceit_icon.svg"
+                      src={faceitIcon}
                       alt="Faceit Icon"
                       className="faceit-icon"
                       width="24"
@@ -62,7 +66,7 @@ export function Home() {
                       rel="noopener noreferrer"
                     >
                       <img
-                        src="/extension_chrome_badge.png"
+                        src={chromeBadge}
                         alt="Chrome Extension Badge"
                         className="tool-badge"
                       />
@@ -75,7 +79,7 @@ export function Home() {
                       rel="noopener noreferrer"
                     >
                       <img
-                        src="/extension_firefox_badge.png"
+                        src={firefoxBadge}
                         alt="Firefox Add-on Badge"
                         className="tool-badge"
                       />
@@ -98,7 +102,7 @@ export function Home() {
                       rel="noopener noreferrer"
                     >
                       <img
-                        src="/github_icon.svg"
+                        src={githubIcon}
                         alt="GitHub Icon"
                         className="github-icon"
                         width="24"
@@ -134,7 +138,7 @@ export function Home() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="/github_icon.svg"
+                  src={githubIcon}
                   alt="GitHub Icon"
                   className="github-icon"
                   width="20"
