@@ -195,6 +195,7 @@ func secureDemoUrl(urlParam string) (string, error) {
 	// Whitelist of allowed hosts
 	allowedHosts := []string{
 		"demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com",
+		"demos-us-east-faceit-cdn.s3.us-east-005.backblazeb2.com",
 	}
 
 	// Check that the host is in the allowed list
