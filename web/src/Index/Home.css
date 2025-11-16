@@ -61,7 +61,7 @@ body {
   height: 170%;
   overflow: hidden;
   z-index: 1;
-  background-image: url('/header.png');
+  background-image: url('../assets/header.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
