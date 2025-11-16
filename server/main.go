@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -14,9 +13,14 @@ import (
 	"slices"
 	"strings"
 	"time"
+
+	"go.uber.org/zap"
 )
 
-var isDev bool
+var (
+	isDev  bool
+	logger *zap.Logger
+)
 
 // getAnalyticsConfig returns Umami analytics configuration from environment variables
 func getAnalyticsConfig() (scriptURL, websiteID string) {
@@ -66,13 +70,18 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		demoUrl, errDemoUrl = secureDemoUrl(urlParam)
 		if errDemoUrl != nil {
-			log.Printf("Failed to construct the url: %v", errDemoUrl)
+			logger.Error("Failed to construct the url", zap.Error(errDemoUrl))
 			http.Error(w, "Failed to construct the url", http.StatusInternalServerError)
 			return
 		}
 	}
 
-	log.Printf("Incoming request to /download: %s %s from %s, User-Agent: %s, Query: %s", r.Method, r.URL.Path, r.RemoteAddr, r.Header.Get("User-Agent"), r.URL.RawQuery)
+	logger.Info("Incoming request to /download",
+		zap.String("method", r.Method),
+		zap.String("path", r.URL.Path),
+		zap.String("remote_addr", r.RemoteAddr),
+		zap.String("user_agent", r.Header.Get("User-Agent")),
+		zap.String("query", r.URL.RawQuery))
 
 	// Create a custom HTTP client with timeout and no redirects
 	client := &http.Client{
@@ -84,14 +93,14 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := client.Get(demoUrl)
 	if err != nil {
-		log.Printf("Error fetching URL %s: %v", demoUrl, err)
+		logger.Error("Error fetching URL", zap.String("url", demoUrl), zap.Error(err))
 		http.Error(w, "Failed to fetch URL", http.StatusInternalServerError)
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("Non-OK status from URL %s: %d", demoUrl, resp.StatusCode)
+		logger.Error("Non-OK status from URL", zap.String("url", demoUrl), zap.Int("status", resp.StatusCode))
 		http.Error(w, "Failed to fetch URL", http.StatusInternalServerError)
 		return
 	}
@@ -109,7 +118,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		n, err := resp.Body.Read(buf)
 		if n > 0 {
 			if _, writeErr := w.Write(buf[:n]); writeErr != nil {
-				log.Printf("Error writing response: %v", writeErr)
+				logger.Error("Error writing response", zap.Error(writeErr))
 				return
 			}
 			if flusher, ok := w.(http.Flusher); ok {
@@ -120,7 +129,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 			if err == io.EOF {
 				break
 			}
-			log.Printf("Error reading response: %v", err)
+			logger.Error("Error reading response", zap.Error(err))
 			return
 		}
 	}
@@ -139,7 +148,7 @@ func spaHandler(dir string) http.Handler {
 			indexPath := filepath.Join(dir, "index.html")
 			htmlContent, err := os.ReadFile(indexPath)
 			if err != nil {
-				log.Printf("Error reading index.html: %v", err)
+				logger.Error("Error reading index.html", zap.Error(err))
 				http.NotFound(w, r)
 				return
 			}
@@ -171,19 +180,19 @@ func secureDemoUrl(urlParam string) (string, error) {
 
 	parsedURL, err := url.Parse(urlParam)
 	if err != nil {
-		log.Printf("Invalid URL: %s, error: %v", urlParam, err)
+		logger.Error("Invalid URL", zap.String("url", urlParam), zap.Error(err))
 		return "", err
 	}
 
 	// Forbid URLs with '#' to prevent fragment-based attacks
 	if strings.Contains(urlParam, "#") {
-		log.Printf("Forbidden URL with fragment: %s", urlParam)
+		logger.Warn("Forbidden URL with fragment", zap.String("url", urlParam))
 		return "", fmt.Errorf("forbidden URL with fragment: %s", urlParam)
 	}
 
 	// Allow only http and https schemes
 	if parsedURL.Scheme != "https" {
-		log.Printf("Forbidden scheme: %s", parsedURL.Scheme)
+		logger.Warn("Forbidden scheme", zap.String("scheme", parsedURL.Scheme))
 		return "", fmt.Errorf("forbidden scheme: %s", parsedURL.Scheme)
 	}
 
@@ -209,7 +218,7 @@ func secureDemoUrl(urlParam string) (string, error) {
 		}
 	}
 	if !allowed {
-		log.Printf("Forbidden host: %s", parsedURL.Host)
+		logger.Warn("Forbidden host", zap.String("host", parsedURL.Host))
 		return "", fmt.Errorf("forbidden host %v", parsedURL.Host)
 	}
 
@@ -235,6 +244,23 @@ func main() {
 	flag.Parse()
 	isDev = *dev
 
+	// Initialize logger
+	var err error
+	if isDev {
+		logger, err = zap.NewDevelopment()
+		if err != nil {
+			panic(fmt.Sprintf("failed to initialize development logger: %v", err))
+		}
+		logger.Info("initialized development logger")
+	} else {
+		logger, err = zap.NewProduction()
+		if err != nil {
+			panic(fmt.Sprintf("failed to initialize production logger: %v", err))
+		}
+		logger.Info("initialized production logger")
+	}
+	defer logger.Sync()
+
 	http.HandleFunc("/download", downloadHandler)
 	http.Handle("/", spaHandler("../web/dist"))
 
@@ -242,5 +268,8 @@ func main() {
 		http.Handle("/testdemos/", http.StripPrefix("/testdemos/", http.FileServer(http.Dir("./testdemos"))))
 	}
 
-	http.ListenAndServe(":8080", nil)
+	logger.Info("starting server", zap.String("mode", map[bool]string{true: "dev", false: "prod"}[isDev]), zap.Int("port", 8080))
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		logger.Fatal("server failed to start", zap.Error(err))
+	}
 }
