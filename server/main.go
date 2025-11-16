@@ -22,6 +22,14 @@ var (
 	logger *zap.Logger
 )
 
+// initLogger initializes the zap logger based on the mode (dev or prod)
+func initLogger(dev bool) (*zap.Logger, error) {
+	if dev {
+		return zap.NewDevelopment()
+	}
+	return zap.NewProduction()
+}
+
 // getAnalyticsConfig returns Umami analytics configuration from environment variables
 func getAnalyticsConfig() (scriptURL, websiteID string) {
 	scriptURL = os.Getenv("VITE_UMAMI_SCRIPT_URL")
@@ -246,20 +254,17 @@ func main() {
 
 	// Initialize logger
 	var err error
-	if isDev {
-		logger, err = zap.NewDevelopment()
-		if err != nil {
-			panic(fmt.Sprintf("failed to initialize development logger: %v", err))
-		}
-		logger.Info("initialized development logger")
-	} else {
-		logger, err = zap.NewProduction()
-		if err != nil {
-			panic(fmt.Sprintf("failed to initialize production logger: %v", err))
-		}
-		logger.Info("initialized production logger")
+	logger, err = initLogger(isDev)
+	if err != nil {
+		panic(fmt.Sprintf("failed to initialize logger: %v", err))
 	}
 	defer logger.Sync()
+
+	if isDev {
+		logger.Info("initialized development logger")
+	} else {
+		logger.Info("initialized production logger")
+	}
 
 	http.HandleFunc("/download", downloadHandler)
 	http.Handle("/", spaHandler("../web/dist"))
