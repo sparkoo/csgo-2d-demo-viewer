@@ -33,17 +33,12 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var demoUrl string
-	var errDemoUrl error
-	if isDev {
-		demoUrl = urlParam
-	} else {
-		demoUrl, errDemoUrl = secureDemoUrl(urlParam)
-		if errDemoUrl != nil {
-			logger.Error("Failed to construct the url", zap.Error(errDemoUrl))
-			http.Error(w, "Failed to construct the url", http.StatusInternalServerError)
-			return
-		}
+	// Validate URL for security, with development-specific allowances
+	demoUrl, errDemoUrl := secureDemoUrl(urlParam, isDev)
+	if errDemoUrl != nil {
+		logger.Error("Failed to construct the url", zap.Error(errDemoUrl))
+		http.Error(w, "Failed to construct the url", http.StatusBadRequest)
+		return
 	}
 
 	logger.Info("Incoming request to /download",
@@ -106,7 +101,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // secureDemoUrl validates and constructs a secure demo URL from user input
-func secureDemoUrl(urlParam string) (string, error) {
+func secureDemoUrl(urlParam string, isDev bool) (string, error) {
 	parsedURL, err := url.Parse(urlParam)
 	if err != nil {
 		logger.Error("Invalid URL", zap.String("url", urlParam), zap.Error(err))
@@ -119,18 +114,30 @@ func secureDemoUrl(urlParam string) (string, error) {
 		return "", fmt.Errorf("forbidden URL with fragment: %s", urlParam)
 	}
 
-	// Allow only http and https schemes
-	if parsedURL.Scheme != "https" {
-		logger.Warn("Forbidden scheme", zap.String("scheme", parsedURL.Scheme))
-		return "", fmt.Errorf("forbidden scheme: %s", parsedURL.Scheme)
-	}
-
 	// Optional: Enforce URL length limit
 	if len(urlParam) > 2048 {
 		return "", fmt.Errorf("too long URL")
 	}
 
-	// Whitelist of allowed hosts
+	// In development mode, only allow http://localhost:8080
+	if isDev {
+		if parsedURL.Scheme != "http" {
+			logger.Warn("Development mode: forbidden scheme", zap.String("scheme", parsedURL.Scheme))
+			return "", fmt.Errorf("development mode: only http scheme allowed, got: %s", parsedURL.Scheme)
+		}
+		if parsedURL.Host != "localhost:8080" {
+			logger.Warn("Development mode: forbidden host", zap.String("host", parsedURL.Host))
+			return "", fmt.Errorf("development mode: only localhost:8080 is allowed, got: %s", parsedURL.Host)
+		}
+		// In dev mode, return the URL as-is (already validated above)
+		return urlParam, nil
+	}
+
+	// Production mode: only allow https and strict whitelist of allowed hosts
+	if parsedURL.Scheme != "https" {
+		logger.Warn("Production mode: forbidden scheme", zap.String("scheme", parsedURL.Scheme))
+		return "", fmt.Errorf("production mode: only https scheme allowed, got: %s", parsedURL.Scheme)
+	}
 	allowedHosts := []string{
 		"demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com",
 		"demos-us-east-faceit-cdn.s3.us-east-005.backblazeb2.com",
