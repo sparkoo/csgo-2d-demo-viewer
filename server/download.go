@@ -121,13 +121,9 @@ func secureDemoUrl(urlParam string, isDev bool) (string, error) {
 
 	// In development mode, only allow http://localhost:8080
 	if isDev {
-		if parsedURL.Scheme != "http" {
-			logger.Warn("Development mode: forbidden scheme", zap.String("scheme", parsedURL.Scheme))
-			return "", fmt.Errorf("development mode: only http scheme allowed, got: %s", parsedURL.Scheme)
-		}
-		if parsedURL.Host != "localhost:8080" {
-			logger.Warn("Development mode: forbidden host", zap.String("host", parsedURL.Host))
-			return "", fmt.Errorf("development mode: only localhost:8080 is allowed, got: %s", parsedURL.Host)
+		if parsedURL.Scheme != "http" || parsedURL.Host != "localhost:8080" {
+			logger.Warn("Development mode: forbidden scheme or host", zap.String("scheme", parsedURL.Scheme), zap.String("host", parsedURL.Host))
+			return "", fmt.Errorf("development mode: only http://localhost:8080 is allowed, got: %s", parsedURL.String())
 		}
 		// In dev mode, return the URL as-is (already validated above)
 		return urlParam, nil
