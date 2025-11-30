@@ -351,6 +351,14 @@ class FACEITDemoViewer {
   }
 
   async handleReplayClick(matchId, button, matchRoomUrl = null) {
+    // Prevent double clicks - check if already processing
+    if (button.dataset.isProcessing === "true") {
+      this.log("⚠️ Already processing request for match", matchId, "- ignoring duplicate click");
+      return;
+    }
+
+    // Mark as processing immediately
+    button.dataset.isProcessing = "true";
     this.log("handle click on match", matchId);
 
     const originalContent = button.innerHTML;
@@ -427,6 +435,7 @@ class FACEITDemoViewer {
           // Reset button to original state
           button.innerHTML = originalContent;
           button.disabled = false;
+          button.dataset.isProcessing = "false";
         })
         .catch((error) => {
           console.error("Error in API calls:", error);
@@ -519,6 +528,7 @@ class FACEITDemoViewer {
             setTimeout(() => {
               button.innerHTML = originalContent;
               button.disabled = false;
+              button.dataset.isProcessing = "false";
               button.title = "Open CS2 Demo Viewer";
               button.style.removeProperty("cursor");
               // Restore original click handler with proper context binding
@@ -545,6 +555,7 @@ class FACEITDemoViewer {
             setTimeout(() => {
               button.innerHTML = originalContent;
               button.disabled = false;
+              button.dataset.isProcessing = "false";
               button.title = "Open CS2 Demo Viewer";
             }, 2000);
           }
@@ -564,6 +575,7 @@ class FACEITDemoViewer {
       setTimeout(() => {
         button.innerHTML = originalContent;
         button.disabled = false;
+        button.dataset.isProcessing = "false";
       }, 2000);
     }
   }
