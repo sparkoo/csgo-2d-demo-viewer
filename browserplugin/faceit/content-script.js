@@ -22,6 +22,47 @@ class FACEITDemoViewer {
     }
   }
 
+  // Extract CSRF token from page if it exists
+  getCSRFToken() {
+    // Try to find CSRF token in meta tags
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfMeta) {
+      return csrfMeta.getAttribute("content");
+    }
+
+    // Try to find it in cookies
+    const cookies = document.cookie.split(";");
+    for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split("=");
+      if (name === "csrf_token" || name === "XSRF-TOKEN") {
+        return decodeURIComponent(value);
+      }
+    }
+
+    return null;
+  }
+
+  // Get common headers for FACEIT API requests
+  getFaceitApiHeaders(includeContentType = false) {
+    const headers = {
+      "Accept": "application/json",
+      "Referer": window.location.href,
+      "Origin": window.location.origin,
+    };
+
+    if (includeContentType) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    // Add CSRF token if available
+    const csrfToken = this.getCSRFToken();
+    if (csrfToken) {
+      headers["X-CSRF-Token"] = csrfToken;
+    }
+
+    return headers;
+  }
+
   async init() {
     this.log("Initializing extension...");
 
@@ -373,12 +414,10 @@ class FACEITDemoViewer {
       }
 
       // First, fetch match details
+      this.log(`Fetching match details for match ID: ${actualMatchId}`);
       fetch(`https://www.faceit.com/api/match/v2/match/${actualMatchId}`, {
         credentials: "include", // Explicitly include cookies
-        headers: {
-          "Accept": "application/json",
-          "Referer": window.location.href,
-        },
+        headers: this.getFaceitApiHeaders(),
       })
         .then((response) => {
           if (!response.ok) {
@@ -397,16 +436,13 @@ class FACEITDemoViewer {
           const demoUrl = matchData.payload.demoURLs[0];
 
           // Then, make HTTP request to download demo URL
+          this.log(`Requesting download URL for demo: ${demoUrl}`);
           return fetch(
             "https://www.faceit.com/api/download/v2/demos/download-url",
             {
               method: "POST",
               credentials: "include", // Explicitly include cookies
-              headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Referer": window.location.href,
-              },
+              headers: this.getFaceitApiHeaders(true), // Include Content-Type
               body: JSON.stringify({
                 resource_url: demoUrl,
               }),
