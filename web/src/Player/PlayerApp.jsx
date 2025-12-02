@@ -101,6 +101,16 @@ export function PlayerApp() {
     } else if (isWasmLoaded && location.query.faceit_match_id) {
       // Handle Faceit match ID parameter
       const matchId = location.query.faceit_match_id;
+      
+      // Validate match ID format (should match Faceit match ID pattern)
+      // Expected format: 1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-x-x
+      const matchIdPattern = /^\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d+-\d+$/;
+      if (!matchIdPattern.test(matchId)) {
+        setIsError(true);
+        setLoadingMessage(["Invalid Faceit match ID format"]);
+        return;
+      }
+      
       setLoadingMessage(["Fetching demo from Faceit..."]);
       
       // First, fetch match details
@@ -151,6 +161,8 @@ export function PlayerApp() {
           
           // Validate the download URL is from expected Faceit CDN domains
           // Known Faceit demo CDN domains (Backblaze B2)
+          // NOTE: This list should be kept in sync with server/download.go allowedHosts
+          // Update this list if Faceit adds new CDN regions
           const allowedDomains = [
             'demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com',
             'demos-us-east-faceit-cdn.s3.us-east-005.backblazeb2.com'
@@ -190,9 +202,9 @@ export function PlayerApp() {
           const contentDisposition = response.headers["content-disposition"];
           let filename = "demo.zst";
           if (contentDisposition) {
-            const match = contentDisposition.match(/filename="([^"]+)"/);
-            if (match) {
-              filename = match[1];
+            const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+            if (filenameMatch) {
+              filename = filenameMatch[1];
             }
           }
           worker.current.postMessage({
@@ -232,9 +244,9 @@ export function PlayerApp() {
           const contentDisposition = response.headers["content-disposition"];
           let filename = "demo.zst";
           if (contentDisposition) {
-            const match = contentDisposition.match(/filename="([^"]+)"/);
-            if (match) {
-              filename = match[1];
+            const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+            if (filenameMatch) {
+              filename = filenameMatch[1];
             }
           }
           worker.current.postMessage({
