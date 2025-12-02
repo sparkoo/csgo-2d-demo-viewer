@@ -13,6 +13,7 @@ class FACEITDemoViewer {
     this.debugMode = true;
     this.injectionTimeout = null;
     this.historyCheckTimeout = null;
+    this.csrfTokenCache = null; // Cache for CSRF token
     this.init();
   }
 
@@ -24,10 +25,16 @@ class FACEITDemoViewer {
 
   // Extract CSRF token from page if it exists
   getCSRFToken() {
+    // Return cached token if available
+    if (this.csrfTokenCache !== null) {
+      return this.csrfTokenCache;
+    }
+
     // Try to find CSRF token in meta tags
     const csrfMeta = document.querySelector('meta[name="csrf-token"]');
     if (csrfMeta) {
-      return csrfMeta.getAttribute("content");
+      this.csrfTokenCache = csrfMeta.getAttribute("content");
+      return this.csrfTokenCache;
     }
 
     // Try to find it in cookies
@@ -35,18 +42,20 @@ class FACEITDemoViewer {
     for (const cookie of cookies) {
       const trimmed = cookie.trim();
       const equalIndex = trimmed.indexOf("=");
-      if (equalIndex === -1) continue; // Skip malformed cookies
+      if (equalIndex === -1) continue; // Skip cookies without '=' (could be malformed or flag cookies)
       
       const name = trimmed.substring(0, equalIndex);
       const value = trimmed.substring(equalIndex + 1);
       
       if (name === "csrf_token" || name === "XSRF-TOKEN") {
         try {
-          return decodeURIComponent(value);
+          this.csrfTokenCache = decodeURIComponent(value);
+          return this.csrfTokenCache;
         } catch (e) {
           // If decoding fails, return the raw value
           this.log("Failed to decode CSRF token cookie:", e);
-          return value;
+          this.csrfTokenCache = value;
+          return this.csrfTokenCache;
         }
       }
     }
