@@ -41,7 +41,13 @@ class FACEITDemoViewer {
       const value = trimmed.substring(equalIndex + 1);
       
       if (name === "csrf_token" || name === "XSRF-TOKEN") {
-        return decodeURIComponent(value);
+        try {
+          return decodeURIComponent(value);
+        } catch (e) {
+          // If decoding fails, return the raw value
+          this.log("Failed to decode CSRF token cookie:", e);
+          return value;
+        }
       }
     }
 
