@@ -16,6 +16,10 @@ const downloadServer = window.location.host.includes("localhost")
   ? "http://localhost:8080"
   : "";
 
+// Faceit API endpoints
+const FACEIT_MATCH_API = "https://www.faceit.com/api/match/v2/match";
+const FACEIT_DOWNLOAD_API = "https://www.faceit.com/api/download/v2/demos/download-url";
+
 export function PlayerApp() {
   const location = useLocation();
   const worker = useRef(null);
@@ -100,7 +104,7 @@ export function PlayerApp() {
       setLoadingMessage(["Fetching demo from Faceit..."]);
       
       // First, fetch match details
-      fetch(`https://www.faceit.com/api/match/v2/match/${matchId}`)
+      fetch(`${FACEIT_MATCH_API}/${matchId}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`Failed to fetch match data: ${response.status}`);
@@ -109,21 +113,24 @@ export function PlayerApp() {
         })
         .then((matchData) => {
           console.log("Match data:", matchData);
+          
+          // Validate that demoURLs exists and has at least one element
+          if (!matchData.payload?.demoURLs || matchData.payload.demoURLs.length === 0) {
+            throw new Error("No demo URLs found in match data");
+          }
+          
           const demoUrl = matchData.payload.demoURLs[0];
           
           // Then, get the download URL
-          return fetch(
-            "https://www.faceit.com/api/download/v2/demos/download-url",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                resource_url: demoUrl,
-              }),
-            }
-          );
+          return fetch(FACEIT_DOWNLOAD_API, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              resource_url: demoUrl,
+            }),
+          });
         })
         .then((response) => {
           if (!response.ok) {
@@ -134,6 +141,11 @@ export function PlayerApp() {
         .then((downloadData) => {
           const downloadUrl = downloadData.payload.download_url;
           console.log("Demo download URL:", downloadUrl);
+          
+          // Validate the download URL format (basic check for HTTPS and expected domain patterns)
+          if (!downloadUrl || !downloadUrl.startsWith('https://')) {
+            throw new Error("Invalid demo download URL received from Faceit API");
+          }
           
           // Now download the demo
           setIsDownloading(true);
