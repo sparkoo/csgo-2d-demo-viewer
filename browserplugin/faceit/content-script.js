@@ -33,7 +33,13 @@ class FACEITDemoViewer {
     // Try to find it in cookies
     const cookies = document.cookie.split(";");
     for (const cookie of cookies) {
-      const [name, value] = cookie.trim().split("=");
+      const trimmed = cookie.trim();
+      const equalIndex = trimmed.indexOf("=");
+      if (equalIndex === -1) continue; // Skip malformed cookies
+      
+      const name = trimmed.substring(0, equalIndex);
+      const value = trimmed.substring(equalIndex + 1);
+      
       if (name === "csrf_token" || name === "XSRF-TOKEN") {
         return decodeURIComponent(value);
       }
