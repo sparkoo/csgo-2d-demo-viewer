@@ -94,6 +94,88 @@ export function PlayerApp() {
     if (isWasmLoaded && demoData.demoData) {
       console.log("Posting demo data to worker.");
       worker.current.postMessage(demoData.demoData);
+    } else if (isWasmLoaded && location.query.faceit_match_id) {
+      // Handle Faceit match ID parameter
+      const matchId = location.query.faceit_match_id;
+      setLoadingMessage(["Fetching demo from Faceit..."]);
+      
+      // First, fetch match details
+      fetch(`https://www.faceit.com/api/match/v2/match/${matchId}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Failed to fetch match data: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((matchData) => {
+          console.log("Match data:", matchData);
+          const demoUrl = matchData.payload.demoURLs[0];
+          
+          // Then, get the download URL
+          return fetch(
+            "https://www.faceit.com/api/download/v2/demos/download-url",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                resource_url: demoUrl,
+              }),
+            }
+          );
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Failed to fetch download URL: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((downloadData) => {
+          const downloadUrl = downloadData.payload.download_url;
+          console.log("Demo download URL:", downloadUrl);
+          
+          // Now download the demo
+          setIsDownloading(true);
+          return axios.get(`${downloadServer}/download?url=${encodeURIComponent(downloadUrl)}`, {
+            responseType: "arraybuffer",
+            onDownloadProgress: (progressEvent) => {
+              console.log(
+                progressEvent,
+                progressEvent.event.target.getResponseHeader("X-Demo-Length")
+              );
+              var totalSize =
+                progressEvent.event.target.getResponseHeader("X-Demo-Length");
+              setDownloadProgress(
+                totalSize ? (progressEvent.loaded / totalSize) * 100 : 0
+              );
+              setLoadingMessage([`Downloading demo...`]);
+            },
+          });
+        })
+        .then((response) => {
+          setIsDownloading(false);
+          setDownloadProgress(0);
+          setLoadingMessage(["Loading match..."]);
+          const contentDisposition = response.headers["content-disposition"];
+          let filename = "demo.zst";
+          if (contentDisposition) {
+            const match = contentDisposition.match(/filename="([^"]+)"/);
+            if (match) {
+              filename = match[1];
+            }
+          }
+          worker.current.postMessage({
+            filename: filename,
+            data: new Uint8Array(response.data),
+          });
+        })
+        .catch((error) => {
+          setIsDownloading(false);
+          setDownloadProgress(0);
+          setIsError(true);
+          setLoadingMessage(["Error loading demo: " + error.message]);
+        });
     } else if (isWasmLoaded && location.query.demourl) {
       const demoUrl = location.query.demourl;
       setIsDownloading(true);
