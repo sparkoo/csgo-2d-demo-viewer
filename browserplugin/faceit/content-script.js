@@ -373,7 +373,13 @@ class FACEITDemoViewer {
       }
 
       // First, fetch match details
-      fetch(`https://www.faceit.com/api/match/v2/match/${actualMatchId}`)
+      fetch(`https://www.faceit.com/api/match/v2/match/${actualMatchId}`, {
+        credentials: "include", // Explicitly include cookies
+        headers: {
+          "Accept": "application/json",
+          "Referer": window.location.href,
+        },
+      })
         .then((response) => {
           if (!response.ok) {
             // Create error object with status code
@@ -395,8 +401,11 @@ class FACEITDemoViewer {
             "https://www.faceit.com/api/download/v2/demos/download-url",
             {
               method: "POST",
+              credentials: "include", // Explicitly include cookies
               headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Referer": window.location.href,
               },
               body: JSON.stringify({
                 resource_url: demoUrl,
