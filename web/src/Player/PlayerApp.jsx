@@ -114,8 +114,10 @@ export function PlayerApp() {
         .then((matchData) => {
           console.log("Match data:", matchData);
           
-          // Validate that demoURLs exists and has at least one element
-          if (!matchData.payload?.demoURLs || matchData.payload.demoURLs.length === 0) {
+          // Validate that demoURLs exists, is an array, and has at least one element
+          if (!matchData.payload?.demoURLs || 
+              !Array.isArray(matchData.payload.demoURLs) || 
+              matchData.payload.demoURLs.length === 0) {
             throw new Error("No demo URLs found in match data");
           }
           
@@ -139,12 +141,28 @@ export function PlayerApp() {
           return response.json();
         })
         .then((downloadData) => {
+          // Validate download URL exists in response
+          if (!downloadData.payload?.download_url) {
+            throw new Error("No download URL found in response");
+          }
+          
           const downloadUrl = downloadData.payload.download_url;
           console.log("Demo download URL:", downloadUrl);
           
-          // Validate the download URL format (basic check for HTTPS and expected domain patterns)
-          if (!downloadUrl || !downloadUrl.startsWith('https://')) {
-            throw new Error("Invalid demo download URL received from Faceit API");
+          // Validate the download URL is from expected Faceit CDN domains
+          // Known Faceit demo CDN domains (Backblaze B2)
+          const allowedDomains = [
+            'demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com',
+            'demos-us-east-faceit-cdn.s3.us-east-005.backblazeb2.com'
+          ];
+          
+          try {
+            const url = new URL(downloadUrl);
+            if (url.protocol !== 'https:' || !allowedDomains.includes(url.hostname)) {
+              throw new Error("Demo URL is not from an expected Faceit CDN domain");
+            }
+          } catch (e) {
+            throw new Error(`Invalid demo download URL: ${e.message}`);
           }
           
           // Now download the demo
