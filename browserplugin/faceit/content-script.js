@@ -13,7 +13,8 @@ class FACEITDemoViewer {
     this.debugMode = true;
     this.injectionTimeout = null;
     this.historyCheckTimeout = null;
-    this.csrfTokenCache = null; // Cache for CSRF token
+    /** @type {string|null} Cached CSRF token to avoid repeated DOM/cookie parsing */
+    this.csrfTokenCache = null;
     this.init();
   }
 
@@ -23,7 +24,11 @@ class FACEITDemoViewer {
     }
   }
 
-  // Extract CSRF token from page if it exists
+  /**
+   * Extract CSRF token from the page for API authentication.
+   * Checks meta tags first, then cookies. Caches the result to avoid repeated parsing.
+   * @returns {string|null} The CSRF token if found, null otherwise
+   */
   getCSRFToken() {
     // Return cached token if available
     if (this.csrfTokenCache !== null) {
@@ -42,7 +47,7 @@ class FACEITDemoViewer {
     for (const cookie of cookies) {
       const trimmed = cookie.trim();
       const equalIndex = trimmed.indexOf("=");
-      if (equalIndex === -1) continue; // Skip cookies without '=' (could be malformed or flag cookies)
+      if (equalIndex === -1) continue; // Skip flag cookies (cookies without values)
       
       const name = trimmed.substring(0, equalIndex);
       const value = trimmed.substring(equalIndex + 1);
@@ -63,7 +68,12 @@ class FACEITDemoViewer {
     return null;
   }
 
-  // Get common headers for FACEIT API requests
+  /**
+   * Get common headers for FACEIT API requests.
+   * Includes Accept, Referer, Origin, and CSRF token if available.
+   * @param {boolean} includeContentType - Whether to include Content-Type: application/json header
+   * @returns {Object} Headers object suitable for fetch() requests
+   */
   getFaceitApiHeaders(includeContentType = false) {
     const headers = {
       "Accept": "application/json",
