@@ -104,7 +104,7 @@ export function PlayerApp() {
       
       // Validate match ID format (should match Faceit match ID pattern)
       // Expected format: 1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-x-x
-      const matchIdPattern = /^\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d+-\d+$/;
+      const matchIdPattern = /^\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d+-\d+$/i;
       if (!matchIdPattern.test(matchId)) {
         setIsError(true);
         setLoadingMessage(["Invalid Faceit match ID format"]);
@@ -174,7 +174,8 @@ export function PlayerApp() {
               throw new Error("Demo URL is not from an expected Faceit CDN domain");
             }
           } catch (e) {
-            throw new Error(`Invalid demo download URL: ${e.message}`);
+            // Use generic error message to avoid leaking internal details
+            throw new Error("Invalid demo download URL received from Faceit API");
           }
           
           // Now download the demo
