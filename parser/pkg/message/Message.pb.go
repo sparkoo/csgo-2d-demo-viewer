@@ -790,6 +790,11 @@ type Frag struct {
 	KillerTeam    string                 `protobuf:"bytes,4,opt,name=KillerTeam,proto3" json:"KillerTeam,omitempty"`
 	Weapon        string                 `protobuf:"bytes,5,opt,name=Weapon,proto3" json:"Weapon,omitempty"`
 	IsHeadshot    bool                   `protobuf:"varint,6,opt,name=IsHeadshot,proto3" json:"IsHeadshot,omitempty"`
+	IsWallbang    bool                   `protobuf:"varint,7,opt,name=IsWallbang,proto3" json:"IsWallbang,omitempty"`
+	AssistedFlash bool                   `protobuf:"varint,8,opt,name=AssistedFlash,proto3" json:"AssistedFlash,omitempty"`
+	AttackerBlind bool                   `protobuf:"varint,9,opt,name=AttackerBlind,proto3" json:"AttackerBlind,omitempty"`
+	NoScope       bool                   `protobuf:"varint,10,opt,name=NoScope,proto3" json:"NoScope,omitempty"`
+	ThroughSmoke  bool                   `protobuf:"varint,11,opt,name=ThroughSmoke,proto3" json:"ThroughSmoke,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -862,6 +867,41 @@ func (x *Frag) GetWeapon() string {
 func (x *Frag) GetIsHeadshot() bool {
 	if x != nil {
 		return x.IsHeadshot
+	}
+	return false
+}
+
+func (x *Frag) GetIsWallbang() bool {
+	if x != nil {
+		return x.IsWallbang
+	}
+	return false
+}
+
+func (x *Frag) GetAssistedFlash() bool {
+	if x != nil {
+		return x.AssistedFlash
+	}
+	return false
+}
+
+func (x *Frag) GetAttackerBlind() bool {
+	if x != nil {
+		return x.AttackerBlind
+	}
+	return false
+}
+
+func (x *Frag) GetNoScope() bool {
+	if x != nil {
+		return x.NoScope
+	}
+	return false
+}
+
+func (x *Frag) GetThroughSmoke() bool {
+	if x != nil {
+		return x.ThroughSmoke
 	}
 	return false
 }
