@@ -91,11 +91,6 @@ message Frag {
   string KillerTeam = 4;
   string Weapon = 5;
   bool IsHeadshot = 6;
-  bool IsWallbang = 7;
-  bool AssistedFlash = 8;
-  bool AttackerBlind = 9;
-  bool NoScope = 10;
-  bool ThroughSmoke = 11;
 }
 
 message Shot {
