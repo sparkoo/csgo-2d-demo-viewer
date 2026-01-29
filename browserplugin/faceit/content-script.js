@@ -13,6 +13,8 @@ class FACEITDemoViewer {
     this.debugMode = true;
     this.injectionTimeout = null;
     this.historyCheckTimeout = null;
+    /** @type {string|null} Cached CSRF token to avoid repeated DOM/cookie parsing */
+    this.csrfTokenCache = null;
     this.init();
   }
 
@@ -20,6 +22,76 @@ class FACEITDemoViewer {
     if (this.debugMode) {
       console.log("🔧 [CS2 Extension]", ...args);
     }
+  }
+
+  /**
+   * Extract CSRF token from the page for API authentication.
+   * Checks meta tags first, then cookies. Caches the result to avoid repeated parsing.
+   * @returns {string|null} The CSRF token if found, null otherwise
+   */
+  getCSRFToken() {
+    // Return cached token if available
+    if (this.csrfTokenCache !== null) {
+      return this.csrfTokenCache;
+    }
+
+    // Try to find CSRF token in meta tags
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfMeta) {
+      this.csrfTokenCache = csrfMeta.getAttribute("content");
+      return this.csrfTokenCache;
+    }
+
+    // Try to find it in cookies
+    const cookies = document.cookie.split(";");
+    for (const cookie of cookies) {
+      const trimmed = cookie.trim();
+      const equalIndex = trimmed.indexOf("=");
+      if (equalIndex === -1) continue; // Skip flag cookies (cookies without values)
+      
+      const name = trimmed.substring(0, equalIndex);
+      const value = trimmed.substring(equalIndex + 1);
+      
+      if (name === "csrf_token" || name === "XSRF-TOKEN") {
+        try {
+          this.csrfTokenCache = decodeURIComponent(value);
+          return this.csrfTokenCache;
+        } catch (e) {
+          // If decoding fails, return the raw value
+          this.log("Failed to decode CSRF token cookie:", e);
+          this.csrfTokenCache = value;
+          return this.csrfTokenCache;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Get common headers for FACEIT API requests.
+   * Includes Accept, Referer, Origin, and CSRF token if available.
+   * @param {boolean} includeContentType - Whether to include Content-Type: application/json header
+   * @returns {Object} Headers object suitable for fetch() requests
+   */
+  getFaceitApiHeaders(includeContentType = false) {
+    const headers = {
+      "Accept": "application/json",
+      "Referer": window.location.href,
+      "Origin": window.location.origin,
+    };
+
+    if (includeContentType) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    // Add CSRF token if available
+    const csrfToken = this.getCSRFToken();
+    if (csrfToken) {
+      headers["X-CSRF-Token"] = csrfToken;
+    }
+
+    return headers;
   }
 
   async init() {
@@ -373,7 +445,11 @@ class FACEITDemoViewer {
       }
 
       // First, fetch match details
-      fetch(`https://www.faceit.com/api/match/v2/match/${actualMatchId}`)
+      this.log(`Fetching match details for match ID: ${actualMatchId}`);
+      fetch(`https://www.faceit.com/api/match/v2/match/${actualMatchId}`, {
+        credentials: "include", // Explicitly include cookies
+        headers: this.getFaceitApiHeaders(),
+      })
         .then((response) => {
           if (!response.ok) {
             // Create error object with status code
@@ -391,13 +467,13 @@ class FACEITDemoViewer {
           const demoUrl = matchData.payload.demoURLs[0];
 
           // Then, make HTTP request to download demo URL
+          this.log(`Requesting download URL for demo: ${demoUrl}`);
           return fetch(
             "https://www.faceit.com/api/download/v2/demos/download-url",
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              credentials: "include", // Explicitly include cookies
+              headers: this.getFaceitApiHeaders(true), // Include Content-Type
               body: JSON.stringify({
                 resource_url: demoUrl,
               }),
