@@ -32,7 +32,7 @@ Custom message format to send demo data between parser and the *Player* applicat
  - Demo download proxy
 
 ### Faceit browser plugin (`browserplugin/faceit/`)
-Adds several buttons to Faceit interface to play the demo. Internaly it resolves the real demo URL and opens player link with the demo url in parameter. Works for Firefox and Chrome-based browsers.
+Adds several buttons to Faceit interface to play the demo. Opens player link with the Faceit match ID in parameter, allowing for shareable URLs. Works for Firefox and Chrome-based browsers.
 
 ### Container
 Whole application is built into container and deployed to GCP. Everything is server by Go server.
@@ -68,3 +68,12 @@ To run the server (runs the server in dev mode, which enables local testing usin
 ```sh
 make server
 ```
+
+### URL Parameters
+
+The player supports the following URL parameters:
+
+- `demourl` - Direct URL to a demo file (e.g., `?demourl=https://...`)
+- `faceit_match_id` - Faceit match ID for automatic demo fetching (e.g., `?faceit_match_id=1-6e537ed7-b125-44f8-add6-14e814af55a6-1-1`)
+  - This creates shareable URLs that work even after the original demo URL expires
+  - The player automatically fetches the current demo URL from Faceit's API
