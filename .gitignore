@@ -7,6 +7,7 @@ assets/icons/shapes
 .secret/
 *.wasm
 web/public/wasm/
+parser/wasm
 testdemos/
 .env
 .env.local
