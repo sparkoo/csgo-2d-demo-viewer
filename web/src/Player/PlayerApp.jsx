@@ -325,22 +325,20 @@ export function PlayerApp() {
         </div>
       )}
       <Dialog
-        header="Demo Available on Faceit"
+        header="Loading Demo from Faceit"
         visible={showFaceitDialog}
         style={{ width: '450px' }}
         onHide={() => setShowFaceitDialog(false)}
         footer={
           <div>
             <Button
-              label="Download from Faceit"
-              icon="pi pi-external-link"
-              onClick={() => {
-                window.open(`https://www.faceit.com/en/cs2/room/${faceitMatchId}`, '_blank');
-              }}
+              label="Cancel"
+              icon="pi pi-times"
+              onClick={() => setShowFaceitDialog(false)}
               className="p-button-text"
             />
             <Button
-              label="Continue Here"
+              label="Continue"
               icon="pi pi-download"
               onClick={() => fetchDemoFromFaceit(faceitMatchId)}
               autoFocus
@@ -350,10 +348,10 @@ export function PlayerApp() {
       >
         <div style={{ marginBottom: '1rem' }}>
           <p>
-            You can download the demo directly from the Faceit match page.
+            This demo will be automatically downloaded from Faceit's servers and loaded in the player.
           </p>
           <p style={{ marginTop: '0.5rem' }}>
-            Click "Download from Faceit" to visit the match page, or click "Continue Here" to download and view the demo automatically.
+            Click "Continue" to proceed with the download.
           </p>
         </div>
       </Dialog>
