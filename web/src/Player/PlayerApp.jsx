@@ -19,9 +19,11 @@ const downloadServer = window.location.host.includes("localhost")
   : "";
 
 // Pattern to extract Faceit match ID from demo URL
-// Matches: /1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-1-1.dem.zst
-// Format: /digit-hex8-hex4-hex4-hex4-hex12-digit-digit.{extension}
-const FACEIT_MATCH_ID_PATTERN = /\/(\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d+-\d+)\./i;
+// Matches: /1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx[-1-1].dem.zst (suffix is optional)
+// Format: /digit-hex8-hex4-hex4-hex4-hex12[-digit-digit].{extension}
+// Examples: 1-95e66a49-44ed-4c95-9838-87204f1abffd, 1-b4f72a00-351d-4073-949d-8a29472ae422
+// The (?:-\d+-\d+)? part optionally matches but doesn't capture the -1-1 suffix
+const FACEIT_MATCH_ID_PATTERN = /\/(\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})(?:-\d+-\d+)?\./i;
 
 export function PlayerApp() {
   const location = useLocation();
