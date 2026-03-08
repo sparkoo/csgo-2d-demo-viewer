@@ -78,8 +78,13 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 
 	parser.RegisterEventHandler(func(e events.Kill) {
 		frag := &message.Frag{
-			Weapon:     convertWeapon(e.Weapon.Type),
-			IsHeadshot: e.IsHeadshot,
+			Weapon:        convertWeapon(e.Weapon.Type),
+			IsHeadshot:    e.IsHeadshot,
+			IsWallbang:    e.IsWallBang(),
+			AssistedFlash: e.AssistedFlash,
+			AttackerBlind: e.AttackerBlind,
+			NoScope:       e.NoScope,
+			ThroughSmoke:  e.ThroughSmoke,
 		}
 		if e.Victim != nil {
 			frag.VictimName = e.Victim.Name
