@@ -18,12 +18,16 @@ const downloadServer = window.location.host.includes("localhost")
   ? "http://localhost:8080"
   : "";
 
-// Pattern to extract Faceit match ID from demo URL
-// Matches: /1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx[-1-1].dem.zst (suffix is optional)
-// Format: /digit-hex8-hex4-hex4-hex4-hex12[-digit-digit].{extension}
+// Core Faceit match ID format: digit-hex8-hex4-hex4-hex4-hex12
 // Examples: 1-95e66a49-44ed-4c95-9838-87204f1abffd, 1-b4f72a00-351d-4073-949d-8a29472ae422
-// The (?:-\d+-\d+)? part optionally matches but doesn't capture the -1-1 suffix
-const FACEIT_MATCH_ID_PATTERN = /\/(\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})(?:-\d+-\d+)?\./i;
+const FACEIT_MATCH_ID_CORE = String.raw`\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}`;
+
+// Pattern to extract Faceit match ID from a demo URL path.
+// The (?:-\d+-\d+)? part optionally matches but does not capture the -1-1 suffix.
+const FACEIT_MATCH_ID_PATTERN = new RegExp(`/(${FACEIT_MATCH_ID_CORE})(?:-\\d+-\\d+)?\\.`, "i");
+
+// Pattern to validate a faceit_match_id URL parameter (exact match, no suffix).
+const FACEIT_MATCH_ID_VALIDATION_PATTERN = new RegExp(`^${FACEIT_MATCH_ID_CORE}$`, "i");
 
 export function PlayerApp() {
   const location = useLocation();
@@ -109,10 +113,7 @@ export function PlayerApp() {
       // Handle Faceit match ID parameter
       const matchId = location.query.faceit_match_id;
       
-      // Validate match ID format (should match Faceit match ID pattern)
-      // Expected format: 1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-      const matchIdPattern = /^\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
-      if (!matchIdPattern.test(matchId)) {
+      if (!FACEIT_MATCH_ID_VALIDATION_PATTERN.test(matchId)) {
         setIsError(true);
         setLoadingMessage(["Invalid Faceit match ID format"]);
         return;
