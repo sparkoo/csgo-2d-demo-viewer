@@ -252,13 +252,15 @@ export function PlayerApp() {
           }
           
           // Extract match ID from demo URL and update browser URL
+          // Pattern matches Faceit demo URL format: /1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-x-x.
           const matchIdPattern = /\/(\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d+-\d+)\./i;
           const matchIdMatch = demoUrl.match(matchIdPattern);
           if (matchIdMatch && matchIdMatch[1]) {
             const matchId = matchIdMatch[1];
             console.log("Extracted match ID from demo URL:", matchId);
-            // Update URL to use faceit_match_id instead of demourl
-            location.route(`/player?faceit_match_id=${encodeURIComponent(matchId)}`);
+            // Update URL to use faceit_match_id instead of demourl without reloading
+            const newUrl = `/player?faceit_match_id=${encodeURIComponent(matchId)}`;
+            window.history.replaceState({}, '', newUrl);
           }
           
           worker.current.postMessage({
