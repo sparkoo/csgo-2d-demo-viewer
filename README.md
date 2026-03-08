@@ -75,6 +75,6 @@ The player supports the following URL parameters:
 
 - `demourl` - Direct URL to a demo file (e.g., `?demourl=https://...`)
   - When a demo is loaded via this parameter, the URL is automatically updated to use `faceit_match_id` if the demo is from Faceit
-- `faceit_match_id` - Faceit match ID for automatic demo fetching (e.g., `?faceit_match_id=1-6e537ed7-b125-44f8-add6-14e814af55a6-1-1`)
+- `faceit_match_id` - Faceit match ID (e.g., `?faceit_match_id=1-6e537ed7-b125-44f8-add6-14e814af55a6`)
   - This creates shareable URLs that work even after the original demo URL expires
-  - The player automatically fetches the current demo URL from Faceit's API
+  - When opened with `faceit_match_id`, the player shows a dialog with a link to the corresponding Faceit match page where you can download the demo
