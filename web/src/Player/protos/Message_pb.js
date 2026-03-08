@@ -2666,7 +2666,12 @@ proto.csgo.Frag.toObject = function(includeInstance, msg) {
     killername: jspb.Message.getFieldWithDefault(msg, 3, ""),
     killerteam: jspb.Message.getFieldWithDefault(msg, 4, ""),
     weapon: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    isheadshot: jspb.Message.getBooleanFieldWithDefault(msg, 6, false)
+    isheadshot: jspb.Message.getBooleanFieldWithDefault(msg, 6, false),
+    iswallbang: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
+    assistedflash: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
+    attackerblind: jspb.Message.getBooleanFieldWithDefault(msg, 9, false),
+    noscope: jspb.Message.getBooleanFieldWithDefault(msg, 10, false),
+    throughsmoke: jspb.Message.getBooleanFieldWithDefault(msg, 11, false)
   };
 
   if (includeInstance) {
@@ -2726,6 +2731,26 @@ proto.csgo.Frag.deserializeBinaryFromReader = function(msg, reader) {
     case 6:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setIsheadshot(value);
+      break;
+    case 7:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setIswallbang(value);
+      break;
+    case 8:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setAssistedflash(value);
+      break;
+    case 9:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setAttackerblind(value);
+      break;
+    case 10:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setNoscope(value);
+      break;
+    case 11:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setThroughsmoke(value);
       break;
     default:
       reader.skipField();
@@ -2795,6 +2820,41 @@ proto.csgo.Frag.serializeBinaryToWriter = function(message, writer) {
   if (f) {
     writer.writeBool(
       6,
+      f
+    );
+  }
+  f = message.getIswallbang();
+  if (f) {
+    writer.writeBool(
+      7,
+      f
+    );
+  }
+  f = message.getAssistedflash();
+  if (f) {
+    writer.writeBool(
+      8,
+      f
+    );
+  }
+  f = message.getAttackerblind();
+  if (f) {
+    writer.writeBool(
+      9,
+      f
+    );
+  }
+  f = message.getNoscope();
+  if (f) {
+    writer.writeBool(
+      10,
+      f
+    );
+  }
+  f = message.getThroughsmoke();
+  if (f) {
+    writer.writeBool(
+      11,
       f
     );
   }
@@ -2906,6 +2966,96 @@ proto.csgo.Frag.prototype.getIsheadshot = function() {
  */
 proto.csgo.Frag.prototype.setIsheadshot = function(value) {
   return jspb.Message.setProto3BooleanField(this, 6, value);
+};
+
+
+/**
+ * optional bool IsWallbang = 7;
+ * @return {boolean}
+ */
+proto.csgo.Frag.prototype.getIswallbang = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.csgo.Frag} returns this
+ */
+proto.csgo.Frag.prototype.setIswallbang = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 7, value);
+};
+
+
+/**
+ * optional bool AssistedFlash = 8;
+ * @return {boolean}
+ */
+proto.csgo.Frag.prototype.getAssistedflash = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 8, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.csgo.Frag} returns this
+ */
+proto.csgo.Frag.prototype.setAssistedflash = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 8, value);
+};
+
+
+/**
+ * optional bool AttackerBlind = 9;
+ * @return {boolean}
+ */
+proto.csgo.Frag.prototype.getAttackerblind = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 9, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.csgo.Frag} returns this
+ */
+proto.csgo.Frag.prototype.setAttackerblind = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 9, value);
+};
+
+
+/**
+ * optional bool NoScope = 10;
+ * @return {boolean}
+ */
+proto.csgo.Frag.prototype.getNoscope = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 10, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.csgo.Frag} returns this
+ */
+proto.csgo.Frag.prototype.setNoscope = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 10, value);
+};
+
+
+/**
+ * optional bool ThroughSmoke = 11;
+ * @return {boolean}
+ */
+proto.csgo.Frag.prototype.getThroughsmoke = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 11, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.csgo.Frag} returns this
+ */
+proto.csgo.Frag.prototype.setThroughsmoke = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 11, value);
 };
 
 
