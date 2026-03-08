@@ -110,8 +110,8 @@ export function PlayerApp() {
       const matchId = location.query.faceit_match_id;
       
       // Validate match ID format (should match Faceit match ID pattern)
-      // Expected format: 1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-x-x
-      const matchIdPattern = /^\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d+-\d+$/i;
+      // Expected format: 1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      const matchIdPattern = /^\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
       if (!matchIdPattern.test(matchId)) {
         setIsError(true);
         setLoadingMessage(["Invalid Faceit match ID format"]);
