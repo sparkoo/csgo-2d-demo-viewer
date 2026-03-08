@@ -1,6 +1,8 @@
 import { useEffect, useState, useContext, useRef } from "react";
 import { useLocation } from "preact-iso";
 import axios from "axios";
+import { Dialog } from "primereact/dialog";
+import { Button } from "primereact/button";
 import "./PlayerApp.css";
 import "./weapons.css";
 import ErrorBoundary from "./Error.jsx";
@@ -42,6 +44,8 @@ export function PlayerApp() {
   const [isError, setIsError] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showFaceitDialog, setShowFaceitDialog] = useState(false);
+  const [faceitMatchId, setFaceitMatchId] = useState(null);
 
   useEffect(() => {
     if (!worker.current) {
@@ -98,6 +102,119 @@ export function PlayerApp() {
     };
   }, []);
 
+  // Function to fetch and download demo from Faceit
+  const fetchDemoFromFaceit = (matchId) => {
+    setLoadingMessage(["Fetching demo from Faceit..."]);
+    setShowFaceitDialog(false);
+    
+    // First, fetch match details
+    fetch(`${FACEIT_MATCH_API}/${matchId}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch match data: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((matchData) => {
+        console.log("Match data:", matchData);
+        
+        // Validate that demoURLs exists, is an array, and has at least one element
+        if (!matchData.payload?.demoURLs || 
+            !Array.isArray(matchData.payload.demoURLs) || 
+            matchData.payload.demoURLs.length === 0) {
+          throw new Error("No demo URLs found in match data");
+        }
+        
+        const demoUrl = matchData.payload.demoURLs[0];
+        
+        // Then, get the download URL
+        return fetch(FACEIT_DOWNLOAD_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            resource_url: demoUrl,
+          }),
+        });
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch download URL: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((downloadData) => {
+        // Validate download URL exists in response
+        if (!downloadData.payload?.download_url) {
+          throw new Error("No download URL found in response");
+        }
+        
+        const downloadUrl = downloadData.payload.download_url;
+        console.log("Demo download URL:", downloadUrl);
+        
+        // Validate the download URL is from expected Faceit CDN domains
+        // Known Faceit demo CDN domains (Backblaze B2)
+        // NOTE: This list should be kept in sync with server/download.go allowedHosts
+        // Update this list if Faceit adds new CDN regions
+        const allowedDomains = [
+          'demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com',
+          'demos-us-east-faceit-cdn.s3.us-east-005.backblazeb2.com'
+        ];
+        
+        try {
+          const url = new URL(downloadUrl);
+          if (url.protocol !== 'https:' || !allowedDomains.includes(url.hostname)) {
+            throw new Error("Demo URL is not from an expected Faceit CDN domain");
+          }
+        } catch (e) {
+          // Use generic error message to avoid leaking internal details
+          throw new Error("Invalid demo download URL received from Faceit API");
+        }
+        
+        // Now download the demo
+        setIsDownloading(true);
+        return axios.get(`${downloadServer}/download?url=${encodeURIComponent(downloadUrl)}`, {
+          responseType: "arraybuffer",
+          onDownloadProgress: (progressEvent) => {
+            console.log(
+              progressEvent,
+              progressEvent.event.target.getResponseHeader("X-Demo-Length")
+            );
+            var totalSize =
+              progressEvent.event.target.getResponseHeader("X-Demo-Length");
+            setDownloadProgress(
+              totalSize ? (progressEvent.loaded / totalSize) * 100 : 0
+            );
+            setLoadingMessage([`Downloading demo...`]);
+          },
+        });
+      })
+      .then((response) => {
+        setIsDownloading(false);
+        setDownloadProgress(0);
+        setLoadingMessage(["Loading match..."]);
+        const contentDisposition = response.headers["content-disposition"];
+        let filename = "demo.zst";
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+          if (filenameMatch) {
+            filename = filenameMatch[1];
+          }
+        }
+        worker.current.postMessage({
+          filename: filename,
+          data: new Uint8Array(response.data),
+        });
+      })
+      .catch((error) => {
+        setIsDownloading(false);
+        setDownloadProgress(0);
+        setIsError(true);
+        setLoadingMessage(["Error loading demo: " + error.message]);
+      });
+  };
+
   useEffect(() => {
     console.log("isWasmLoaded", isWasmLoaded);
     if (isWasmLoaded && demoData.demoData) {
@@ -116,114 +233,9 @@ export function PlayerApp() {
         return;
       }
       
-      setLoadingMessage(["Fetching demo from Faceit..."]);
-      
-      // First, fetch match details
-      fetch(`${FACEIT_MATCH_API}/${matchId}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Failed to fetch match data: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((matchData) => {
-          console.log("Match data:", matchData);
-          
-          // Validate that demoURLs exists, is an array, and has at least one element
-          if (!matchData.payload?.demoURLs || 
-              !Array.isArray(matchData.payload.demoURLs) || 
-              matchData.payload.demoURLs.length === 0) {
-            throw new Error("No demo URLs found in match data");
-          }
-          
-          const demoUrl = matchData.payload.demoURLs[0];
-          
-          // Then, get the download URL
-          return fetch(FACEIT_DOWNLOAD_API, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              resource_url: demoUrl,
-            }),
-          });
-        })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Failed to fetch download URL: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((downloadData) => {
-          // Validate download URL exists in response
-          if (!downloadData.payload?.download_url) {
-            throw new Error("No download URL found in response");
-          }
-          
-          const downloadUrl = downloadData.payload.download_url;
-          console.log("Demo download URL:", downloadUrl);
-          
-          // Validate the download URL is from expected Faceit CDN domains
-          // Known Faceit demo CDN domains (Backblaze B2)
-          // NOTE: This list should be kept in sync with server/download.go allowedHosts
-          // Update this list if Faceit adds new CDN regions
-          const allowedDomains = [
-            'demos-europe-central-faceit-cdn.s3.eu-central-003.backblazeb2.com',
-            'demos-us-east-faceit-cdn.s3.us-east-005.backblazeb2.com'
-          ];
-          
-          try {
-            const url = new URL(downloadUrl);
-            if (url.protocol !== 'https:' || !allowedDomains.includes(url.hostname)) {
-              throw new Error("Demo URL is not from an expected Faceit CDN domain");
-            }
-          } catch (e) {
-            // Use generic error message to avoid leaking internal details
-            throw new Error("Invalid demo download URL received from Faceit API");
-          }
-          
-          // Now download the demo
-          setIsDownloading(true);
-          return axios.get(`${downloadServer}/download?url=${encodeURIComponent(downloadUrl)}`, {
-            responseType: "arraybuffer",
-            onDownloadProgress: (progressEvent) => {
-              console.log(
-                progressEvent,
-                progressEvent.event.target.getResponseHeader("X-Demo-Length")
-              );
-              var totalSize =
-                progressEvent.event.target.getResponseHeader("X-Demo-Length");
-              setDownloadProgress(
-                totalSize ? (progressEvent.loaded / totalSize) * 100 : 0
-              );
-              setLoadingMessage([`Downloading demo...`]);
-            },
-          });
-        })
-        .then((response) => {
-          setIsDownloading(false);
-          setDownloadProgress(0);
-          setLoadingMessage(["Loading match..."]);
-          const contentDisposition = response.headers["content-disposition"];
-          let filename = "demo.zst";
-          if (contentDisposition) {
-            const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
-            if (filenameMatch) {
-              filename = filenameMatch[1];
-            }
-          }
-          worker.current.postMessage({
-            filename: filename,
-            data: new Uint8Array(response.data),
-          });
-        })
-        .catch((error) => {
-          setIsDownloading(false);
-          setDownloadProgress(0);
-          setIsError(true);
-          setLoadingMessage(["Error loading demo: " + error.message]);
-        });
+      // Show dialog to inform user about Faceit download option
+      setFaceitMatchId(matchId);
+      setShowFaceitDialog(true);
     } else if (isWasmLoaded && location.query.demourl) {
       const demoUrl = location.query.demourl;
       setIsDownloading(true);
@@ -312,6 +324,39 @@ export function PlayerApp() {
           </div>
         </div>
       )}
+      <Dialog
+        header="Demo Available on Faceit"
+        visible={showFaceitDialog}
+        style={{ width: '450px' }}
+        onHide={() => setShowFaceitDialog(false)}
+        footer={
+          <div>
+            <Button
+              label="Download from Faceit"
+              icon="pi pi-external-link"
+              onClick={() => {
+                window.open(`https://www.faceit.com/en/cs2/room/${faceitMatchId}`, '_blank');
+              }}
+              className="p-button-text"
+            />
+            <Button
+              label="Continue Here"
+              icon="pi pi-download"
+              onClick={() => fetchDemoFromFaceit(faceitMatchId)}
+              autoFocus
+            />
+          </div>
+        }
+      >
+        <div style={{ marginBottom: '1rem' }}>
+          <p>
+            You can download the demo directly from the Faceit match page.
+          </p>
+          <p style={{ marginTop: '0.5rem' }}>
+            Click "Download from Faceit" to visit the match page, or click "Continue Here" to download and view the demo automatically.
+          </p>
+        </div>
+      </Dialog>
     </ErrorBoundary>
   );
 }
