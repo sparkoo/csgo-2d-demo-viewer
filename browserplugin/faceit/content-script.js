@@ -387,11 +387,14 @@ class FACEITDemoViewer {
           this.log("Match data:", matchData);
           
           // Validate that demoURLs exists and has at least one element
-          if (!matchData.payload?.demoURLs || !Array.isArray(matchData.payload.demoURLs) || matchData.payload.demoURLs.length === 0) {
+          const demoURLs = matchData.payload?.demoURLs;
+          const hasValidDemoURLs = demoURLs && Array.isArray(demoURLs) && demoURLs.length > 0;
+          
+          if (!hasValidDemoURLs) {
             throw new Error("No demo URLs found in match data");
           }
           
-          const demoUrl = matchData.payload.demoURLs[0];
+          const demoUrl = demoURLs[0];
           this.log("Demo download link", demoUrl);
 
           // Then, make HTTP request to download demo URL

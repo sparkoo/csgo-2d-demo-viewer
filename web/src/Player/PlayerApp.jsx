@@ -22,7 +22,7 @@ const FACEIT_DOWNLOAD_API = "https://www.faceit.com/api/download/v2/demos/downlo
 
 // Pattern to extract Faceit match ID from demo URL
 // Matches: /1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-1-1.dem.zst
-// Format: /digit-hex8-hex4-hex4-hex4-hex12-digit-digit.
+// Format: /digit-hex8-hex4-hex4-hex4-hex12-digit-digit.{extension}
 const FACEIT_MATCH_ID_PATTERN = /\/(\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d+-\d+)\./i;
 
 export function PlayerApp() {
