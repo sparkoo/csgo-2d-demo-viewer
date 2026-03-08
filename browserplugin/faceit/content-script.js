@@ -385,10 +385,14 @@ class FACEITDemoViewer {
         })
         .then((matchData) => {
           this.log("Match data:", matchData);
-          this.log("Demo download link", matchData.payload.demoURLs[0]);
-
-          // Construct demo URL (assuming pattern from example)
+          
+          // Validate that demoURLs exists and has at least one element
+          if (!matchData.payload?.demoURLs || !Array.isArray(matchData.payload.demoURLs) || matchData.payload.demoURLs.length === 0) {
+            throw new Error("No demo URLs found in match data");
+          }
+          
           const demoUrl = matchData.payload.demoURLs[0];
+          this.log("Demo download link", demoUrl);
 
           // Then, make HTTP request to download demo URL
           return fetch(
@@ -415,6 +419,12 @@ class FACEITDemoViewer {
         })
         .then((downloadData) => {
           this.log("Demo download URL response:", downloadData);
+          
+          // Validate that download URL exists in response
+          if (!downloadData.payload?.download_url) {
+            throw new Error("No download URL found in response");
+          }
+          
           const downloadUrl = downloadData.payload.download_url;
           this.log("Demo final download link", downloadUrl);
 

@@ -20,6 +20,11 @@ const downloadServer = window.location.host.includes("localhost")
 const FACEIT_MATCH_API = "https://www.faceit.com/api/match/v2/match";
 const FACEIT_DOWNLOAD_API = "https://www.faceit.com/api/download/v2/demos/download-url";
 
+// Pattern to extract Faceit match ID from demo URL
+// Matches: /1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-1-1.dem.zst
+// Format: /digit-hex8-hex4-hex4-hex4-hex12-digit-digit.
+const FACEIT_MATCH_ID_PATTERN = /\/(\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d+-\d+)\./i;
+
 export function PlayerApp() {
   const location = useLocation();
   const worker = useRef(null);
@@ -252,9 +257,7 @@ export function PlayerApp() {
           }
           
           // Extract match ID from demo URL and update browser URL
-          // Pattern matches Faceit demo URL format: /1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-x-x.
-          const matchIdPattern = /\/(\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-\d+-\d+)\./i;
-          const matchIdMatch = demoUrl.match(matchIdPattern);
+          const matchIdMatch = demoUrl.match(FACEIT_MATCH_ID_PATTERN);
           if (matchIdMatch && matchIdMatch[1]) {
             const matchId = matchIdMatch[1];
             console.log("Extracted match ID from demo URL:", matchId);
