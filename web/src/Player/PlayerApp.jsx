@@ -109,7 +109,9 @@ export function PlayerApp() {
     console.log("isWasmLoaded", isWasmLoaded);
     if (isWasmLoaded && demoData.demoData) {
       console.log("Posting demo data to worker.");
-      worker.current.postMessage(demoData.demoData);
+      const toPost = demoData.demoData;
+      demoData.setDemoData(null);
+      worker.current.postMessage(toPost, [toPost.data.buffer]);
     } else if (isWasmLoaded && location.query.faceit_match_id) {
       // Handle Faceit match ID parameter
       const matchId = location.query.faceit_match_id;
@@ -165,10 +167,8 @@ export function PlayerApp() {
             window.history.replaceState({}, '', newUrl);
           }
           
-          worker.current.postMessage({
-            filename: filename,
-            data: new Uint8Array(response.data),
-          });
+          const data = new Uint8Array(response.data);
+          worker.current.postMessage({ filename, data }, [data.buffer]);
         })
         .catch((error) => {
           setIsDownloading(false);
@@ -253,7 +253,7 @@ export function PlayerApp() {
           <DemoUploadArea
             onFile={({ filename, data }) => {
               setShowFaceitDialog(false);
-              worker.current.postMessage({ filename, data });
+              worker.current.postMessage({ filename, data }, [data.buffer]);
             }}
           />
         </div>
