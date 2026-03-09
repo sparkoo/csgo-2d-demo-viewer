@@ -11,7 +11,10 @@
     }
   },
   "description": "View CS2 demo replays in 2D directly from FACEIT match pages in single click.",
-  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage", "tabs", "webNavigation"],
   "host_permissions": [
     "https://www.faceit.com/*",
     "https://faceit.com/*",
