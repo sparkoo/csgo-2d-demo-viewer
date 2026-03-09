@@ -11,7 +11,9 @@ const DemoUploadArea = ({ onFile, subtext = "Supports .dem, .dem.gz, .dem.zst an
     onFile({ filename: file.name, data: new Uint8Array(arrayBuffer) });
   };
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e) => e.preventDefault();
+
+  const handleDragEnter = (e) => {
     e.preventDefault();
     setIsDragOver(true);
   };
@@ -33,6 +35,7 @@ const DemoUploadArea = ({ onFile, subtext = "Supports .dem, .dem.gz, .dem.zst an
       <div
         className={`upload-area ${isDragOver ? "dragover" : ""}`}
         onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
