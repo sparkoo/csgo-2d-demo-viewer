@@ -253,6 +253,7 @@ export function PlayerApp() {
           <DemoUploadArea
             onFile={({ filename, data }) => {
               setShowFaceitDialog(false);
+              window.history.replaceState({}, '', '/player');
               worker.current.postMessage({ filename, data }, [data.buffer]);
             }}
           />
