@@ -5,6 +5,7 @@ import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import "./PlayerApp.css";
 import "./weapons.css";
+import DemoUploadArea from "../Index/Uploader/DemoUploadArea";
 import ErrorBoundary from "./Error.jsx";
 import MessageBus from "./MessageBus.js";
 import Player from "./Player.js";
@@ -228,22 +229,33 @@ export function PlayerApp() {
       >
         <div style={{ marginBottom: '1rem' }}>
           <p>
-            To download and view this demo, please visit the Faceit match page:
+            To view this demo:
           </p>
-          <p style={{ marginTop: '1rem' }}>
-            <a 
-              href={`https://www.faceit.com/en/cs2/room/${faceitMatchId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ 
-                color: '#007bff', 
-                textDecoration: 'underline',
-                fontWeight: 'bold'
-              }}
-            >
-              Open Faceit Match Page
-            </a>
-          </p>
+          <ol style={{ marginTop: '0.75rem', paddingLeft: '1.25rem', lineHeight: '1.8' }}>
+            <li>
+              Download the demo from the{' '}
+              <a
+                href={`https://www.faceit.com/en/cs2/room/${faceitMatchId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: '#007bff',
+                  textDecoration: 'underline',
+                  fontWeight: 'bold'
+                }}
+              >
+                Faceit match page
+              </a>
+            </li>
+            <li>Upload it below</li>
+          </ol>
+          <div style={{ marginTop: '1rem' }}></div>
+          <DemoUploadArea
+            onFile={({ filename, data }) => {
+              setShowFaceitDialog(false);
+              worker.current.postMessage({ filename, data });
+            }}
+          />
         </div>
       </Dialog>
     </ErrorBoundary>

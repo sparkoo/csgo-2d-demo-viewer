@@ -1,80 +1,22 @@
-import "./Uploader.css";
 import { useLocation } from "preact-iso";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { DemoContext } from "../../context";
+import DemoUploadArea from "./DemoUploadArea";
 
 const Uploader = () => {
   const demoData = useContext(DemoContext);
   const { route } = useLocation();
-  const [isDragOver, setIsDragOver] = useState(false);
 
-  const uploadHandler = function ({ files }) {
-    const [file] = files;
-
-    const reader = new FileReader();
-
-    reader.onload = function (e) {
-      const arrayBuffer = e.target.result;
-      const byteArray = new Uint8Array(arrayBuffer);
-      demoData.setDemoData({ filename: file.name, data: byteArray });
-      route("/player");
-      // const uuid = crypto.randomUUID()
-      // window.open("/player?platform=upload&uuid=" + uuid, '_blank').focus();
-      // const channel = new BroadcastChannel(uuid);
-      // setTimeout(() => {
-      //   channel.postMessage(byteArray);
-      // }, 1000)
-    };
-    reader.readAsArrayBuffer(file);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      uploadHandler({ files });
-    }
+  const handleFile = ({ filename, data }) => {
+    demoData.setDemoData({ filename, data });
+    route("/player");
   };
 
   return (
-    <div className="upload-container">
-      <div
-        className={`upload-area ${isDragOver ? 'dragover' : ''}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <span className="upload-icon">📂</span>
-        <div className="upload-text">
-          Drop Your Demo File Here or Click to Browse
-        </div>
-        <div className="upload-subtext">
-          Supports .dem, .dem.gz, .dem.zst and .dem.bz2 files up to 1GB
-        </div>
-        <input
-          type="file"
-          accept=".dem,.dem.gz,.dem.zst,.dem.bz2"
-          onChange={(e) => {
-            const file = e.target.files[0];
-            if (file) {
-              uploadHandler({ files: [file] });
-            }
-          }}
-          className="upload-input"
-        />
-      </div>
-    </div>
+    <DemoUploadArea
+      onFile={handleFile}
+      subtext="Supports .dem, .dem.gz, .dem.zst and .dem.bz2 files up to 1GB"
+    />
   );
 };
 
