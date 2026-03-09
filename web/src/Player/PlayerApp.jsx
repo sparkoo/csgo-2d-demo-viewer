@@ -5,6 +5,7 @@ import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import "./PlayerApp.css";
 import "./weapons.css";
+import "../Index/Uploader/Uploader.css";
 import ErrorBoundary from "./Error.jsx";
 import MessageBus from "./MessageBus.js";
 import Player from "./Player.js";
@@ -48,6 +49,7 @@ export function PlayerApp() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [showFaceitDialog, setShowFaceitDialog] = useState(false);
   const [faceitMatchId, setFaceitMatchId] = useState(null);
+  const [isFaceitDragOver, setIsFaceitDragOver] = useState(false);
 
   useEffect(() => {
     if (!worker.current) {
@@ -178,6 +180,16 @@ export function PlayerApp() {
     }
   }, [isWasmLoaded]);
 
+  const handleFaceitDialogFileUpload = (file) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const byteArray = new Uint8Array(e.target.result);
+      setShowFaceitDialog(false);
+      worker.current.postMessage({ filename: file.name, data: byteArray });
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
   return (
     <ErrorBoundary>
       <div className="grid-container">
@@ -231,12 +243,12 @@ export function PlayerApp() {
             To download and view this demo, please visit the Faceit match page:
           </p>
           <p style={{ marginTop: '1rem' }}>
-            <a 
+            <a
               href={`https://www.faceit.com/en/cs2/room/${faceitMatchId}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ 
-                color: '#007bff', 
+              style={{
+                color: '#007bff',
                 textDecoration: 'underline',
                 fontWeight: 'bold'
               }}
@@ -244,6 +256,35 @@ export function PlayerApp() {
               Open Faceit Match Page
             </a>
           </p>
+          <p style={{ marginTop: '1.5rem', marginBottom: '0.75rem' }}>
+            Or upload the demo file directly:
+          </p>
+          <div className="upload-container">
+            <div
+              className={`upload-area ${isFaceitDragOver ? 'dragover' : ''}`}
+              onDragOver={(e) => { e.preventDefault(); setIsFaceitDragOver(true); }}
+              onDragLeave={(e) => { e.preventDefault(); setIsFaceitDragOver(false); }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsFaceitDragOver(false);
+                const files = Array.from(e.dataTransfer.files);
+                if (files.length > 0) handleFaceitDialogFileUpload(files[0]);
+              }}
+            >
+              <span className="upload-icon">📂</span>
+              <div className="upload-text">Drop Demo File Here or Click to Browse</div>
+              <div className="upload-subtext">Supports .dem, .dem.gz, .dem.zst and .dem.bz2 files</div>
+              <input
+                type="file"
+                accept=".dem,.dem.gz,.dem.zst,.dem.bz2"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) handleFaceitDialogFileUpload(file);
+                }}
+                className="upload-input"
+              />
+            </div>
+          </div>
         </div>
       </Dialog>
     </ErrorBoundary>
