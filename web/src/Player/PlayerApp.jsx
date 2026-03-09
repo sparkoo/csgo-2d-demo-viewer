@@ -109,7 +109,9 @@ export function PlayerApp() {
     console.log("isWasmLoaded", isWasmLoaded);
     if (isWasmLoaded && demoData.demoData) {
       console.log("Posting demo data to worker.");
-      worker.current.postMessage(demoData.demoData, [demoData.demoData.data.buffer]);
+      const toPost = demoData.demoData;
+      demoData.setDemoData(null);
+      worker.current.postMessage(toPost, [toPost.data.buffer]);
     } else if (isWasmLoaded && location.query.faceit_match_id) {
       // Handle Faceit match ID parameter
       const matchId = location.query.faceit_match_id;
