@@ -53,6 +53,21 @@ browser.runtime.onMessage.addListener((message, sender) => {
   }
 });
 
+// Cancel the file download that Faceit's "Watch demo" button triggers — the
+// viewer tab we open is sufficient; the user doesn't need the raw .dem.zst.
+browser.downloads.onCreated.addListener(async (downloadItem) => {
+  if (!pendingDemoWatch) return;
+  try {
+    const pathname = new URL(downloadItem.url).pathname;
+    if (!/\.dem\.(zst|gz)/.test(pathname)) return;
+  } catch {
+    return;
+  }
+  // Cancel and remove the download entry so the save dialog never appears
+  await browser.downloads.cancel(downloadItem.id);
+  await browser.downloads.erase({ id: downloadItem.id });
+});
+
 browser.webRequest.onBeforeRequest.addListener(
   async (details) => {
     // Only care about actual demo files (.dem.zst / .dem.gz)
