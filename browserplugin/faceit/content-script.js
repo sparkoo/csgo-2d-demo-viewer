@@ -95,10 +95,19 @@ class FACEITDemoViewer {
   }
 
   injectPageScript() {
-    if (document.getElementById("__cs2-demo-interceptor")) return;
+    if (document.getElementById("__cs2-demo-interceptor")) {
+      // Already injected — promise already set; nothing to do
+      return;
+    }
     const script = document.createElement("script");
     script.id = "__cs2-demo-interceptor";
     script.src = browser.runtime.getURL("intercept-page.js");
+    // Track when the script has actually executed so we don't postMessage
+    // into the void if the user clicks a button before the script loads.
+    this.pageScriptReady = new Promise((resolve) => {
+      script.addEventListener("load", resolve);
+      script.addEventListener("error", resolve); // don't hang on load failure
+    });
     (document.head || document.documentElement).appendChild(script);
     this.log("Injected page-context fetch interceptor");
   }
@@ -498,6 +507,9 @@ class FACEITDemoViewer {
         );
       }, 15_000);
 
+      // Wait for intercept-page.js to finish loading before posting,
+      // so the message listener is guaranteed to be registered.
+      await (this.pageScriptReady || Promise.resolve());
       this.log("Posting fetchMatchDemo for matchId:", matchId);
       window.postMessage({ __cs2: true, type: "fetchMatchDemo", matchId }, "*");
     }
