@@ -87,10 +87,20 @@ class FACEITDemoViewer {
 
     this.log("✅ Confirmed on FACEIT domain");
 
+    this.injectPageScript();
     this.observePageChanges();
     this.injectButtons();
     this.checkScrollableMatchHistory();
     this.checkStatsPageMatches();
+  }
+
+  injectPageScript() {
+    if (document.getElementById("__cs2-demo-interceptor")) return;
+    const script = document.createElement("script");
+    script.id = "__cs2-demo-interceptor";
+    script.src = browser.runtime.getURL("intercept-page.js");
+    (document.head || document.documentElement).appendChild(script);
+    this.log("Injected page-context fetch interceptor");
   }
 
   isMatchRoomPage() {
@@ -406,24 +416,33 @@ class FACEITDemoViewer {
           throw new Error("Could not find 'Watch demo' button");
         }
 
-        // Register interest with the background before triggering the click
-        // so the webRequest listener is armed in time.
-        await browser.runtime.sendMessage({ type: "watchForDemoUrl" });
-
         this.pendingButton = button;
         this.pendingButtonContent = originalContent;
 
-        // Safety timeout — reset button if nothing is captured within 15 s
+        // Handler receives the signed URL from the page-context fetch intercept
+        const handleDemoUrl = (e) => {
+          const downloadUrl = e.detail;
+          this.log("Intercepted signed demo URL:", downloadUrl);
+          const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(downloadUrl)}`;
+          window.open(playerUrl, "_blank");
+          this.resetPendingButton();
+        };
+        window.addEventListener("__cs2DemoUrl", handleDemoUrl, { once: true });
+
+        // Safety timeout — reset button if the fetch intercept doesn't fire
         this.pendingButtonTimeout = setTimeout(() => {
+          window.removeEventListener("__cs2DemoUrl", handleDemoUrl);
           this.resetPendingButton();
           this.showPopupError(
             "Timed out waiting for demo URL. Make sure you are logged in to FACEIT and try again."
           );
         }, 15_000);
 
+        // Arm the page-context interceptor, then trigger Faceit's flow
+        window.dispatchEvent(new CustomEvent("__cs2ActivateIntercept"));
         watchDemoButton.click();
-        this.log("Clicked 'Watch demo' button, waiting for CDN interception...");
-        return; // Button reset is handled by resetPendingButton()
+        this.log("Clicked 'Watch demo', waiting for fetch intercept...");
+        return; // Button reset handled by handleDemoUrl / timeout
       } catch (error) {
         console.error("Error using intercept approach:", error);
         button.innerHTML = originalContent;

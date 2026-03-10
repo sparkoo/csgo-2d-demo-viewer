@@ -30,6 +30,12 @@
       "all_frames": false
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["intercept-page.js"],
+      "matches": ["https://www.faceit.com/*", "https://faceit.com/*"]
+    }
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "FACEIT 2D Replay",
