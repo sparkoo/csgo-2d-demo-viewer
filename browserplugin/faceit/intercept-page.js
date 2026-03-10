@@ -4,6 +4,7 @@
 (function () {
   if (window.__cs2DemoInterceptorInstalled) return;
   window.__cs2DemoInterceptorInstalled = true;
+  console.log("[cs2-intercept] interceptor installed on", window.location.href);
 
   let intercepting = false;
 
@@ -17,11 +18,18 @@
   // ── 3. Fetch match demo URL from the page context ─────────────────────────
   // Content scripts get 403 on Faceit's internal APIs because they lack auth
   // cookies.  Requests from this page-context script use the same session as
-  // Faceit's own JS, so they succeed.  The content script dispatches
-  // __cs2FetchMatchDemo with {matchId} and we reply via __cs2DemoUrl.
-  window.addEventListener("__cs2FetchMatchDemo", async (e) => {
-    const matchId = e.detail && e.detail.matchId;
-    console.log("[cs2-intercept] __cs2FetchMatchDemo received, matchId:", matchId);
+  // Faceit's own JS, so they succeed.  We use postMessage (not CustomEvent)
+  // because CustomEvent.detail is null when crossing Chrome's isolated worlds.
+  window.addEventListener("message", async (e) => {
+    if (
+      e.source !== window ||
+      !e.data ||
+      e.data.__cs2 !== true ||
+      e.data.type !== "fetchMatchDemo"
+    )
+      return;
+    const matchId = e.data.matchId;
+    console.log("[cs2-intercept] fetchMatchDemo received, matchId:", matchId);
     if (!matchId) return;
     try {
       const matchRes = await _origFetch(
@@ -50,11 +58,12 @@
         dlData && dlData.payload && dlData.payload.download_url;
       if (!dlUrl) throw new Error("no download_url in payload");
 
+      console.log("[cs2-intercept] fetchMatchDemo success, dispatching url");
       window.dispatchEvent(
         new CustomEvent("__cs2DemoUrl", { detail: dlUrl })
       );
     } catch (err) {
-      console.log("[cs2-intercept] __cs2FetchMatchDemo error:", String(err));
+      console.log("[cs2-intercept] fetchMatchDemo error:", String(err));
       window.dispatchEvent(
         new CustomEvent("__cs2DemoUrlError", { detail: String(err) })
       );
