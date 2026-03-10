@@ -14,6 +14,51 @@
     intercepting = false;
   });
 
+  // ── 3. Fetch match demo URL from the page context ─────────────────────────
+  // Content scripts get 403 on Faceit's internal APIs because they lack auth
+  // cookies.  Requests from this page-context script use the same session as
+  // Faceit's own JS, so they succeed.  The content script dispatches
+  // __cs2FetchMatchDemo with {matchId} and we reply via __cs2DemoUrl.
+  window.addEventListener("__cs2FetchMatchDemo", async (e) => {
+    const matchId = e.detail && e.detail.matchId;
+    if (!matchId) return;
+    try {
+      const matchRes = await _origFetch(
+        `https://www.faceit.com/api/match/v2/match/${matchId}`
+      );
+      if (!matchRes.ok) throw new Error(`match API ${matchRes.status}`);
+      const matchData = await matchRes.json();
+      const demoUrl =
+        matchData &&
+        matchData.payload &&
+        matchData.payload.demoURLs &&
+        matchData.payload.demoURLs[0];
+      if (!demoUrl) throw new Error("no demoURL in match payload");
+
+      const dlRes = await _origFetch(
+        "https://www.faceit.com/api/download/v2/demos/download-url",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ resource_url: demoUrl }),
+        }
+      );
+      if (!dlRes.ok) throw new Error(`download API ${dlRes.status}`);
+      const dlData = await dlRes.json();
+      const dlUrl =
+        dlData && dlData.payload && dlData.payload.download_url;
+      if (!dlUrl) throw new Error("no download_url in payload");
+
+      window.dispatchEvent(
+        new CustomEvent("__cs2DemoUrl", { detail: dlUrl })
+      );
+    } catch (err) {
+      window.dispatchEvent(
+        new CustomEvent("__cs2DemoUrlError", { detail: String(err) })
+      );
+    }
+  });
+
   // ── 1. Intercept fetch to capture the signed URL ─────────────────────────
   // We let the REAL response go back to Faceit's JS (so their UI doesn't
   // break), but we clone it first to read the signed URL and dispatch it to

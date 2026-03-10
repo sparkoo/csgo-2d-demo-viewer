@@ -87,11 +87,6 @@ class FACEITDemoViewer {
 
     this.log("✅ Confirmed on FACEIT domain");
 
-    // Detect the auto-trigger flag set by history/stats buttons
-    this.autoTrigger2D = new URLSearchParams(window.location.search).has(
-      "__cs2_2d"
-    );
-
     this.injectPageScript();
     this.observePageChanges();
     this.injectButtons();
@@ -251,13 +246,6 @@ class FACEITDemoViewer {
     watchDemoButton.insertAdjacentElement("afterend", button);
 
     this.log("✅ Successfully inserted button after 'Watch demo' button");
-
-    // If this tab was opened by a history/stats button, auto-click to open the viewer
-    if (this.autoTrigger2D) {
-      this.autoTrigger2D = false;
-      setTimeout(() => button.click(), 300);
-    }
-
     return true;
   }
 
@@ -282,18 +270,15 @@ class FACEITDemoViewer {
             button.textContent = "2D"; // Not empty, but minimal
             button.name = "replay2d";
 
-            // Open the match room page with the auto-trigger flag so the
-            // reliable fetch-intercept path is used there
-            button.addEventListener("click", (e) => {
+            // Add click handler similar to other buttons
+            button.addEventListener("click", async (e) => {
               e.preventDefault();
               e.stopPropagation();
               const href = anchor.href || "";
               const matchId = href.split("/").pop();
               if (matchId) {
-                window.open(
-                  `https://www.faceit.com/en/cs2/room/${matchId}?__cs2_2d=1`,
-                  "_blank"
-                );
+                const matchRoomUrl = `https://www.faceit.com/en/cs2/room/${matchId}`;
+                await this.handleReplayClick(matchId, button, matchRoomUrl);
               }
             });
 
@@ -360,9 +345,8 @@ class FACEITDemoViewer {
       button.textContent = "2D";
       button.name = "replay2d";
 
-      // Open the match room page with the auto-trigger flag so the
-      // reliable fetch-intercept path is used there
-      button.addEventListener("click", (e) => {
+      // Add click handler
+      button.addEventListener("click", async (e) => {
         e.preventDefault();
         e.stopPropagation();
         const href = anchor.getAttribute("href") || "";
@@ -370,10 +354,8 @@ class FACEITDemoViewer {
         links.pop();
         const matchId = links.pop();
         if (matchId) {
-          window.open(
-            `https://www.faceit.com/en/cs2/room/${matchId}?__cs2_2d=1`,
-            "_blank"
-          );
+          const matchRoomUrl = `https://www.faceit.com/en/cs2/room/${matchId}`;
+          await this.handleReplayClick(matchId, button, matchRoomUrl);
         }
       });
 
@@ -475,85 +457,50 @@ class FACEITDemoViewer {
       }
     }
 
-    // For match history / stats pages we fall back to the Faceit internal API.
-    // If it returns 403 the user is directed to the match room page where the
-    // reliable interception approach above will work.
-    try {
-      const matchResponse = await fetch(
-        `https://www.faceit.com/api/match/v2/match/${matchId}`
-      );
-      if (!matchResponse.ok) {
-        const err = new Error(`HTTP error! status: ${matchResponse.status}`);
-        err.status = matchResponse.status;
-        throw err;
-      }
-      const matchData = await matchResponse.json();
-      this.log("Match data:", matchData);
-      const demoUrl = matchData.payload.demoURLs[0];
-      this.log("Demo resource URL:", demoUrl);
-
-      const downloadResponse = await fetch(
-        "https://www.faceit.com/api/download/v2/demos/download-url",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ resource_url: demoUrl }),
-        }
-      );
-      if (!downloadResponse.ok) {
-        const err = new Error(
-          `HTTP error! status: ${downloadResponse.status}`
-        );
-        err.status = downloadResponse.status;
-        throw err;
-      }
-      const downloadData = await downloadResponse.json();
-      const downloadUrl = downloadData.payload.download_url;
-      this.log("Signed download URL:", downloadUrl);
-
-      const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(downloadUrl)}`;
-      window.open(playerUrl, "_blank");
-
-      button.innerHTML = originalContent;
-      button.disabled = false;
-    } catch (error) {
-      console.error("Error in API calls:", error);
-
-      if (error.status === 403 && matchRoomUrl) {
-        // Guide the user to the match room page where the reliable approach works
-        this.showPopupError(
-          `Could not get demo URL from this page. Go to the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> and use the 2D button there.`
-        );
-        button.innerHTML = `
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
-          </svg>
-          Go to match
-        `;
-        button.disabled = false;
-        button.title = "Click to open match page";
-        button.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          window.open(matchRoomUrl, "_blank");
-        };
-        setTimeout(() => {
-          button.innerHTML = originalContent;
-          button.title = "Open CS2 Demo Viewer";
-          button.style.removeProperty("cursor");
-          button.onclick = async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            await this.handleReplayClick(matchId, button, matchRoomUrl);
-          };
-        }, 5000);
-      } else {
-        this.showPopupError(
-          "An error occurred while fetching the demo. Please try again."
-        );
+    // For match history / stats pages we ask intercept-page.js (running in
+    // the page context with full auth cookies) to make the API calls for us.
+    // This avoids the 403s that the content script gets.
+    {
+      const handleDemoUrl = (e) => {
+        const downloadUrl = e.detail;
+        this.log("Got signed demo URL via page script:", downloadUrl);
+        clearTimeout(pageScriptTimeout);
+        window.removeEventListener("__cs2DemoUrlError", handleError);
+        const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(downloadUrl)}`;
+        window.open(playerUrl, "_blank");
         button.innerHTML = originalContent;
         button.disabled = false;
-      }
+      };
+
+      const handleError = (e) => {
+        this.log("Page script fetch error:", e.detail);
+        clearTimeout(pageScriptTimeout);
+        window.removeEventListener("__cs2DemoUrl", handleDemoUrl);
+        button.innerHTML = originalContent;
+        button.disabled = false;
+        this.showPopupError(
+          `Could not get demo URL. Try the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> directly.`
+        );
+      };
+
+      window.addEventListener("__cs2DemoUrl", handleDemoUrl, { once: true });
+      window.addEventListener("__cs2DemoUrlError", handleError, {
+        once: true,
+      });
+
+      const pageScriptTimeout = setTimeout(() => {
+        window.removeEventListener("__cs2DemoUrl", handleDemoUrl);
+        window.removeEventListener("__cs2DemoUrlError", handleError);
+        button.innerHTML = originalContent;
+        button.disabled = false;
+        this.showPopupError(
+          `Timed out. Try the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> directly.`
+        );
+      }, 15_000);
+
+      window.dispatchEvent(
+        new CustomEvent("__cs2FetchMatchDemo", { detail: { matchId } })
+      );
     }
   }
 
