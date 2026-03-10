@@ -87,6 +87,11 @@ class FACEITDemoViewer {
 
     this.log("✅ Confirmed on FACEIT domain");
 
+    // Detect the auto-trigger flag set by history/stats buttons
+    this.autoTrigger2D = new URLSearchParams(window.location.search).has(
+      "__cs2_2d"
+    );
+
     this.injectPageScript();
     this.observePageChanges();
     this.injectButtons();
@@ -246,6 +251,13 @@ class FACEITDemoViewer {
     watchDemoButton.insertAdjacentElement("afterend", button);
 
     this.log("✅ Successfully inserted button after 'Watch demo' button");
+
+    // If this tab was opened by a history/stats button, auto-click to open the viewer
+    if (this.autoTrigger2D) {
+      this.autoTrigger2D = false;
+      setTimeout(() => button.click(), 300);
+    }
+
     return true;
   }
 
@@ -270,17 +282,18 @@ class FACEITDemoViewer {
             button.textContent = "2D"; // Not empty, but minimal
             button.name = "replay2d";
 
-            // Add click handler similar to other buttons
-            button.addEventListener("click", async (e) => {
+            // Open the match room page with the auto-trigger flag so the
+            // reliable fetch-intercept path is used there
+            button.addEventListener("click", (e) => {
               e.preventDefault();
               e.stopPropagation();
-              // Extract match ID from anchor href or something
               const href = anchor.href || "";
               const matchId = href.split("/").pop();
               if (matchId) {
-                // Pass match room URL for 403 error handling
-                const matchRoomUrl = `https://www.faceit.com/en/cs2/room/${matchId}`;
-                await this.handleReplayClick(matchId, button, matchRoomUrl);
+                window.open(
+                  `https://www.faceit.com/en/cs2/room/${matchId}?__cs2_2d=1`,
+                  "_blank"
+                );
               }
             });
 
@@ -347,8 +360,9 @@ class FACEITDemoViewer {
       button.textContent = "2D";
       button.name = "replay2d";
 
-      // Add click handler
-      button.addEventListener("click", async (e) => {
+      // Open the match room page with the auto-trigger flag so the
+      // reliable fetch-intercept path is used there
+      button.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
         const href = anchor.getAttribute("href") || "";
@@ -356,9 +370,10 @@ class FACEITDemoViewer {
         links.pop();
         const matchId = links.pop();
         if (matchId) {
-          // Pass match room URL for 403 error handling
-          const matchRoomUrl = `https://www.faceit.com/en/cs2/room/${matchId}`;
-          await this.handleReplayClick(matchId, button, matchRoomUrl);
+          window.open(
+            `https://www.faceit.com/en/cs2/room/${matchId}?__cs2_2d=1`,
+            "_blank"
+          );
         }
       });
 
