@@ -14,11 +14,12 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "tabs", "webNavigation"],
+  "permissions": ["storage", "tabs", "webNavigation", "webRequest"],
   "host_permissions": [
     "https://www.faceit.com/*",
     "https://faceit.com/*",
-    "https://*.faceit.com/*"
+    "https://*.faceit.com/*",
+    "*://*.backblazeb2.com/*"
   ],
   "content_scripts": [
     {

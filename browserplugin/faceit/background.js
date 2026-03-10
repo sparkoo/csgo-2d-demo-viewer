@@ -23,34 +23,74 @@ async function getDemoViewerUrl() {
   }
 }
 
-async function fetchDemoDownloadUrl(matchId) {
-  // Fetch match details from Faceit API
-  const matchResponse = await fetch(
-    `https://www.faceit.com/api/match/v2/match/${matchId}`,
-    { credentials: "include" }
-  );
-  if (!matchResponse.ok) {
-    throw new Error(`Match API error: ${matchResponse.status}`);
-  }
-  const matchData = await matchResponse.json();
-  const demoUrl = matchData.payload.demoURLs[0];
+// ---------------------------------------------------------------------------
+// Demo URL interception via webRequest
+// ---------------------------------------------------------------------------
+// When the content script programmatically clicks Faceit's "Watch demo" button,
+// we watch for the resulting request to the Backblaze CDN and capture the
+// pre-signed URL before the browser downloads the file.
 
-  // Fetch the actual download URL
-  const downloadResponse = await fetch(
-    "https://www.faceit.com/api/download/v2/demos/download-url",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ resource_url: demoUrl }),
-      credentials: "include",
-    }
-  );
-  if (!downloadResponse.ok) {
-    throw new Error(`Download API error: ${downloadResponse.status}`);
+const DEMO_WATCH_TIMEOUT_MS = 30_000;
+
+// { originTabId: number, timestamp: number } | null
+let pendingDemoWatch = null;
+
+browser.runtime.onMessage.addListener((message, sender) => {
+  if (message.type === "watchForDemoUrl") {
+    pendingDemoWatch = {
+      originTabId: sender.tab.id,
+      timestamp: Date.now(),
+    };
+    setTimeout(() => {
+      // Auto-expire so stale watches don't interfere with later clicks
+      if (
+        pendingDemoWatch &&
+        Date.now() - pendingDemoWatch.timestamp >= DEMO_WATCH_TIMEOUT_MS
+      ) {
+        pendingDemoWatch = null;
+      }
+    }, DEMO_WATCH_TIMEOUT_MS);
   }
-  const downloadData = await downloadResponse.json();
-  return downloadData.payload.download_url;
-}
+});
+
+browser.webRequest.onBeforeRequest.addListener(
+  async (details) => {
+    // Only care about actual demo files (.dem.zst / .dem.gz)
+    try {
+      const pathname = new URL(details.url).pathname;
+      if (!/\.dem\.(zst|gz)/.test(pathname)) return;
+    } catch {
+      return;
+    }
+
+    if (!pendingDemoWatch) return;
+    if (Date.now() - pendingDemoWatch.timestamp > DEMO_WATCH_TIMEOUT_MS) {
+      pendingDemoWatch = null;
+      return;
+    }
+
+    const watch = pendingDemoWatch;
+    pendingDemoWatch = null;
+
+    const demoViewerUrl = await getDemoViewerUrl();
+    const viewerUrl = `${demoViewerUrl}/player?demourl=${encodeURIComponent(details.url)}`;
+    await browser.tabs.create({ url: viewerUrl });
+
+    // Tell the content script to reset the button state
+    try {
+      await browser.tabs.sendMessage(watch.originTabId, {
+        type: "demoUrlCaptured",
+      });
+    } catch {
+      // Tab may have navigated away — ignore
+    }
+  },
+  { urls: ["*://*.backblazeb2.com/cs2/*"] }
+);
+
+// ---------------------------------------------------------------------------
+// Auto-resolve ?faceit_match_id= on the viewer page (legacy / fallback path)
+// ---------------------------------------------------------------------------
 
 browser.webNavigation.onCommitted.addListener(async (details) => {
   // Only handle main frame navigations
@@ -79,19 +119,8 @@ browser.webNavigation.onCommitted.addListener(async (details) => {
   if (url.origin !== viewerOrigin) return;
 
   console.log(
-    `[CS2 Extension] Detected viewer page with faceit_match_id=${matchId}, auto-fetching demo URL...`
+    `[CS2 Extension] Detected viewer page with faceit_match_id=${matchId}, showing manual dialog`
   );
-
-  try {
-    const downloadUrl = await fetchDemoDownloadUrl(matchId);
-    const newUrl = `${demoViewerUrl}/player?demourl=${encodeURIComponent(downloadUrl)}`;
-    console.log(`[CS2 Extension] Redirecting to demo URL: ${newUrl}`);
-    await browser.tabs.update(details.tabId, { url: newUrl });
-  } catch (error) {
-    console.error(
-      "[CS2 Extension] Failed to auto-fetch demo URL:",
-      error.message
-    );
-    // Leave the page as-is; it will show the manual dialog
-  }
+  // Leave the page as-is; it will show the manual dialog that directs the
+  // user to the Faceit match page.
 });
