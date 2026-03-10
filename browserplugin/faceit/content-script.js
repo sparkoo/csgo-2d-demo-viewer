@@ -423,13 +423,15 @@ class FACEITDemoViewer {
         const handleDemoUrl = (e) => {
           const downloadUrl = e.detail;
           this.log("Intercepted signed demo URL:", downloadUrl);
+          // Disarm background fallbacks — we already have the URL
+          browser.runtime.sendMessage({ type: "cancelDemoWatch" }).catch(() => {});
           const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(downloadUrl)}`;
           window.open(playerUrl, "_blank");
           this.resetPendingButton();
         };
         window.addEventListener("__cs2DemoUrl", handleDemoUrl, { once: true });
 
-        // Safety timeout — reset button if the fetch intercept doesn't fire
+        // Safety timeout — reset button if neither intercept fires
         this.pendingButtonTimeout = setTimeout(() => {
           window.removeEventListener("__cs2DemoUrl", handleDemoUrl);
           this.resetPendingButton();
@@ -437,6 +439,10 @@ class FACEITDemoViewer {
             "Timed out waiting for demo URL. Make sure you are logged in to FACEIT and try again."
           );
         }, 15_000);
+
+        // Arm background fallback (webRequest + downloads.cancel) in case the
+        // page-script fetch intercept doesn't fire (XHR, CSP block, etc.)
+        await browser.runtime.sendMessage({ type: "watchForDemoUrl" });
 
         // Arm the page-context interceptor, then trigger Faceit's flow
         window.dispatchEvent(new CustomEvent("__cs2ActivateIntercept"));

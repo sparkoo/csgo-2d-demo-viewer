@@ -33,44 +33,53 @@ async function getDemoViewerUrl() {
 const DEMO_WATCH_TIMEOUT_MS = 30_000;
 
 // { originTabId: number, timestamp: number } | null
+// Used by webRequest.onBeforeRequest (URL capture fallback).
 let pendingDemoWatch = null;
+
+// Separate flag used by downloads.onCreated.
+// IMPORTANT: webRequest.onBeforeRequest clears pendingDemoWatch before
+// downloads.onCreated fires, so they must not share the same variable.
+let pendingDownloadCancel = false;
+
+function armWatch(originTabId) {
+  const entry = { originTabId, timestamp: Date.now() };
+  pendingDemoWatch = entry;
+  pendingDownloadCancel = true;
+  setTimeout(() => {
+    if (pendingDemoWatch === entry) pendingDemoWatch = null;
+    pendingDownloadCancel = false;
+  }, DEMO_WATCH_TIMEOUT_MS);
+}
 
 browser.runtime.onMessage.addListener((message, sender) => {
   if (message.type === "watchForDemoUrl") {
-    pendingDemoWatch = {
-      originTabId: sender.tab.id,
-      timestamp: Date.now(),
-    };
-    setTimeout(() => {
-      // Auto-expire so stale watches don't interfere with later clicks
-      if (
-        pendingDemoWatch &&
-        Date.now() - pendingDemoWatch.timestamp >= DEMO_WATCH_TIMEOUT_MS
-      ) {
-        pendingDemoWatch = null;
-      }
-    }, DEMO_WATCH_TIMEOUT_MS);
+    armWatch(sender.tab.id);
+  } else if (message.type === "cancelDemoWatch") {
+    // Fetch intercept in page script already handled it — disarm fallbacks
+    pendingDemoWatch = null;
+    pendingDownloadCancel = false;
   }
 });
 
-// Cancel the file download that Faceit's "Watch demo" button triggers — the
-// viewer tab we open is sufficient; the user doesn't need the raw .dem.zst.
+// Fallback: cancel any demo file download that slips through the page-script
+// window.open intercept (e.g. if Faceit uses window.location.href instead).
 browser.downloads.onCreated.addListener(async (downloadItem) => {
-  if (!pendingDemoWatch) return;
+  if (!pendingDownloadCancel) return;
   try {
     const pathname = new URL(downloadItem.url).pathname;
     if (!/\.dem\.(zst|gz)/.test(pathname)) return;
   } catch {
     return;
   }
-  // Cancel and remove the download entry so the save dialog never appears
+  pendingDownloadCancel = false;
   await browser.downloads.cancel(downloadItem.id);
   await browser.downloads.erase({ id: downloadItem.id });
 });
 
+// Fallback: capture CDN URL via webRequest if the page-script fetch intercept
+// didn't fire (e.g. Faceit uses XHR, or CSP blocks the injected script).
 browser.webRequest.onBeforeRequest.addListener(
   async (details) => {
-    // Only care about actual demo files (.dem.zst / .dem.gz)
     try {
       const pathname = new URL(details.url).pathname;
       if (!/\.dem\.(zst|gz)/.test(pathname)) return;
@@ -86,12 +95,12 @@ browser.webRequest.onBeforeRequest.addListener(
 
     const watch = pendingDemoWatch;
     pendingDemoWatch = null;
+    // leave pendingDownloadCancel = true so downloads.onCreated can still cancel
 
     const demoViewerUrl = await getDemoViewerUrl();
     const viewerUrl = `${demoViewerUrl}/player?demourl=${encodeURIComponent(details.url)}`;
     await browser.tabs.create({ url: viewerUrl });
 
-    // Tell the content script to reset the button state
     try {
       await browser.tabs.sendMessage(watch.originTabId, {
         type: "demoUrlCaptured",
