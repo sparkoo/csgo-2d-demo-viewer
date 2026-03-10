@@ -498,6 +498,7 @@ class FACEITDemoViewer {
         );
       }, 15_000);
 
+      this.log("Dispatching __cs2FetchMatchDemo for matchId:", matchId);
       window.dispatchEvent(
         new CustomEvent("__cs2FetchMatchDemo", { detail: { matchId } })
       );

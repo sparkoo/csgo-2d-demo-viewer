@@ -21,6 +21,7 @@
   // __cs2FetchMatchDemo with {matchId} and we reply via __cs2DemoUrl.
   window.addEventListener("__cs2FetchMatchDemo", async (e) => {
     const matchId = e.detail && e.detail.matchId;
+    console.log("[cs2-intercept] __cs2FetchMatchDemo received, matchId:", matchId);
     if (!matchId) return;
     try {
       const matchRes = await _origFetch(
@@ -53,6 +54,7 @@
         new CustomEvent("__cs2DemoUrl", { detail: dlUrl })
       );
     } catch (err) {
+      console.log("[cs2-intercept] __cs2FetchMatchDemo error:", String(err));
       window.dispatchEvent(
         new CustomEvent("__cs2DemoUrlError", { detail: String(err) })
       );
