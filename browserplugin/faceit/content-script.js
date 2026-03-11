@@ -13,31 +13,8 @@ class FACEITDemoViewer {
     this.debugMode = true;
     this.injectionTimeout = null;
     this.historyCheckTimeout = null;
-    this.pendingButton = null;
-    this.pendingButtonContent = null;
-    this.pendingButtonTimeout = null;
-
-    // Reset button when background confirms the demo URL was captured
-    browser.runtime.onMessage.addListener((message) => {
-      if (message.type === "demoUrlCaptured") {
-        this.resetPendingButton();
-      }
-    });
 
     this.init();
-  }
-
-  resetPendingButton() {
-    if (this.pendingButtonTimeout) {
-      clearTimeout(this.pendingButtonTimeout);
-      this.pendingButtonTimeout = null;
-    }
-    if (this.pendingButton) {
-      this.pendingButton.innerHTML = this.pendingButtonContent;
-      this.pendingButton.disabled = false;
-      this.pendingButton = null;
-      this.pendingButtonContent = null;
-    }
   }
 
   log(...args) {
@@ -87,32 +64,10 @@ class FACEITDemoViewer {
 
     this.log("✅ Confirmed on FACEIT domain");
 
-    this.injectPageScript();
     this.observePageChanges();
     this.injectButtons();
     this.checkScrollableMatchHistory();
     this.checkStatsPageMatches();
-  }
-
-  injectPageScript() {
-    if (document.getElementById("__cs2-demo-interceptor")) {
-      // Already injected — promise already set; nothing to do
-      return;
-    }
-    const script = document.createElement("script");
-    script.id = "__cs2-demo-interceptor";
-    script.src = browser.runtime.getURL("intercept-page.js");
-    // Track whether the script loaded successfully so the click handler can
-    // fall back to a direct content-script fetch when the page blocks it.
-    this.pageScriptLoaded = new Promise((resolve) => {
-      script.addEventListener("load", () => resolve(true));
-      script.addEventListener("error", () => {
-        this.log("⚠️ intercept-page.js failed to load (CSP?), will use direct fetch fallback");
-        resolve(false);
-      });
-    });
-    (document.head || document.documentElement).appendChild(script);
-    this.log("Injected page-context fetch interceptor");
   }
 
   // Fetch the signed demo download URL directly from the content-script
@@ -279,8 +234,13 @@ class FACEITDemoViewer {
 
     this.log("✅ Found 'Watch demo' button:", watchDemoButton);
 
-    // Create our button
-    const button = this.createReplayButton("match-room-info");
+    // Extract the matchId from the URL (same path used by match-history buttons).
+    const matchIdFromUrl = window.location.pathname.split("/").pop();
+    if (!matchIdFromUrl) {
+      this.log("❌ Could not extract matchId from URL");
+      return false;
+    }
+    const button = this.createReplayButton(matchIdFromUrl);
 
     // Insert the button right after the "Watch demo" button
     watchDemoButton.insertAdjacentElement("afterend", button);
@@ -425,145 +385,29 @@ class FACEITDemoViewer {
     this.log("handle click on match", matchId);
 
     const originalContent = button.innerHTML;
-    const loadingSpinner = `
+    button.innerHTML = `
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z">
           <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
         </path>
       </svg>
     `;
-
-    button.innerHTML = loadingSpinner;
     button.disabled = true;
 
-    // On the match room page we use the reliable interception approach:
-    // tell the background to watch for the Backblaze CDN request, then
-    // programmatically click Faceit's own "Watch demo" button so the signed
-    // URL is generated server-side (no auth issues on our end).
-    if (matchId === "match-room-info") {
-      try {
-        const infoDiv = document.querySelector('div[name="info"]');
-        const watchDemoButton = infoDiv
-          ? Array.from(infoDiv.querySelectorAll("button")).find((btn) =>
-              btn.textContent.trim().toLowerCase().includes("watch demo")
-            )
-          : null;
-
-        if (!watchDemoButton) {
-          throw new Error("Could not find 'Watch demo' button");
-        }
-
-        this.pendingButton = button;
-        this.pendingButtonContent = originalContent;
-
-        // Handler receives the signed URL from the page-context fetch intercept
-        const handleDemoUrl = (e) => {
-          const downloadUrl = e.detail;
-          this.log("Intercepted signed demo URL:", downloadUrl);
-          // Disarm background fallbacks — we already have the URL
-          browser.runtime.sendMessage({ type: "cancelDemoWatch" }).catch(() => {});
-          const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(downloadUrl)}`;
-          window.open(playerUrl, "_blank");
-          this.resetPendingButton();
-        };
-        window.addEventListener("__cs2DemoUrl", handleDemoUrl, { once: true });
-
-        // Safety timeout — reset button if neither intercept fires
-        this.pendingButtonTimeout = setTimeout(() => {
-          window.removeEventListener("__cs2DemoUrl", handleDemoUrl);
-          this.resetPendingButton();
-          this.showPopupError(
-            "Timed out waiting for demo URL. Make sure you are logged in to FACEIT and try again."
-          );
-        }, 15_000);
-
-        // Arm background fallback (webRequest + downloads.cancel) in case the
-        // page-script fetch intercept doesn't fire (XHR, CSP block, etc.)
-        await browser.runtime.sendMessage({ type: "watchForDemoUrl" });
-
-        // Arm the page-context interceptor, then trigger Faceit's flow
-        window.dispatchEvent(new CustomEvent("__cs2ActivateIntercept"));
-        watchDemoButton.click();
-        this.log("Clicked 'Watch demo', waiting for fetch intercept...");
-        return; // Button reset handled by handleDemoUrl / timeout
-      } catch (error) {
-        console.error("Error using intercept approach:", error);
-        button.innerHTML = originalContent;
-        button.disabled = false;
-        this.showPopupError(
-          "Could not trigger demo download. Please click the 'Watch demo' button manually."
-        );
-        return;
-      }
-    }
-
-    // For match history / stats pages we ask intercept-page.js (running in
-    // the page context with full auth cookies) to make the API calls for us.
-    // This avoids the 403s that the content script gets.
-    {
-      const handleDemoUrl = (e) => {
-        const downloadUrl = e.detail;
-        this.log("Got signed demo URL via page script:", downloadUrl);
-        clearTimeout(pageScriptTimeout);
-        window.removeEventListener("__cs2DemoUrlError", handleError);
-        const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(downloadUrl)}`;
-        window.open(playerUrl, "_blank");
-        button.innerHTML = originalContent;
-        button.disabled = false;
-      };
-
-      const handleError = (e) => {
-        this.log("Page script fetch error:", e.detail);
-        clearTimeout(pageScriptTimeout);
-        window.removeEventListener("__cs2DemoUrl", handleDemoUrl);
-        button.innerHTML = originalContent;
-        button.disabled = false;
-        this.showPopupError(
-          `Could not get demo URL. Try the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> directly.`
-        );
-      };
-
-      // Wait for intercept-page.js load attempt to settle, then decide path.
-      const pageScriptOk = await (this.pageScriptLoaded || Promise.resolve(false));
-
-      if (pageScriptOk) {
-        // Page script loaded — use postMessage so it runs the API calls in
-        // the full auth context (handles CSRF / signed headers automatically).
-        window.addEventListener("__cs2DemoUrl", handleDemoUrl, { once: true });
-        window.addEventListener("__cs2DemoUrlError", handleError, { once: true });
-
-        const pageScriptTimeout = setTimeout(() => {
-          window.removeEventListener("__cs2DemoUrl", handleDemoUrl);
-          window.removeEventListener("__cs2DemoUrlError", handleError);
-          button.innerHTML = originalContent;
-          button.disabled = false;
-          this.showPopupError(
-            `Timed out. Try the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> directly.`
-          );
-        }, 15_000);
-
-        this.log("Posting fetchMatchDemo for matchId:", matchId);
-        window.postMessage({ __cs2: true, type: "fetchMatchDemo", matchId }, "*");
-      } else {
-        // Page script couldn't load (CSP block etc.) — fall back to a direct
-        // same-origin fetch from the content-script context.  Content scripts
-        // share the page's cookie jar so Faceit auth is included automatically.
-        this.log("Falling back to direct content-script fetch for matchId:", matchId);
-        try {
-          const dlUrl = await this.fetchDemoUrlDirect(matchId);
-          this.log("Direct fetch success, opening viewer");
-          const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(dlUrl)}`;
-          window.open(playerUrl, "_blank");
-        } catch (err) {
-          this.log("Direct fetch failed:", String(err));
-          this.showPopupError(
-            `Could not get demo URL (${err.message}). Try the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> directly.`
-          );
-        } finally {
-          button.innerHTML = originalContent;
-          button.disabled = false;
-        }
-      }
+    try {
+      const dlUrl = await this.fetchDemoUrlDirect(matchId);
+      this.log("Got demo URL, opening viewer");
+      const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(dlUrl)}`;
+      window.open(playerUrl, "_blank");
+    } catch (err) {
+      this.log("fetchDemoUrlDirect failed:", String(err));
+      const link = matchRoomUrl
+        ? ` Try the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> directly.`
+        : "";
+      this.showPopupError(`Could not get demo URL (${err.message}).${link}`);
+    } finally {
+      button.innerHTML = originalContent;
+      button.disabled = false;
     }
   }
 
