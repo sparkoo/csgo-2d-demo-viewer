@@ -79,8 +79,7 @@ class FACEITDemoViewer {
     );
     if (!matchRes.ok) throw new Error(`match API ${matchRes.status}`);
     const matchData = await matchRes.json();
-    const demoUrl =
-      matchData && matchData.payload && matchData.payload.demoURLs && matchData.payload.demoURLs[0];
+    const demoUrl = matchData?.payload?.demoURLs?.[0];
     if (!demoUrl) throw new Error("no demoURL in match payload");
 
     const dlRes = await fetch(
@@ -93,7 +92,7 @@ class FACEITDemoViewer {
     );
     if (!dlRes.ok) throw new Error(`download API ${dlRes.status}`);
     const dlData = await dlRes.json();
-    const dlUrl = dlData && dlData.payload && dlData.payload.download_url;
+    const dlUrl = dlData?.payload?.download_url;
     if (!dlUrl) throw new Error("no download_url in payload");
     return dlUrl;
   }

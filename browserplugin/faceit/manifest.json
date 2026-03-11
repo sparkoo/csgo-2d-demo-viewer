@@ -14,7 +14,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "tabs", "webNavigation", "webRequest", "downloads"],
+  "permissions": ["storage", "webNavigation"],
   "host_permissions": [
     "https://www.faceit.com/*",
     "https://faceit.com/*",
@@ -28,12 +28,6 @@
       "css": ["content-styles.css"],
       "run_at": "document_end",
       "all_frames": false
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["intercept-page.js"],
-      "matches": ["https://www.faceit.com/*", "https://faceit.com/*"]
     }
   ],
   "action": {
