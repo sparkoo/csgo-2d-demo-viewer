@@ -9,7 +9,6 @@ module.exports = (env) => {
     entry: {
       "content-script": "./content-script.js",
       popup: "./popup.js",
-      background: "./background.js",
     },
     output: {
       path: path.resolve(__dirname, `dist/${browser}`),

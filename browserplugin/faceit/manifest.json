@@ -11,15 +11,11 @@
     }
   },
   "description": "View CS2 demo replays in 2D directly from FACEIT match pages in single click.",
-  "background": {
-    "service_worker": "background.js"
-  },
-  "permissions": ["storage", "tabs", "webNavigation", "webRequest", "downloads"],
+  "permissions": ["storage"],
   "host_permissions": [
     "https://www.faceit.com/*",
     "https://faceit.com/*",
-    "https://*.faceit.com/*",
-    "*://*.backblazeb2.com/*"
+    "https://*.faceit.com/*"
   ],
   "content_scripts": [
     {
@@ -28,12 +24,6 @@
       "css": ["content-styles.css"],
       "run_at": "document_end",
       "all_frames": false
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["intercept-page.js"],
-      "matches": ["https://www.faceit.com/*", "https://faceit.com/*"]
     }
   ],
   "action": {
