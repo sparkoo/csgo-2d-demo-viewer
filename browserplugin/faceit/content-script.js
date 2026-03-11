@@ -102,14 +102,45 @@ class FACEITDemoViewer {
     const script = document.createElement("script");
     script.id = "__cs2-demo-interceptor";
     script.src = browser.runtime.getURL("intercept-page.js");
-    // Track when the script has actually executed so we don't postMessage
-    // into the void if the user clicks a button before the script loads.
-    this.pageScriptReady = new Promise((resolve) => {
-      script.addEventListener("load", resolve);
-      script.addEventListener("error", resolve); // don't hang on load failure
+    // Track whether the script loaded successfully so the click handler can
+    // fall back to a direct content-script fetch when the page blocks it.
+    this.pageScriptLoaded = new Promise((resolve) => {
+      script.addEventListener("load", () => resolve(true));
+      script.addEventListener("error", () => {
+        this.log("⚠️ intercept-page.js failed to load (CSP?), will use direct fetch fallback");
+        resolve(false);
+      });
     });
     (document.head || document.documentElement).appendChild(script);
     this.log("Injected page-context fetch interceptor");
+  }
+
+  // Fetch the signed demo download URL directly from the content-script
+  // context.  Content scripts share the page origin so same-origin Faceit
+  // API calls include auth cookies automatically — no CORS, no 403.
+  async fetchDemoUrlDirect(matchId) {
+    const matchRes = await fetch(
+      `https://www.faceit.com/api/match/v2/match/${matchId}`
+    );
+    if (!matchRes.ok) throw new Error(`match API ${matchRes.status}`);
+    const matchData = await matchRes.json();
+    const demoUrl =
+      matchData && matchData.payload && matchData.payload.demoURLs && matchData.payload.demoURLs[0];
+    if (!demoUrl) throw new Error("no demoURL in match payload");
+
+    const dlRes = await fetch(
+      "https://www.faceit.com/api/download/v2/demos/download-url",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resource_url: demoUrl }),
+      }
+    );
+    if (!dlRes.ok) throw new Error(`download API ${dlRes.status}`);
+    const dlData = await dlRes.json();
+    const dlUrl = dlData && dlData.payload && dlData.payload.download_url;
+    if (!dlUrl) throw new Error("no download_url in payload");
+    return dlUrl;
   }
 
   isMatchRoomPage() {
@@ -492,26 +523,47 @@ class FACEITDemoViewer {
         );
       };
 
-      window.addEventListener("__cs2DemoUrl", handleDemoUrl, { once: true });
-      window.addEventListener("__cs2DemoUrlError", handleError, {
-        once: true,
-      });
+      // Wait for intercept-page.js load attempt to settle, then decide path.
+      const pageScriptOk = await (this.pageScriptLoaded || Promise.resolve(false));
 
-      const pageScriptTimeout = setTimeout(() => {
-        window.removeEventListener("__cs2DemoUrl", handleDemoUrl);
-        window.removeEventListener("__cs2DemoUrlError", handleError);
-        button.innerHTML = originalContent;
-        button.disabled = false;
-        this.showPopupError(
-          `Timed out. Try the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> directly.`
-        );
-      }, 15_000);
+      if (pageScriptOk) {
+        // Page script loaded — use postMessage so it runs the API calls in
+        // the full auth context (handles CSRF / signed headers automatically).
+        window.addEventListener("__cs2DemoUrl", handleDemoUrl, { once: true });
+        window.addEventListener("__cs2DemoUrlError", handleError, { once: true });
 
-      // Wait for intercept-page.js to finish loading before posting,
-      // so the message listener is guaranteed to be registered.
-      await (this.pageScriptReady || Promise.resolve());
-      this.log("Posting fetchMatchDemo for matchId:", matchId);
-      window.postMessage({ __cs2: true, type: "fetchMatchDemo", matchId }, "*");
+        const pageScriptTimeout = setTimeout(() => {
+          window.removeEventListener("__cs2DemoUrl", handleDemoUrl);
+          window.removeEventListener("__cs2DemoUrlError", handleError);
+          button.innerHTML = originalContent;
+          button.disabled = false;
+          this.showPopupError(
+            `Timed out. Try the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> directly.`
+          );
+        }, 15_000);
+
+        this.log("Posting fetchMatchDemo for matchId:", matchId);
+        window.postMessage({ __cs2: true, type: "fetchMatchDemo", matchId }, "*");
+      } else {
+        // Page script couldn't load (CSP block etc.) — fall back to a direct
+        // same-origin fetch from the content-script context.  Content scripts
+        // share the page's cookie jar so Faceit auth is included automatically.
+        this.log("Falling back to direct content-script fetch for matchId:", matchId);
+        try {
+          const dlUrl = await this.fetchDemoUrlDirect(matchId);
+          this.log("Direct fetch success, opening viewer");
+          const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(dlUrl)}`;
+          window.open(playerUrl, "_blank");
+        } catch (err) {
+          this.log("Direct fetch failed:", String(err));
+          this.showPopupError(
+            `Could not get demo URL (${err.message}). Try the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> directly.`
+          );
+        } finally {
+          button.innerHTML = originalContent;
+          button.disabled = false;
+        }
+      }
     }
   }
 
