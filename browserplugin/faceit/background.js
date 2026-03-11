@@ -1,16 +1,7 @@
 // CS2 Demo Viewer - Background Service Worker
-// Handles automatic demo URL resolution when viewer page has ?faceit_match_id= parameter
 import browser from "webextension-polyfill";
 
 const DEFAULT_DEMO_VIEWER_URL = "https://2d.sparko.cz";
-
-// Match ID pattern (same as in PlayerApp.jsx)
-const FACEIT_MATCH_ID_CORE =
-  String.raw`\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}`;
-const FACEIT_MATCH_ID_VALIDATION_PATTERN = new RegExp(
-  `^${FACEIT_MATCH_ID_CORE}$`,
-  "i"
-);
 
 async function getDemoViewerUrl() {
   try {
@@ -34,6 +25,10 @@ const DEMO_WATCH_TIMEOUT_MS = 30_000;
 
 // { originTabId: number, timestamp: number } | null
 // Used by webRequest.onBeforeRequest (URL capture fallback).
+// NOTE: MV3 service workers may be terminated after ~30 s of inactivity.
+// If the worker is killed between armWatch() and the webRequest/downloads event,
+// these flags reset silently. Persisting to chrome.storage.session (Chrome 102+)
+// would survive restarts, but is not yet implemented.
 let pendingDemoWatch = null;
 
 // Separate flag used by downloads.onCreated.
@@ -52,8 +47,12 @@ function armWatch(originTabId) {
 }
 
 browser.runtime.onMessage.addListener((message, sender) => {
+  // Messages from contexts without a tab (e.g. popup) have no sender.tab
+  const tabId = sender && sender.tab && sender.tab.id;
+  if (typeof tabId !== "number") return;
+
   if (message.type === "watchForDemoUrl") {
-    armWatch(sender.tab.id);
+    armWatch(tabId);
   } else if (message.type === "cancelDemoWatch") {
     // Fetch intercept in page script already handled it — disarm fallbacks
     pendingDemoWatch = null;
@@ -63,11 +62,14 @@ browser.runtime.onMessage.addListener((message, sender) => {
 
 // Fallback: cancel any demo file download that slips through the page-script
 // window.open intercept (e.g. if Faceit uses window.location.href instead).
+// Note: the downloads API does not expose the initiating tab ID, so we scope
+// by URL host and pathname to avoid cancelling unrelated downloads.
 browser.downloads.onCreated.addListener(async (downloadItem) => {
   if (!pendingDownloadCancel) return;
   try {
-    const pathname = new URL(downloadItem.url).pathname;
-    if (!/\.dem\.(zst|gz)/.test(pathname)) return;
+    const parsedUrl = new URL(downloadItem.url);
+    if (!/backblazeb2\.com$/.test(parsedUrl.hostname)) return;
+    if (!/\.dem\.(zst|gz)/.test(parsedUrl.pathname)) return;
   } catch {
     return;
   }
@@ -78,11 +80,14 @@ browser.downloads.onCreated.addListener(async (downloadItem) => {
 
 // Fallback: capture CDN URL via webRequest if the page-script fetch intercept
 // didn't fire (e.g. Faceit uses XHR, or CSP blocks the injected script).
+// NOTE: MV3 restricts webRequestBlocking, so this listener is async but cannot
+// return { cancel: true } to block the request. The download is cancelled
+// after the fact via downloads.onCreated racing the download start.
 browser.webRequest.onBeforeRequest.addListener(
   async (details) => {
     try {
-      const pathname = new URL(details.url).pathname;
-      if (!/\.dem\.(zst|gz)/.test(pathname)) return;
+      const parsedUrl = new URL(details.url);
+      if (!/\.dem\.(zst|gz)/.test(parsedUrl.pathname)) return;
     } catch {
       return;
     }
@@ -92,6 +97,9 @@ browser.webRequest.onBeforeRequest.addListener(
       pendingDemoWatch = null;
       return;
     }
+
+    // Only handle requests that originated from the tab that armed the watch
+    if (details.tabId !== pendingDemoWatch.originTabId) return;
 
     const watch = pendingDemoWatch;
     pendingDemoWatch = null;
@@ -112,39 +120,3 @@ browser.webRequest.onBeforeRequest.addListener(
   { urls: ["*://*.backblazeb2.com/cs2/*"] }
 );
 
-// ---------------------------------------------------------------------------
-// Auto-resolve ?faceit_match_id= on the viewer page (legacy / fallback path)
-// ---------------------------------------------------------------------------
-
-browser.webNavigation.onCommitted.addListener(async (details) => {
-  // Only handle main frame navigations
-  if (details.frameId !== 0) return;
-
-  let url;
-  try {
-    url = new URL(details.url);
-  } catch {
-    return;
-  }
-
-  const matchId = url.searchParams.get("faceit_match_id");
-  if (!matchId) return;
-  if (!FACEIT_MATCH_ID_VALIDATION_PATTERN.test(matchId)) return;
-
-  // Check if we're on the configured viewer origin
-  const demoViewerUrl = await getDemoViewerUrl();
-  let viewerOrigin;
-  try {
-    viewerOrigin = new URL(demoViewerUrl).origin;
-  } catch {
-    return;
-  }
-
-  if (url.origin !== viewerOrigin) return;
-
-  console.log(
-    `[CS2 Extension] Detected viewer page with faceit_match_id=${matchId}, showing manual dialog`
-  );
-  // Leave the page as-is; it will show the manual dialog that directs the
-  // user to the Faceit match page.
-});

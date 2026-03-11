@@ -64,6 +64,7 @@ module.exports = (env) => {
                 { from: "popup.html", to: "popup.html" },
                 { from: "content-styles.css", to: "content-styles.css" },
                 { from: "popup.css", to: "popup.css" },
+                { from: "intercept-page.js", to: "intercept-page.js" },
                 {
                   from: "icons",
                   to: "icons",

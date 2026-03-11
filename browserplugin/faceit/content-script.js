@@ -64,15 +64,31 @@ class FACEITDemoViewer {
 
     this.log("✅ Confirmed on FACEIT domain");
 
+    // Inject the page-context script so it can patch window.fetch/window.open
+    // before Faceit's own code runs (content scripts run in an isolated world).
+    this.injectPageScript();
+
     this.observePageChanges();
     this.injectButtons();
     this.checkScrollableMatchHistory();
     this.checkStatsPageMatches();
   }
 
-  // Fetch the signed demo download URL directly from the content-script
-  // context.  Content scripts share the page origin so same-origin Faceit
-  // API calls include auth cookies automatically — no CORS, no 403.
+  injectPageScript() {
+    if (document.getElementById("cs2-intercept-page-script")) return;
+    const script = document.createElement("script");
+    script.id = "cs2-intercept-page-script";
+    script.src = browser.runtime.getURL("intercept-page.js");
+    (document.head || document.documentElement).appendChild(script);
+  }
+
+  // Fetch the signed demo download URL directly from the content-script context.
+  // Content scripts share the page origin so same-origin Faceit API calls
+  // include auth cookies automatically — no CORS, no 403.
+  // Note: intercept-page.js contains an equivalent fetch sequence invoked via
+  // postMessage when the page-context script handles it instead. Both paths
+  // exist because content scripts use the real (unpatched) window.fetch while
+  // the page script uses the patched version; neither can replace the other.
   async fetchDemoUrlDirect(matchId) {
     const matchRes = await fetch(
       `https://www.faceit.com/api/match/v2/match/${matchId}`
@@ -401,17 +417,14 @@ class FACEITDemoViewer {
       window.open(playerUrl, "_blank");
     } catch (err) {
       this.log("fetchDemoUrlDirect failed:", String(err));
-      const link = matchRoomUrl
-        ? ` Try the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> directly.`
-        : "";
-      this.showPopupError(`Could not get demo URL (${err.message}).${link}`);
+      this.showPopupError(`Could not get demo URL (${err.message}).`, matchRoomUrl);
     } finally {
       button.innerHTML = originalContent;
       button.disabled = false;
     }
   }
 
-  showPopupError(htmlMessage) {
+  showPopupError(message, matchRoomUrl = null) {
     const existing = document.getElementById("faceit-extension-popup");
     if (existing) existing.remove();
 
@@ -431,11 +444,33 @@ class FACEITDemoViewer {
       font-family: Arial, sans-serif;
       font-size: 14px;
     `;
-    popup.innerHTML = `
-      <strong>CS2 Demo Viewer</strong><br>
-      <span>${htmlMessage}</span><br>
-      <button onclick="this.parentElement.remove()" style="margin-top:10px;background:none;border:1px solid white;color:white;padding:5px 10px;cursor:pointer;border-radius:3px;">Close</button>
-    `;
+
+    const title = document.createElement("strong");
+    title.textContent = "CS2 Demo Viewer";
+
+    const msg = document.createElement("span");
+    msg.textContent = message;
+
+    if (matchRoomUrl) {
+      const link = document.createElement("a");
+      link.href = matchRoomUrl;
+      link.target = "_blank";
+      link.style.cssText = "color:yellow;text-decoration:underline";
+      link.textContent = "match page";
+      msg.append(" Try the ", link, " directly.");
+    }
+
+    const closeBtn = document.createElement("button");
+    closeBtn.style.cssText = "margin-top:10px;background:none;border:1px solid white;color:white;padding:5px 10px;cursor:pointer;border-radius:3px;";
+    closeBtn.textContent = "Close";
+    closeBtn.addEventListener("click", () => popup.remove());
+
+    popup.appendChild(title);
+    popup.appendChild(document.createElement("br"));
+    popup.appendChild(msg);
+    popup.appendChild(document.createElement("br"));
+    popup.appendChild(closeBtn);
+
     document.body.appendChild(popup);
     setTimeout(() => popup.parentElement && popup.remove(), 10_000);
   }

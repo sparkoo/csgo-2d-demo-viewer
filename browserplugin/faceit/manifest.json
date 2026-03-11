@@ -14,7 +14,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "tabs", "webNavigation", "webRequest", "downloads"],
+  "permissions": ["storage", "tabs", "webRequest", "downloads"],
   "host_permissions": [
     "https://www.faceit.com/*",
     "https://faceit.com/*",
