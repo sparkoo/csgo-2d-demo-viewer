@@ -401,17 +401,14 @@ class FACEITDemoViewer {
       window.open(playerUrl, "_blank");
     } catch (err) {
       this.log("fetchDemoUrlDirect failed:", String(err));
-      const link = matchRoomUrl
-        ? ` Try the <a href="${matchRoomUrl}" target="_blank" style="color:yellow;text-decoration:underline;">match page</a> directly.`
-        : "";
-      this.showPopupError(`Could not get demo URL (${err.message}).${link}`);
+      this.showPopupError(`Could not get demo URL (${err.message}).`, matchRoomUrl);
     } finally {
       button.innerHTML = originalContent;
       button.disabled = false;
     }
   }
 
-  showPopupError(htmlMessage) {
+  showPopupError(textMessage, matchRoomUrl = null) {
     const existing = document.getElementById("faceit-extension-popup");
     if (existing) existing.remove();
 
@@ -431,11 +428,34 @@ class FACEITDemoViewer {
       font-family: Arial, sans-serif;
       font-size: 14px;
     `;
-    popup.innerHTML = `
-      <strong>CS2 Demo Viewer</strong><br>
-      <span>${htmlMessage}</span><br>
-      <button onclick="this.parentElement.remove()" style="margin-top:10px;background:none;border:1px solid white;color:white;padding:5px 10px;cursor:pointer;border-radius:3px;">Close</button>
-    `;
+
+    const title = document.createElement("strong");
+    title.textContent = "CS2 Demo Viewer";
+    popup.appendChild(title);
+    popup.appendChild(document.createElement("br"));
+
+    const msg = document.createElement("span");
+    msg.textContent = textMessage;
+    if (matchRoomUrl) {
+      msg.appendChild(document.createTextNode(" Try the "));
+      const a = document.createElement("a");
+      a.href = matchRoomUrl;
+      a.target = "_blank";
+      a.style.cssText = "color:yellow;text-decoration:underline";
+      a.textContent = "match page";
+      msg.appendChild(a);
+      msg.appendChild(document.createTextNode(" directly."));
+    }
+    popup.appendChild(msg);
+    popup.appendChild(document.createElement("br"));
+
+    const closeBtn = document.createElement("button");
+    closeBtn.style.cssText =
+      "margin-top:10px;background:none;border:1px solid white;color:white;padding:5px 10px;cursor:pointer;border-radius:3px;";
+    closeBtn.textContent = "Close";
+    closeBtn.addEventListener("click", () => popup.remove());
+    popup.appendChild(closeBtn);
+
     document.body.appendChild(popup);
     setTimeout(() => popup.parentElement && popup.remove(), 10_000);
   }
