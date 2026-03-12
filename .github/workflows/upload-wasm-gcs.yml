@@ -1,0 +1,56 @@
+name: Upload WASM to GCS
+
+on:
+  push:
+    branches: [ "master", "dev" ]
+    paths:
+      - 'parser/**'
+      - '.github/workflows/upload-wasm-gcs.yml'
+
+jobs:
+  upload-wasm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: parser/go.mod
+          cache-dependency-path: parser/go.sum
+
+      - name: Build WASM
+        working-directory: parser
+        run: |
+          CGO_ENABLED=0 GOOS=js GOARCH=wasm go build \
+            -a -o ../csdemoparser.wasm \
+            -ldflags="-s -w" \
+            -gcflags all=-trimpath=/ \
+            -asmflags all=-trimpath=/ \
+            wasm.go
+          cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" ../wasm_exec.js
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCS_SA_KEY }}
+
+      - name: Upload WASM to GCS
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: csdemoparser.wasm
+          destination: ${{ secrets.GCS_WASM_BUCKET }}/wasm
+          headers: |-
+            content-type: application/wasm
+            cache-control: public, max-age=31536000, immutable
+
+      - name: Upload wasm_exec.js to GCS
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: wasm_exec.js
+          destination: ${{ secrets.GCS_WASM_BUCKET }}/wasm
+          headers: |-
+            content-type: application/javascript
+            cache-control: public, max-age=31536000, immutable
