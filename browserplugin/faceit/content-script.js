@@ -75,7 +75,8 @@ class FACEITDemoViewer {
   // API calls include auth cookies automatically — no CORS, no 403.
   async fetchDemoUrlDirect(matchId) {
     const matchRes = await fetch(
-      `https://www.faceit.com/api/match/v2/match/${matchId}`
+      `https://www.faceit.com/api/match/v2/match/${matchId}`,
+      { credentials: "include" }
     );
     if (!matchRes.ok) throw new Error(`match API ${matchRes.status}`);
     const matchData = await matchRes.json();
@@ -88,6 +89,7 @@ class FACEITDemoViewer {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resource_url: demoUrl }),
+        credentials: "include",
       }
     );
     if (!dlRes.ok) throw new Error(`download API ${dlRes.status}`);
@@ -423,7 +425,7 @@ class FACEITDemoViewer {
       const link = matchRoomUrl
         ? { href: matchRoomUrl, text: "match page" }
         : null;
-      this.showPopupError(`Could not get demo URL (${err.message}).`, link);
+      this.showPopupError(`Could not get demo URL (${err?.message ?? String(err)}).`, link);
     } finally {
       button.innerHTML = originalContent;
       button.disabled = false;
