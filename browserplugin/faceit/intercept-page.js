@@ -87,6 +87,9 @@
     if (armed && url && typeof url === "string") {
       try {
         const u = new URL(url, window.location.href);
+        // NOTE: this regex is hardcoded to the current Faceit CDN (Backblaze B2).
+        // If Faceit changes CDN providers this will silently stop blocking the
+        // native download tab and both windows will open.
         if (/backblazeb2\.com/.test(u.hostname) && /\.dem\.(zst|gz)/.test(u.pathname)) {
           return null;
         }

@@ -399,16 +399,16 @@ class FACEITDemoViewer {
         dlUrl = await this.fetchDemoUrlViaIntercept(watchDemoButton);
         if (!dlUrl) {
           this.log("Intercept failed or timed out, falling back to page-context fetch");
+          dlUrl = await this.fetchDemoUrlViaPageContext(matchId);
+          if (!dlUrl) {
+            this.log("Page-context fetch failed, falling back to direct fetch");
+          }
         }
       }
 
-      if (!dlUrl) {
-        dlUrl = await this.fetchDemoUrlViaPageContext(matchId);
-        if (!dlUrl) {
-          this.log("Page-context fetch failed, falling back to direct fetch");
-        }
-      }
-
+      // For buttons without a "Watch demo" button (stats/history pages), skip
+      // the intercept tiers and fetch directly from the content-script context —
+      // same origin, same cookies, no 5 s timeout overhead.
       if (!dlUrl) {
         dlUrl = await this.fetchDemoUrlDirect(matchId);
       }
@@ -497,6 +497,7 @@ class FACEITDemoViewer {
       const TIMEOUT_MS = 5000;
       const timer = setTimeout(() => {
         window.removeEventListener("message", handler);
+        window.postMessage({ __cs2: true, type: "disarmIntercept" }, "*");
         this.log("Page-context fetch timed out");
         resolve(null);
       }, TIMEOUT_MS);
