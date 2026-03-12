@@ -239,7 +239,7 @@ class FACEITDemoViewer {
       this.log("❌ Could not extract matchId from URL");
       return false;
     }
-    const button = this.createReplayButton(matchIdFromUrl);
+    const button = this.createReplayButton(matchIdFromUrl, watchDemoButton);
 
     // Insert the button right after the "Watch demo" button
     watchDemoButton.insertAdjacentElement("afterend", button);
@@ -363,7 +363,7 @@ class FACEITDemoViewer {
     });
   }
 
-  createReplayButton(matchId) {
+  createReplayButton(matchId, watchDemoButton = null) {
     const button = document.createElement("button");
     button.className = `${this.buttonClass}`;
     button.textContent = "2d replay";
@@ -373,14 +373,13 @@ class FACEITDemoViewer {
     button.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      // No match room URL passed - we're already on the match room page
-      await this.handleReplayClick(matchId, button, null);
+      await this.handleReplayClick(matchId, button, null, watchDemoButton);
     });
 
     return button;
   }
 
-  async handleReplayClick(matchId, button, matchRoomUrl = null) {
+  async handleReplayClick(matchId, button, matchRoomUrl = null, watchDemoButton = null) {
     this.log("handle click on match", matchId);
 
     const originalContent = button.innerHTML;
@@ -394,12 +393,33 @@ class FACEITDemoViewer {
     button.disabled = true;
 
     try {
-      const dlUrl = await this.fetchDemoUrlDirect(matchId);
+      let dlUrl = null;
+
+      if (watchDemoButton) {
+        dlUrl = await this.fetchDemoUrlViaIntercept(watchDemoButton);
+        if (!dlUrl) {
+          this.log("Intercept failed or timed out, falling back to page-context fetch");
+        }
+      }
+
+      if (!dlUrl) {
+        dlUrl = await this.fetchDemoUrlViaPageContext(matchId);
+        if (!dlUrl) {
+          this.log("Page-context fetch failed, falling back to direct fetch");
+        }
+      }
+
+      if (!dlUrl) {
+        dlUrl = await this.fetchDemoUrlDirect(matchId);
+      }
+
       this.log("Got demo URL, opening viewer");
+      window.postMessage({ __cs2: true, type: "disarmIntercept" }, "*");
       const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(dlUrl)}`;
       window.open(playerUrl, "_blank");
     } catch (err) {
-      this.log("fetchDemoUrlDirect failed:", String(err));
+      this.log("Failed to get demo URL:", String(err));
+      window.postMessage({ __cs2: true, type: "disarmIntercept" }, "*");
       const link = matchRoomUrl
         ? { href: matchRoomUrl, text: "match page" }
         : null;
@@ -408,6 +428,95 @@ class FACEITDemoViewer {
       button.innerHTML = originalContent;
       button.disabled = false;
     }
+  }
+
+  // Inject intercept-page.js into the page's MAIN world via the background
+  // service worker (which uses chrome.scripting.executeScript — CSP-proof),
+  // then arm it and programmatically click Faceit's "Watch demo" button.
+  // Returns the signed CDN URL, or null if injection fails or times out.
+  async fetchDemoUrlViaIntercept(watchDemoButton) {
+    let injected;
+    try {
+      injected = await browser.runtime.sendMessage({ type: "injectInterceptor" });
+    } catch (err) {
+      this.log("injectInterceptor message failed:", err);
+      return null;
+    }
+    if (!injected?.ok) {
+      this.log("Interceptor injection failed:", injected?.error);
+      return null;
+    }
+
+    return new Promise((resolve) => {
+      const TIMEOUT_MS = 5000;
+      const timer = setTimeout(() => {
+        window.removeEventListener("message", handler);
+        window.postMessage({ __cs2: true, type: "disarmIntercept" }, "*");
+        this.log("Intercept timed out after", TIMEOUT_MS, "ms");
+        resolve(null);
+      }, TIMEOUT_MS);
+
+      const handler = (e) => {
+        if (e.source !== window || !e.data || e.data.__cs2 !== true) return;
+        if (e.data.type !== "demoUrl" && e.data.type !== "demoUrlError") return;
+        clearTimeout(timer);
+        window.removeEventListener("message", handler);
+        if (e.data.type === "demoUrl") {
+          this.log("Intercept captured URL");
+          resolve(e.data.url);
+        } else {
+          this.log("Intercept error:", e.data.error);
+          resolve(null);
+        }
+      };
+      window.addEventListener("message", handler);
+
+      // Arm the interceptor, then trigger Faceit's flow.
+      window.postMessage({ __cs2: true, type: "armIntercept" }, "*");
+      watchDemoButton.click();
+    });
+  }
+
+  // Ask the page-context interceptor to fetch the signed URL using Faceit's
+  // auth cookies. Used for sidebar/stats buttons where there is no "Watch demo"
+  // button. Returns null if injection fails or times out.
+  async fetchDemoUrlViaPageContext(matchId) {
+    let injected;
+    try {
+      injected = await browser.runtime.sendMessage({ type: "injectInterceptor" });
+    } catch (err) {
+      this.log("injectInterceptor message failed:", err);
+      return null;
+    }
+    if (!injected?.ok) {
+      this.log("Interceptor injection failed:", injected?.error);
+      return null;
+    }
+
+    return new Promise((resolve) => {
+      const TIMEOUT_MS = 5000;
+      const timer = setTimeout(() => {
+        window.removeEventListener("message", handler);
+        this.log("Page-context fetch timed out");
+        resolve(null);
+      }, TIMEOUT_MS);
+
+      const handler = (e) => {
+        if (e.source !== window || !e.data || e.data.__cs2 !== true) return;
+        if (e.data.type !== "demoUrl" && e.data.type !== "demoUrlError") return;
+        clearTimeout(timer);
+        window.removeEventListener("message", handler);
+        if (e.data.type === "demoUrl") {
+          resolve(e.data.url);
+        } else {
+          this.log("Page-context fetch error:", e.data.error);
+          resolve(null);
+        }
+      };
+      window.addEventListener("message", handler);
+
+      window.postMessage({ __cs2: true, type: "fetchMatchDemo", matchId }, "*");
+    });
   }
 
   showPopupError(message, link = null) {
