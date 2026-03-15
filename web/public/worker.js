@@ -1,4 +1,4 @@
-const WASM_BASE_URL = "";
+const WASM_BASE_URL = "__WASM_BASE_URL__";
 
 importScripts(WASM_BASE_URL + "wasm/wasm_exec.js");
 

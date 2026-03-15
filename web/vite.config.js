@@ -25,6 +25,18 @@ function analyticsPlugin(scriptURL, websiteID) {
 function wasmBaseURLPlugin(wasmBaseURL) {
   return {
     name: "inject-wasm-base-url",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (req.url === "/worker.js") {
+          const workerPath = path.resolve("public", "worker.js");
+          const content = fs.readFileSync(workerPath, "utf-8");
+          res.setHeader("Content-Type", "application/javascript");
+          res.end(content.replaceAll("__WASM_BASE_URL__", wasmBaseURL));
+          return;
+        }
+        next();
+      });
+    },
     closeBundle() {
       const workerPath = path.resolve("dist", "worker.js");
       if (fs.existsSync(workerPath)) {
