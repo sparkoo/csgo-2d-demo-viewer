@@ -23,6 +23,10 @@ jobs:
           go-version-file: parser/go.mod
           cache-dependency-path: parser/go.sum
 
+      - name: Test
+        working-directory: parser
+        run: go test ./...
+
       - name: Build WASM
         working-directory: parser
         run: |
