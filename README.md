@@ -28,14 +28,14 @@ Custom message format to send demo data between parser and the *Player* applicat
 
 ### Backend (`server/`)
 
- - Serving of static web content
- - Demo download proxy
+ - Demo download proxy (the only endpoint in production)
+ - Serves static content in local dev (`make server`)
 
 ### Faceit browser plugin (`browserplugin/faceit/`)
 Adds several buttons to Faceit interface to play the demo. Fetches the demo URL from Faceit API and opens the player. After the demo is downloaded, the URL is automatically updated to use the Faceit match ID for easy sharing. Works for Firefox and Chrome-based browsers.
 
-### Container
-Whole application is built into container and deployed to GCP. Everything is server by Go server.
+### Deployment
+Static assets and the SPA are served by **Firebase Hosting** (`firebase.json`). The Go server is deployed as a Cloud Run container and only handles the `/download` proxy endpoint. WASM binaries are uploaded to GCS and served from there.
 
 ### CI/CD (`.github/workflows/`)
 Using GitHub Actions
