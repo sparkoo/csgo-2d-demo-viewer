@@ -45,7 +45,12 @@ export default defineConfig(({ mode }) => {
     plugins: [
       preact(),
       analyticsPlugin(env.VITE_UMAMI_SCRIPT_URL, env.VITE_UMAMI_WEBSITE_ID),
-      wasmBaseURLPlugin(env.VITE_WASM_BASE_URL || ""),
+      wasmBaseURLPlugin(
+        (() => {
+          const u = env.VITE_WASM_BASE_URL || "";
+          return u && !u.endsWith("/") ? u + "/" : u;
+        })()
+      ),
     ],
     open: true,
     port: 3000,
