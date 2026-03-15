@@ -3,10 +3,12 @@ name: Deploy to Firebase Hosting
 on:
   push:
     branches: ["master", "dev"]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'master' && 'production' || 'staging' }}
     permissions:
       contents: read
 

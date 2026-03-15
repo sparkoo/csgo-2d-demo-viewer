@@ -6,10 +6,12 @@ on:
     paths:
       - 'parser/**'
       - '.github/workflows/upload-wasm-gcs.yml'
+  workflow_dispatch:
 
 jobs:
   upload-wasm:
     runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'master' && 'production' || 'staging' }}
     permissions:
       contents: read
 
