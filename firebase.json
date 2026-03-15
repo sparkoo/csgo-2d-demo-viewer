@@ -8,7 +8,7 @@
         {
           "source": "/download",
           "run": {
-            "serviceId": "csgo-2d-demo-viewer",
+            "serviceId": "csgo-2d-demo-player",
             "region": "us-central1"
           }
         },
@@ -57,7 +57,7 @@
         {
           "source": "/download",
           "run": {
-            "serviceId": "csgo-2d-demo-viewer-dev",
+            "serviceId": "csgo-2d-demo-player-dev",
             "region": "us-central1"
           }
         },
