@@ -13,4 +13,3 @@ testdemos/
 .env.local
 web/dist/
 server/csgo-2d-demo-player
-.firebaserc
