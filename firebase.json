@@ -1,6 +1,6 @@
 [
   {
-    "target": "production",
+    "target": "prod",
     "hosting": {
       "public": "web/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
@@ -49,7 +49,7 @@
     }
   },
   {
-    "target": "staging",
+    "target": "stage",
     "hosting": {
       "public": "web/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],

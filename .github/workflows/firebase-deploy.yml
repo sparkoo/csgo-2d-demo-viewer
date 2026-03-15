@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'master' && 'production' || 'staging' }}
+    environment: ${{ github.ref_name == 'master' && 'prod' || 'stage' }}
     permissions:
       contents: read
 
@@ -41,5 +41,5 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
-          target: ${{ github.ref_name == 'master' && 'production' || 'staging' }}
+          target: ${{ github.ref_name == 'master' && 'prod' || 'stage' }}
           channelId: live

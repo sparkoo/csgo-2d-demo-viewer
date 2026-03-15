@@ -5,8 +5,8 @@
   "targets": {
     "YOUR_FIREBASE_PROJECT_ID": {
       "hosting": {
-        "production": ["YOUR_PROD_SITE_ID"],
-        "staging": ["YOUR_STAGING_SITE_ID"]
+        "prod": ["YOUR_PROD_SITE_ID"],
+        "stage": ["YOUR_STAGING_SITE_ID"]
       }
     }
   }

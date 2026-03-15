@@ -11,7 +11,7 @@ on:
 jobs:
   upload-wasm:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'master' && 'production' || 'staging' }}
+    environment: ${{ github.ref_name == 'master' && 'prod' || 'stage' }}
     permissions:
       contents: read
 
