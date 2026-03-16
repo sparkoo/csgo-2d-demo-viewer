@@ -6,13 +6,6 @@
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "rewrites": [
         {
-          "source": "/download",
-          "run": {
-            "serviceId": "csgo-2d-demo-player",
-            "region": "europe-west1"
-          }
-        },
-        {
           "source": "**",
           "destination": "/index.html"
         }
@@ -52,13 +45,6 @@
       "public": "web/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "rewrites": [
-        {
-          "source": "/download",
-          "run": {
-            "serviceId": "csgo-2d-demo-player-dev",
-            "region": "europe-west1"
-          }
-        },
         {
           "source": "**",
           "destination": "/index.html"

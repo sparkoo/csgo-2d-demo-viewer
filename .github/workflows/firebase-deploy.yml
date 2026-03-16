@@ -34,6 +34,7 @@ jobs:
           VITE_UMAMI_SCRIPT_URL: ${{ secrets.VITE_UMAMI_SCRIPT_URL }}
           VITE_UMAMI_WEBSITE_ID: ${{ secrets.VITE_UMAMI_WEBSITE_ID }}
           VITE_WASM_BASE_URL: ${{ secrets.VITE_WASM_BASE_URL }}
+          VITE_DOWNLOAD_SERVER_URL: ${{ secrets.VITE_DOWNLOAD_SERVER_URL }}
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2

@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -13,12 +14,30 @@ import (
 	"go.uber.org/zap"
 )
 
+// allowedOrigin returns the value to use for Access-Control-Allow-Origin, or
+// empty string if the request origin is not allowed.
+func allowedOrigin(r *http.Request) string {
+	if isDev {
+		return "*"
+	}
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		return ""
+	}
+	for allowed := range strings.SplitSeq(os.Getenv("ALLOWED_ORIGINS"), ",") {
+		if strings.TrimSpace(allowed) == origin {
+			return origin
+		}
+	}
+	return ""
+}
+
 // downloadHandler handles demo file download requests with proxy functionality
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	if isDev {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	if origin := allowedOrigin(r); origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	}
 	w.Header().Set("Access-Control-Expose-Headers", "X-Demo-Length")
 

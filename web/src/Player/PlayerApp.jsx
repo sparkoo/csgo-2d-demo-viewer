@@ -15,9 +15,7 @@ import "./protos/Message_pb.js";
 import DemoContext from "../context.js";
 import { MSG_PLAY_CHANGE } from "./constants.js";
 
-const downloadServer = window.location.host.includes("localhost")
-  ? "http://localhost:8080"
-  : "";
+const downloadServer = import.meta.env.VITE_DOWNLOAD_SERVER_URL || "";
 
 // Core Faceit match ID format: digit-hex8-hex4-hex4-hex4-hex12
 // Examples: 1-95e66a49-44ed-4c95-9838-87204f1abffd, 1-b4f72a00-351d-4073-949d-8a29472ae422
