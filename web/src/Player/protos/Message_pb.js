@@ -2671,7 +2671,9 @@ proto.csgo.Frag.toObject = function(includeInstance, msg) {
     assistedflash: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
     attackerblind: jspb.Message.getBooleanFieldWithDefault(msg, 9, false),
     noscope: jspb.Message.getBooleanFieldWithDefault(msg, 10, false),
-    throughsmoke: jspb.Message.getBooleanFieldWithDefault(msg, 11, false)
+    throughsmoke: jspb.Message.getBooleanFieldWithDefault(msg, 11, false),
+    assistername: jspb.Message.getFieldWithDefault(msg, 12, ""),
+    assisterteam: jspb.Message.getFieldWithDefault(msg, 13, "")
   };
 
   if (includeInstance) {
@@ -2751,6 +2753,14 @@ proto.csgo.Frag.deserializeBinaryFromReader = function(msg, reader) {
     case 11:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setThroughsmoke(value);
+      break;
+    case 12:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAssistername(value);
+      break;
+    case 13:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAssisterteam(value);
       break;
     default:
       reader.skipField();
@@ -2855,6 +2865,20 @@ proto.csgo.Frag.serializeBinaryToWriter = function(message, writer) {
   if (f) {
     writer.writeBool(
       11,
+      f
+    );
+  }
+  f = message.getAssistername();
+  if (f.length > 0) {
+    writer.writeString(
+      12,
+      f
+    );
+  }
+  f = message.getAssisterteam();
+  if (f.length > 0) {
+    writer.writeString(
+      13,
       f
     );
   }
@@ -3056,6 +3080,42 @@ proto.csgo.Frag.prototype.getThroughsmoke = function() {
  */
 proto.csgo.Frag.prototype.setThroughsmoke = function(value) {
   return jspb.Message.setProto3BooleanField(this, 11, value);
+};
+
+
+/**
+ * optional string AssisterName = 12;
+ * @return {string}
+ */
+proto.csgo.Frag.prototype.getAssistername = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.csgo.Frag} returns this
+ */
+proto.csgo.Frag.prototype.setAssistername = function(value) {
+  return jspb.Message.setProto3StringField(this, 12, value);
+};
+
+
+/**
+ * optional string AssisterTeam = 13;
+ * @return {string}
+ */
+proto.csgo.Frag.prototype.getAssisterteam = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.csgo.Frag} returns this
+ */
+proto.csgo.Frag.prototype.setAssisterteam = function(value) {
+  return jspb.Message.setProto3StringField(this, 13, value);
 };
 
 
