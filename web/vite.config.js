@@ -3,21 +3,6 @@ import preact from "@preact/preset-vite";
 import fs from "fs";
 import path from "path";
 
-// Replaces <!-- UMAMI_ANALYTICS_PLACEHOLDER --> in index.html at build time.
-// When env vars are not set the placeholder is simply removed.
-function analyticsPlugin(scriptURL, websiteID) {
-  return {
-    name: "inject-analytics",
-    transformIndexHtml(html) {
-      const script =
-        scriptURL && websiteID
-          ? `<script defer src="${scriptURL}" data-website-id="${websiteID}"></script>`
-          : "";
-      return html.replace("<!-- UMAMI_ANALYTICS_PLACEHOLDER -->", script);
-    },
-  };
-}
-
 // Replaces __WASM_BASE_URL__ in the built worker.js with VITE_WASM_BASE_URL.
 // worker.js lives in public/ so Vite copies it as-is; we patch it after the
 // bundle is written.  Empty string is fine: the worker then uses relative paths
@@ -56,7 +41,6 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       preact(),
-      analyticsPlugin(env.VITE_UMAMI_SCRIPT_URL, env.VITE_UMAMI_WEBSITE_ID),
       wasmBaseURLPlugin(
         (() => {
           const u = env.VITE_WASM_BASE_URL || "";
