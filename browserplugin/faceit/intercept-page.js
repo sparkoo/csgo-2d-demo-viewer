@@ -19,13 +19,16 @@
     } else if (e.data.type === "disarmIntercept") {
       armed = false;
     } else if (e.data.type === "fetchMatchDemo") {
-      // Fetch the signed demo URL from page context (has auth cookies) on behalf
-      // of the content script. Used by sidebar/stats buttons where there is no
-      // "Watch demo" button to trigger Faceit's own flow.
+      // Fetch the signed demo URL from page context on behalf of the content
+      // script. Uses _origFetch (unpatched window.fetch) with auth cookies.
+      // This is the page-context tier of the fallback chain — intentionally
+      // duplicates the same API calls as fetchDemoUrlDirect in content-script.js,
+      // but uses MAIN-world fetch to bypass any CSP/fetch restrictions.
       const { matchId } = e.data;
       try {
         const matchRes = await _origFetch(
-          `https://www.faceit.com/api/match/v2/match/${matchId}`
+          `https://www.faceit.com/api/match/v2/match/${matchId}`,
+          { credentials: "include" }
         );
         if (!matchRes.ok) throw new Error(`match API ${matchRes.status}`);
         const matchData = await matchRes.json();
@@ -38,6 +41,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ resource_url: demoUrl }),
+            credentials: "include",
           }
         );
         if (!dlRes.ok) throw new Error(`download API ${dlRes.status}`);

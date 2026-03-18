@@ -73,6 +73,9 @@ class FACEITDemoViewer {
   // Fetch the signed demo download URL directly from the content-script
   // context.  Content scripts share the page origin so same-origin Faceit
   // API calls include auth cookies automatically — no CORS, no 403.
+  // NOTE: the two-step API call sequence here is intentionally duplicated in
+  // intercept-page.js (fetchMatchDemo handler) — that copy runs in MAIN world
+  // using the unpatched window.fetch; this copy is the direct/final fallback.
   async fetchDemoUrlDirect(matchId) {
     const matchRes = await fetch(
       `https://www.faceit.com/api/match/v2/match/${matchId}`,
@@ -480,8 +483,12 @@ class FACEITDemoViewer {
   }
 
   // Ask the page-context interceptor to fetch the signed URL using Faceit's
-  // auth cookies. Used for sidebar/stats buttons where there is no "Watch demo"
-  // button. Returns null if injection fails or times out.
+  // auth cookies via _origFetch (unpatched window.fetch in MAIN world). Used as
+  // a fallback when the fetch-intercept tier timed out but a "Watch demo" button
+  // was present. Returns null if injection fails or times out.
+  // NOTE: the two-step API call sequence here is intentionally duplicated from
+  // fetchDemoUrlDirect — that runs in the content-script isolated world; this
+  // runs in the page's MAIN world via intercept-page.js using the unpatched fetch.
   async fetchDemoUrlViaPageContext(matchId) {
     let injected;
     try {
