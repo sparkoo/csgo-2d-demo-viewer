@@ -8,7 +8,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type !== "injectInterceptor") return;
 
   const tabId = sender.tab?.id;
-  if (!tabId) {
+  if (typeof tabId !== "number") {
     sendResponse({ ok: false, error: "no tab id" });
     return;
   }

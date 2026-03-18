@@ -418,6 +418,13 @@ class FACEITDemoViewer {
         dlUrl = await this.fetchDemoUrlDirect(matchId);
       }
 
+      // Validate the URL before use — guards against postMessage spoofing where
+      // a script on faceit.com forges a demoUrl message with a malicious URL.
+      try {
+        if (new URL(dlUrl).protocol !== "https:") throw new Error();
+      } catch {
+        throw new Error("demo URL failed validation — unexpected scheme or format");
+      }
       this.log("Got demo URL, opening viewer");
       window.postMessage({ __cs2: true, type: "disarmIntercept" }, "*");
       const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(dlUrl)}`;
