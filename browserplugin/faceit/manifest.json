@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "FACEIT 2D Replay",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": "sparko",
   "license": "MIT",
   "homepage_url": "https://2d.sparko.cz/",
@@ -11,7 +11,10 @@
     }
   },
   "description": "View CS2 demo replays in 2D directly from FACEIT match pages in single click.",
-  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage", "scripting"],
   "host_permissions": [
     "https://www.faceit.com/*",
     "https://faceit.com/*",

@@ -9,6 +9,7 @@ module.exports = (env) => {
     entry: {
       "content-script": "./content-script.js",
       popup: "./popup.js",
+      background: "./background.js",
     },
     output: {
       path: path.resolve(__dirname, `dist/${browser}`),
@@ -63,6 +64,7 @@ module.exports = (env) => {
                 { from: "popup.html", to: "popup.html" },
                 { from: "content-styles.css", to: "content-styles.css" },
                 { from: "popup.css", to: "popup.css" },
+                { from: "intercept-page.js", to: "intercept-page.js" },
                 {
                   from: "icons",
                   to: "icons",
