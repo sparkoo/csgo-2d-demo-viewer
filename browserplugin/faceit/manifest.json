@@ -18,13 +18,20 @@
   "host_permissions": [
     "https://www.faceit.com/*",
     "https://faceit.com/*",
-    "https://*.faceit.com/*"
+    "https://*.faceit.com/*",
+    "https://2d.sparko.cz/*"
   ],
   "content_scripts": [
     {
       "matches": ["https://www.faceit.com/*", "https://faceit.com/*"],
       "js": ["content-script.js"],
       "css": ["content-styles.css"],
+      "run_at": "document_end",
+      "all_frames": false
+    },
+    {
+      "matches": ["https://2d.sparko.cz/player*"],
+      "js": ["viewer-content-script.js"],
       "run_at": "document_end",
       "all_frames": false
     }
