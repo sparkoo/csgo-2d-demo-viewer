@@ -33,6 +33,7 @@ jobs:
         env:
           VITE_WASM_BASE_URL: ${{ secrets.VITE_WASM_BASE_URL }}
           VITE_DOWNLOAD_SERVER_URL: ${{ secrets.VITE_DOWNLOAD_SERVER_URL }}
+          VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
