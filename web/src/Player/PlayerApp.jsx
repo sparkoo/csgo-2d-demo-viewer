@@ -32,6 +32,8 @@ export function PlayerApp() {
   const location = useLocation();
   const worker = useRef(null);
   const player = useRef(null);
+  const extDemoBuffer = useRef(null);   // { filename, data: Uint8Array } buffered before WASM ready
+  const isWasmLoadedRef = useRef(false); // mirrors isWasmLoaded state for use in closures
 
   const demoData = useContext(DemoContext);
 
@@ -103,9 +105,74 @@ export function PlayerApp() {
     };
   }, []);
 
+  // Mount-time effect for extension direct-transfer path (?ext_demo=1).
+  // Signals the opener (the Faceit tab running the extension) that the viewer
+  // is ready, then listens for the demo binary delivered via postMessage.
+  useEffect(() => {
+    if (location.query.ext_demo !== "1") return;
+
+    if (window.opener) {
+      // Use "*" — this message carries no sensitive data, we just signal readiness.
+      window.opener.postMessage({ __cs2ext: true, type: "viewerReady" }, "*");
+    }
+
+    let trustedOrigin = null;
+
+    const handler = (e) => {
+      if (e.source !== window.opener) return;
+      if (!e.data?.__cs2ext) return;
+      // Lock in the sender origin on first trusted message
+      if (trustedOrigin === null) trustedOrigin = e.origin;
+      else if (e.origin !== trustedOrigin) return;
+
+      const msg = e.data;
+      if (msg.type === "downloadStart") {
+        setIsDownloading(true);
+        setDownloadProgress(0);
+        setLoadingMessage(["Downloading demo..."]);
+      } else if (msg.type === "downloadProgress") {
+        if (msg.total > 0) setDownloadProgress((msg.loaded / msg.total) * 100);
+      } else if (msg.type === "demoData") {
+        setIsDownloading(false);
+        setDownloadProgress(0);
+        setLoadingMessage(["Loading match..."]);
+        const data = new Uint8Array(msg.buffer);
+        const filename = msg.filename;
+
+        // Extract match ID from filename (prefix "/" so FACEIT_MATCH_ID_PATTERN anchor works)
+        const matchIdMatch = ("/" + filename).match(FACEIT_MATCH_ID_PATTERN);
+        if (matchIdMatch?.[1]) {
+          window.history.replaceState({}, "", `/player?faceit_match_id=${encodeURIComponent(matchIdMatch[1])}`);
+        }
+
+        if (isWasmLoadedRef.current && worker.current) {
+          worker.current.postMessage({ filename, data }, [data.buffer]);
+        } else {
+          // WASM not ready yet — buffer; isWasmLoaded effect will flush it
+          extDemoBuffer.current = { filename, data };
+        }
+        window.removeEventListener("message", handler);
+      } else if (msg.type === "downloadError") {
+        setIsDownloading(false);
+        setIsError(true);
+        setLoadingMessage([`Download error: ${msg.message}`]);
+        window.removeEventListener("message", handler);
+      }
+    };
+
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     console.log("isWasmLoaded", isWasmLoaded);
-    if (isWasmLoaded && demoData.demoData) {
+    isWasmLoadedRef.current = isWasmLoaded;
+    if (isWasmLoaded && extDemoBuffer.current) {
+      const { filename, data } = extDemoBuffer.current;
+      extDemoBuffer.current = null;
+      worker.current.postMessage({ filename, data }, [data.buffer]);
+      return;
+    } else if (isWasmLoaded && demoData.demoData) {
       console.log("Posting demo data to worker.");
       const toPost = demoData.demoData;
       demoData.setDemoData(null);
