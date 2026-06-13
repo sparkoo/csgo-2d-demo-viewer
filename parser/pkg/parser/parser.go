@@ -94,6 +94,10 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 			frag.KillerName = e.Killer.Name
 			frag.KillerTeam = team(e.Killer.Team)
 		}
+		if e.Assister != nil {
+			frag.AssisterName = e.Assister.Name
+			frag.AssisterTeam = team(e.Assister.Team)
+		}
 
 		roundMessage.Add(&message.Message{
 			MsgType: message.Message_FragType,
