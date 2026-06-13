@@ -8,6 +8,7 @@ module.exports = (env) => {
   return {
     entry: {
       "content-script": "./content-script.js",
+      "viewer-content-script": "./viewer-content-script.js",
       popup: "./popup.js",
       background: "./background.js",
     },
