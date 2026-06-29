@@ -20,7 +20,6 @@
 .timer-progress {
   background: linear-gradient(90deg, var(--TColor) 0%, rgba(199, 162, 71, 0.8) 100%);
   height: 100%;
-  transition: width 0.1s linear;
   position: absolute;
   top: 0;
   left: 0;
