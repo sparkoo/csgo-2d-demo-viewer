@@ -81,7 +81,8 @@ class Player {
             // console.log(this.interval)
             break;
           case MSG_PROGRESS_MOVE:
-            this.stop();
+            clearInterval(this.player);
+            this.playing = false;
             let round = this.rounds[this.playingRoundI];
             this.currentTickI = Math.round(
               round.ticksList.length * msg.progress
