@@ -16,6 +16,56 @@
   text-align: center;
 }
 
+.demo-url-divider {
+  color: var(--text-muted);
+  font-weight: 600;
+  margin: 1.25rem 0;
+  text-align: center;
+}
+
+.demo-url-form {
+  text-align: left;
+}
+
+.demo-url-form label {
+  color: var(--text-color);
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.demo-url-controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.demo-url-controls input {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--secondary-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem;
+}
+
+.demo-url-controls button {
+  background: linear-gradient(135deg, #f4d03f 0%, var(--secondary-color) 100%);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  white-space: nowrap;
+}
+
+.demo-url-error {
+  color: #e74c3c;
+  margin: 0.5rem 0 0;
+}
+
 .upload-area {
   border: 3px dashed var(--secondary-color);
   border-radius: var(--border-radius);
@@ -153,5 +203,9 @@
   .upload-button {
     padding: 12px 25px;
     font-size: 1rem;
+  }
+
+  .demo-url-controls {
+    flex-direction: column;
   }
 }
