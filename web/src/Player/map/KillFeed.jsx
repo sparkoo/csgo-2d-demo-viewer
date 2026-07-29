@@ -3,6 +3,20 @@ import "../protos/Message_pb";
 import { Component } from "react";
 import { MSG_PLAY_CHANGE } from "../constants";
 
+const weaponIconUrls = import.meta.glob("../assets/icons/csgo/*.{svg,png}", {
+  eager: true,
+  import: "default",
+  query: "?url",
+});
+
+function weaponIconUrl(weapon) {
+  return (
+    weaponIconUrls[`../assets/icons/csgo/${weapon}.svg`] ||
+    weaponIconUrls[`../assets/icons/csgo/${weapon}.png`] ||
+    weaponIconUrls["../assets/icons/csgo/not_found.svg"]
+  );
+}
+
 class KillFeed extends Component {
   constructor(props) {
     super(props);
@@ -84,14 +98,23 @@ class Kill extends Component {
       ""
     );
     const headshot = this.props.frag.isheadshot ? (
-      <span className="killfeedIcon headshot">&nbsp;</span>
+      <img
+        className="killfeedIcon headshot"
+        src={weaponIconUrl("headshot")}
+        alt=""
+      />
     ) : (
       ""
     );
     return (
       <div className={"killfeedRow"}>
         {killer}
-        <span className={`killfeedIcon ${this.props.frag.weapon}`}>&nbsp;</span>
+        <img
+          className="killfeedIcon"
+          data-weapon={this.props.frag.weapon}
+          src={weaponIconUrl(this.props.frag.weapon)}
+          alt=""
+        />
         {headshot}
         {victim}
       </div>
