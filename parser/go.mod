@@ -20,5 +20,5 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20251017212417-90e834f514db // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/text v0.39.0 // indirect
 )
