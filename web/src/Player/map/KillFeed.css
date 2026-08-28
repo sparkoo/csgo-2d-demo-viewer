@@ -17,35 +17,21 @@
   float: right;
   clear: right;
   margin: 2px 0;
+  white-space: nowrap;
 }
 
 .killfeedIcon {
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
   display: inline-block;
   margin: 0 10px;
-  width: 40px;
+  height: 48px;
+  width: auto;
+  vertical-align: middle;
 }
 
-.killfeedIcon.he,
-.killfeedIcon.molotov,
-.killfeedIcon.smoke,
-.killfeedIcon.world {
-  width: 10px;
-}
-
-.killfeedIcon.world,
-.killfeedIcon.c4 {
-  width: 20px;
-}
-
-.killfeedIcon.c4 {
+.killfeedIcon[data-weapon="c4"] {
   filter: brightness(2) contrast(2);
 }
 
 .killfeedIcon.headshot {
-  background-image: url("../assets/icons/csgo/headshot.svg");
-  width: 20px;
   margin: 0 5px;
 }
