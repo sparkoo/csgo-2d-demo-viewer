@@ -19,7 +19,8 @@
   "host_permissions": [
     "https://www.faceit.com/*",
     "https://faceit.com/*",
-    "https://*.faceit.com/*"
+    "https://*.faceit.com/*",
+    "https://*.backblazeb2.com/*"
   ],
   "content_scripts": [
     {
