@@ -7,11 +7,17 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"regexp"
 	"strings"
 	"time"
 
 	"go.uber.org/zap"
+)
+
+var (
+	valveReplayHostPattern = regexp.MustCompile(`^replay[0-9]+\.valve\.net$`)
+	valveReplayPathPattern = regexp.MustCompile(`^/730/[0-9_]+\.dem\.bz2$`)
 )
 
 // allowedOrigin returns the value to use for Access-Control-Allow-Origin, or
@@ -39,7 +45,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	}
-	w.Header().Set("Access-Control-Expose-Headers", "X-Demo-Length")
+	w.Header().Set("Access-Control-Expose-Headers", "Content-Disposition, X-Demo-Length")
 
 	if r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusOK)
@@ -90,8 +96,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-	matchId := extractMatchId(demoUrl)
-	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.dem.zst"`, matchId))
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, demoFilename(demoUrl)))
 	if contentLength := resp.Header.Get("Content-Length"); contentLength != "" {
 		w.Header().Set("X-Demo-Length", contentLength)
 	}
@@ -138,11 +143,16 @@ func secureDemoUrl(urlParam string, isDev bool) (string, error) {
 		return "", fmt.Errorf("too long URL")
 	}
 
-	// In development mode, only allow http://localhost:8080
+	// Valve replay downloads require HTTP; strict host and path validation keeps
+	// this exception from turning the endpoint into an open proxy.
+	if isValveReplayURL(parsedURL) {
+		return parsedURL.String(), nil
+	}
+
 	if isDev {
 		if parsedURL.Scheme != "http" || parsedURL.Host != "localhost:8080" {
 			logger.Warn("Development mode: forbidden scheme or host", zap.String("scheme", parsedURL.Scheme), zap.String("host", parsedURL.Host))
-			return "", fmt.Errorf("development mode: only http://localhost:8080 is allowed, got: %s", parsedURL.String())
+			return "", fmt.Errorf("development mode: only http://localhost:8080 and validated Valve replay URLs are allowed, got: %s", parsedURL.String())
 		}
 		// In dev mode, return the URL as-is (already validated above)
 		return urlParam, nil
@@ -179,6 +189,33 @@ func secureDemoUrl(urlParam string, isDev bool) (string, error) {
 	}
 
 	return fmt.Sprintf("https://%s/cs2/%s.dem.zst?%s", allowedHosts[hostId], matchId, parsedURL.RawQuery), nil
+}
+
+func isValveReplayURL(parsedURL *url.URL) bool {
+	if parsedURL.User != nil || parsedURL.Port() != "" || parsedURL.RawQuery != "" {
+		return false
+	}
+
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return false
+	}
+
+	return valveReplayHostPattern.MatchString(strings.ToLower(parsedURL.Hostname())) &&
+		valveReplayPathPattern.MatchString(parsedURL.EscapedPath())
+}
+
+func demoFilename(demoURL string) string {
+	parsedURL, err := url.Parse(demoURL)
+	if err != nil {
+		return "demo.dem"
+	}
+
+	filename := path.Base(parsedURL.Path)
+	if filename == "." || filename == "/" || filename == "" {
+		return "demo.dem"
+	}
+
+	return filename
 }
 
 // extractMatchId extracts the match ID from a demo URL path
