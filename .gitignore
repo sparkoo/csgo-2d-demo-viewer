@@ -13,3 +13,10 @@ testdemos/
 .env.local
 web/dist/
 server/csgo-2d-demo-player
+
+# Local tool settings and deployment cache
+.claude/settings.local.json
+.firebase/
+
+# Packaged browser extension
+browserplugin/faceit/faceit.zip

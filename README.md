@@ -5,7 +5,7 @@ A web-based application for visualizing Counter-Strike 2 (CS2) demo files in 2D.
  - [Live environment](https://2d.sparko.cz)
  - [Staging environment](https://dev.2d.sparko.cz)
  - [Chrome extension](https://chromewebstore.google.com/detail/kagfmemgilamfeoljmajifkbhfglebdb?utm_source=item-share-cb)
- - [Firefix extension](https://addons.mozilla.org/en-US/firefox/addon/faceit-2d-replay/)
+ - [Firefox extension](https://addons.mozilla.org/en-US/firefox/addon/faceit-2d-replay/)
 
 ## Project Components
 
@@ -38,7 +38,17 @@ Adds several buttons to Faceit interface to play the demo. Fetches the demo URL 
 Static assets and the SPA are served by **Firebase Hosting** (`firebase.json`). The Go server is deployed as a Cloud Run container and only handles the `/download` proxy endpoint. WASM binaries are uploaded to GCS and served from there.
 
 ### CI/CD (`.github/workflows/`)
-Using GitHub Actions
+`master` is the default and only long-lived branch. Open feature and dependency
+pull requests against `master`.
+
+Every push to `master` runs checks and deploys the backend, WASM, and frontend to
+[dev](https://dev.2d.sparko.cz). Production is deployed only through the
+**Deploy production** GitHub Actions workflow, using the full SHA of a master
+commit with a successful **Deploy dev** run.
+
+The dev environment retains the internal GitHub/Firebase name `stage`.
+See [.ai/deployment.md](.ai/deployment.md) for configuration, release, and rollback
+instructions.
 
 ### GitHub Copilot Agents (`.github/agents/`)
 Specialized agents provide expert guidance for different areas of the codebase:
