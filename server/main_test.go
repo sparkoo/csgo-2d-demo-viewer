@@ -26,6 +26,7 @@ func TestSecureDemoURLAllowsValveReplayHosts(t *testing.T) {
 	urls := []string{
 		"http://replay392.valve.net/730/003831973762123694143_1839286853.dem.bz2",
 		"http://replay406.valve.net/730/003831784903821755073_2010893155.dem.bz2",
+		"https://replay392.valve.net/730/003831973762123694143_1839286853.dem.bz2",
 	}
 
 	for _, isDev := range []bool{false, true} {
@@ -51,12 +52,20 @@ func TestSecureDemoURLRejectsNonValveReplayURLs(t *testing.T) {
 		"http://replay392.valve.net/730/not-a-demo.dem.bz2",
 		"http://replay392.valve.net:8080/730/003831973762123694143_1839286853.dem.bz2",
 		"http://replay392.valve.net/730/003831973762123694143_1839286853.dem.bz2?unexpected=query",
+		"http://user:password@replay392.valve.net/730/123_456.dem.bz2",
+		"ftp://replay392.valve.net/730/123_456.dem.bz2",
+		"http://replay392.valve.net/730/123_456.dem.bz2#fragment",
+		"http://replay392.valve.net/730/../123_456.dem.bz2",
+		"http://replay392.valve.net/730/%31%32%33_456.dem.bz2",
+		"http://localhost/730/123_456.dem.bz2",
 	}
 
 	for _, demoURL := range urls {
 		t.Run(demoURL, func(t *testing.T) {
-			if _, err := secureDemoUrl(demoURL, false); err == nil {
-				t.Fatal("secureDemoUrl() accepted an unsafe Valve replay URL")
+			for _, dev := range []bool{false, true} {
+				if _, err := secureDemoUrl(demoURL, dev); err == nil {
+					t.Fatalf("secureDemoUrl() accepted an unsafe Valve replay URL (dev=%v)", dev)
+				}
 			}
 		})
 	}

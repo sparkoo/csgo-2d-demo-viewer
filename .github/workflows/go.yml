@@ -15,6 +15,18 @@ env:
   GOLANG_PROTOBUF_REGISTRATION_CONFLICT: warn
 
 jobs:
+  server-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+      - name: Test server
+        run: go test ./...
+        working-directory: ./server
+
   build:
     runs-on: ubuntu-latest
     defaults:

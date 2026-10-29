@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useLocation } from "preact-iso";
-import { useContext } from "react";
 import { DemoContext } from "../../context";
 import DemoUploadArea from "./DemoUploadArea";
 import "./Uploader.css";

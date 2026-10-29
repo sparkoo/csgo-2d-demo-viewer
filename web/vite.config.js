@@ -69,9 +69,9 @@ export default defineConfig(({ mode }) => {
         })()
       ),
     ],
-    open: true,
-    port: 3000,
     server: {
+      open: true,
+      port: 3000,
       // Route linked-demo downloads through the local Go server.
       proxy: {
         "/download": "http://localhost:8080",

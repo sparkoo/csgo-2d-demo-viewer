@@ -143,7 +143,7 @@ func secureDemoUrl(urlParam string, isDev bool) (string, error) {
 		return "", fmt.Errorf("too long URL")
 	}
 
-	// Valve replay downloads require HTTP; strict host and path validation keeps
+	// Allow HTTP as well as HTTPS for Valve replays; strict host and path validation keeps
 	// this exception from turning the endpoint into an open proxy.
 	if isValveReplayURL(parsedURL) {
 		return parsedURL.String(), nil
@@ -215,7 +215,15 @@ func demoFilename(demoURL string) string {
 		return "demo.dem"
 	}
 
-	return filename
+	// Keep a quoted ASCII filename compatible with the player's header parser.
+	// Replace quotes, backslashes, control characters and non-ASCII characters.
+	return strings.Map(func(r rune) rune {
+		if r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' ||
+			r >= '0' && r <= '9' || r == '.' || r == '-' || r == '_' {
+			return r
+		}
+		return '_'
+	}, filename)
 }
 
 // extractMatchId extracts the match ID from a demo URL path
