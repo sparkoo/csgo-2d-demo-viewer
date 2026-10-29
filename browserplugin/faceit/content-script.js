@@ -425,10 +425,45 @@ class FACEITDemoViewer {
       } catch {
         throw new Error("demo URL failed validation — unexpected scheme or format");
       }
-      this.log("Got demo URL, opening viewer");
+      this.log("Got demo URL, downloading demo and transferring to viewer");
       window.postMessage({ __cs2: true, type: "disarmIntercept" }, "*");
-      const playerUrl = `${this.demoViewerUrl}/player?demourl=${encodeURIComponent(dlUrl)}`;
-      window.open(playerUrl, "_blank");
+
+      const expectedViewerOrigin = new URL(this.demoViewerUrl).origin;
+      const viewerWindow = window.open(`${this.demoViewerUrl}/player?ext_demo=1`, "_blank");
+
+      // Set up abort in case the viewer tab is closed before download finishes
+      const abortController = new AbortController();
+      const closedInterval = setInterval(() => {
+        if (viewerWindow.closed) {
+          clearInterval(closedInterval);
+          abortController.abort();
+        }
+      }, 1000);
+
+      // Run download and viewer-ready wait concurrently
+      const viewerReadyPromise = this.waitForViewerReady(viewerWindow, expectedViewerOrigin);
+
+      // Track progress so we can forward it once viewer is ready
+      let lastProgress = null;
+      const downloadPromise = this.fetchDemoBuffer(
+        dlUrl,
+        (loaded, total) => { lastProgress = { loaded, total }; },
+        abortController.signal
+      );
+
+      const [{ filename, buffer }] = await Promise.all([downloadPromise, viewerReadyPromise]);
+      clearInterval(closedInterval);
+
+      // Send start + data in sequence (viewer is already listening)
+      viewerWindow.postMessage(
+        { __cs2ext: true, type: "downloadStart", filename, totalBytes: buffer.byteLength },
+        expectedViewerOrigin
+      );
+      viewerWindow.postMessage(
+        { __cs2ext: true, type: "demoData", filename, buffer },
+        expectedViewerOrigin,
+        [buffer]
+      );
     } catch (err) {
       this.log("Failed to get demo URL:", String(err));
       window.postMessage({ __cs2: true, type: "disarmIntercept" }, "*");
@@ -534,6 +569,65 @@ class FACEITDemoViewer {
 
       window.postMessage({ __cs2: true, type: "fetchMatchDemo", matchId }, "*");
     });
+  }
+
+  // Waits for the viewer page (opened via window.open) to signal it is ready
+  // to receive demo data. Resolves when the viewer sends a viewerReady message,
+  // rejects after TIMEOUT_MS if no signal arrives.
+  waitForViewerReady(viewerWindow, expectedViewerOrigin) {
+    return new Promise((resolve, reject) => {
+      const TIMEOUT_MS = 30_000;
+      const timer = setTimeout(() => {
+        window.removeEventListener("message", handler);
+        reject(new Error("viewer did not signal ready within 30s"));
+      }, TIMEOUT_MS);
+
+      const handler = (e) => {
+        if (e.source !== viewerWindow) return;
+        if (e.origin !== expectedViewerOrigin) return;
+        if (!e.data?.__cs2ext || e.data.type !== "viewerReady") return;
+        clearTimeout(timer);
+        window.removeEventListener("message", handler);
+        resolve();
+      };
+      window.addEventListener("message", handler);
+    });
+  }
+
+  // Downloads a demo binary directly from the CDN URL. Extension host_permissions
+  // for *.backblazeb2.com bypass CORS so no server proxy is needed.
+  // onProgress(loaded, total) is called after each received chunk; total is 0
+  // when Content-Length is unavailable.
+  // Returns Promise<{ filename: string, buffer: ArrayBuffer }>.
+  async fetchDemoBuffer(dlUrl, onProgress, signal) {
+    const response = await fetch(dlUrl, { signal });
+    if (!response.ok) throw new Error(`CDN fetch failed: ${response.status}`);
+
+    const filename = new URL(dlUrl).pathname.split("/").pop() || "demo.dem.zst";
+    const totalBytes = parseInt(response.headers.get("content-length") || "0", 10);
+
+    const reader = response.body.getReader();
+    const chunks = [];
+    let loaded = 0;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      loaded += value.length;
+      onProgress?.(loaded, totalBytes);
+    }
+
+    // Concatenate all chunks into a single ArrayBuffer
+    const total = chunks.reduce((acc, c) => acc + c.length, 0);
+    const merged = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) {
+      merged.set(chunk, offset);
+      offset += chunk.length;
+    }
+
+    return { filename, buffer: merged.buffer };
   }
 
   showPopupError(message, link = null) {
