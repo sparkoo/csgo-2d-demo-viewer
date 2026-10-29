@@ -7,28 +7,29 @@ permissions:
 
 on:
   push:
-    branches: ["master", "dev"]
+    branches: ["master"]
   pull_request:
-    branches: ["master", "dev"]
-    paths:
-      - "web/**"
-      - ".github/workflows/nodejs_web.yml"
+    branches: ["master"]
+  workflow_call:
+    inputs:
+      sha:
+        required: true
+        type: string
 
 jobs:
   build:
+    name: Web build
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [lts/*]
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sha || github.sha }}
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js LTS
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: lts/*
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 

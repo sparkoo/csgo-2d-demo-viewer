@@ -1,0 +1,24 @@
+name: Deploy dev
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+concurrency:
+  group: deploy-stage
+  queue: max
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: stage
+      sha: ${{ github.sha }}
+    secrets: inherit
