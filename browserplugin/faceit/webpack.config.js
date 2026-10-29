@@ -31,18 +31,19 @@ module.exports = (env) => {
           use: {
             loader: "babel-loader",
             options: {
-              presets: [
+              targets: {
+                browsers:
+                  browser === "firefox"
+                    ? ["> 0.25%", "not dead", "Firefox ESR"]
+                    : ["> 0.25%", "not dead"],
+              },
+              presets: ["@babel/preset-env"],
+              plugins: [
                 [
-                  "@babel/preset-env",
+                  "babel-plugin-polyfill-corejs3",
                   {
-                    useBuiltIns: "usage",
-                    corejs: 3,
-                    targets: {
-                      browsers:
-                        browser === "firefox"
-                          ? ["> 0.25%", "not dead", "Firefox ESR"]
-                          : ["> 0.25%", "not dead"],
-                    },
+                    method: "usage-global",
+                    version: require("core-js/package.json").version,
                   },
                 ],
               ],
