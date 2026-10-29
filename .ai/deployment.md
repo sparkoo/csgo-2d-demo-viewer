@@ -114,4 +114,5 @@ Run actionlint on all workflows. Until actionlint supports GitHub's documented
 `concurrency.queue` field, ignore only its `unexpected key "queue" for
 "concurrency" section` diagnostic. All other diagnostics must pass. CI performs
 the clean builds and tests; local validation should also check that a versioned
-`VITE_WASM_BASE_URL` is embedded correctly in `web/dist/worker.js`.
+`VITE_WASM_BASE_URL` is embedded correctly in the bundled demo worker under
+`web/dist/assets/demo.worker-*.js`.

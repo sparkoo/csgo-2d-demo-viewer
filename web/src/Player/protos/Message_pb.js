@@ -4670,4 +4670,4 @@ proto.csgo.Demo.prototype.setPlatform = function(value) {
   return jspb.Message.setProto3EnumField(this, 2, value);
 };
 
-goog.object.extend((window.proto = window.proto || {}), proto.csgo);
+goog.object.extend((global.proto = global.proto || {}), proto.csgo);
