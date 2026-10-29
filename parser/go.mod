@@ -4,10 +4,10 @@ go 1.25.1
 
 require (
 	github.com/golang/geo v0.0.0-20251014162054-f262919d8753
-	github.com/klauspost/compress v1.18.0
-	github.com/markus-wa/demoinfocs-golang/v5 v5.0.3
+	github.com/klauspost/compress v1.18.7
+	github.com/markus-wa/demoinfocs-golang/v5 v5.2.0
 	go.uber.org/zap v1.27.0
-	google.golang.org/protobuf v1.36.10
+	google.golang.org/protobuf v1.36.11
 )
 
 require (
@@ -20,5 +20,5 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20251017212417-90e834f514db // indirect
-	golang.org/x/text v0.30.0 // indirect
+	golang.org/x/text v0.39.0 // indirect
 )

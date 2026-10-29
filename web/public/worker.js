@@ -1,4 +1,6 @@
-importScripts("wasm/wasm_exec.js");
+const WASM_BASE_URL = "__WASM_BASE_URL__";
+
+importScripts(WASM_BASE_URL + "wasm/wasm_exec.js");
 
 onmessage = (event) => {
   console.log("received event: ", event);
@@ -25,7 +27,7 @@ onmessage = (event) => {
 async function loadWasm() {
   const go = new globalThis.Go();
   await WebAssembly.instantiateStreaming(
-    fetch("/wasm/csdemoparser.wasm"),
+    fetch(WASM_BASE_URL + "wasm/csdemoparser.wasm"),
     go.importObject
   ).then((result) => {
     go.run(result.instance);

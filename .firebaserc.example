@@ -1,0 +1,13 @@
+{
+  "projects": {
+    "default": "YOUR_FIREBASE_PROJECT_ID"
+  },
+  "targets": {
+    "YOUR_FIREBASE_PROJECT_ID": {
+      "hosting": {
+        "prod": ["YOUR_PROD_SITE_ID"],
+        "stage": ["YOUR_STAGING_SITE_ID"]
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "projects": {
+    "default": "csgo-2d-demo-player"
+  },
+  "targets": {
+    "csgo-2d-demo-player": {
+      "hosting": {
+        "prod": ["csgo-2d-demo-player"],
+        "stage": ["csgo-2d-demo-player-dev"]
+      }
+    }
+  }
+}

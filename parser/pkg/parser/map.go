@@ -51,7 +51,7 @@ var (
 	MapDeMirage   = makeMap("de_mirage", -3230, 1713, 5)
 	MapDeNuke     = makeMap("de_nuke", -3453, 2887, 7)
 	MapDeOverpass = makeMap("de_overpass", -4831, 1781, 5.2)
-	MapDeTrain    = makeMap("de_train", -2477, 2392, 4.7)
+	MapDeTrain    = makeMap("de_train", -2308, 2078, 4.082077)
 	MapDeVertigo  = makeMap("de_vertigo", -3168, 1762, 4)
 	MapCsAgency   = makeMap("cs_agency", -2947, 2492, 5)
 	MapCsOffice   = makeMap("cs_office", -1838, 1858, 4.1)

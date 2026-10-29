@@ -7,9 +7,9 @@ permissions:
 
 on:
   push:
-    branches: ["master", "dev"]
+    branches: ["master"]
   pull_request:
-    branches: ["master", "dev"]
+    branches: ["master"]
     paths:
       - "browserplugin/faceit/**"
       - ".github/workflows/nodejs_browserplugin.yml"
@@ -35,6 +35,10 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        working-directory: ./browserplugin/faceit
+
+      - name: Test replay request handling
+        run: npm test
         working-directory: ./browserplugin/faceit
 
       - name: Build for ${{ matrix.browser }}

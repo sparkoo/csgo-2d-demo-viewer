@@ -141,7 +141,10 @@ GitHub Actions workflows are configured for:
 - Docker builds (`.github/workflows/docker-publish.yml`)
 - Dependency reviews (`.github/workflows/dependency-review.yml`)
 
-All workflows run on push to `master` and `dev` branches, and on pull requests.
+CI runs on pushes to `master` and pull requests targeting `master`.
+`Deploy dev` automatically deploys master after checks pass. `Deploy production`
+is manual and requires the full SHA of a master commit successfully deployed to
+dev. Both use `.github/workflows/deploy.yml`; see `.ai/deployment.md`.
 
 ## Important Notes
 
