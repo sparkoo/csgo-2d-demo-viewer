@@ -4,7 +4,7 @@ go 1.25.1
 
 require (
 	github.com/golang/geo v0.0.0-20251014162054-f262919d8753
-	github.com/klauspost/compress v1.18.0
+	github.com/klauspost/compress v1.18.7
 	github.com/markus-wa/demoinfocs-golang/v5 v5.2.0
 	go.uber.org/zap v1.27.0
 	google.golang.org/protobuf v1.36.11
