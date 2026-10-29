@@ -97,20 +97,6 @@ class Player {
   }
 
   handleAddRound(roundMsg) {
-    console.log("add round", roundMsg);
-    let roundTicks = [];
-    let tickMessages = [];
-    let currentTick = roundMsg.ticksList[0].tick;
-    roundMsg.ticksList.forEach(function (tick) {
-      if (tick.tick !== currentTick) {
-        roundTicks.push(tickMessages);
-        tickMessages = [];
-        currentTick = tick.tick;
-      }
-      tickMessages.push(tick);
-    });
-
-    roundMsg.ticksList = roundTicks;
     this.rounds.push(roundMsg);
     this.messageBus.emit({
       msgtype: MSG_INIT_ROUNDS,

@@ -24,7 +24,7 @@ browserplugin/faceit/ (independent browser extension)
 
 1. **Parser** (`parser/pkg/parser/parser.go`): Uses `demoinfocs-golang` to parse `.dem` files. Registers event handlers (kills, grenades, round events, player ticks) and emits `proto.Message` objects via callback. Output includes `Round`, `TickState`, `Frag`, `Init`, `DemoEnd` message types.
 
-2. **WASM bridge** (`parser/wasm.go`): Exposes `wasmParseDemo(filename, bytes, callback)` to JS. Runs in a Web Worker (`web/public/worker.js`). Each parsed protobuf chunk is `Uint8Array`-copied to JS.
+2. **WASM bridge** (`parser/wasm.go`): Exposes `wasmParseDemo(filename, bytes, callback)` to JS. Runs in a Web Worker (`web/src/Player/demo.worker.js`). Each parsed protobuf chunk is `Uint8Array`-copied to JS, decoded and grouped into ticks in the worker, then sent to the UI as a plain object.
 
 3. **Frontend messaging** (`web/src/Player/`):
    - Two `MessageBus` instances: `loaderBus` (WASM → Player) and `playerBus` (UI events ↔ components)

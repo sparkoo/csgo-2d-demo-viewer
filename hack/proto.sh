@@ -7,4 +7,4 @@ protoc -I="./protos" --go_out="./parser/pkg" --js_out=import_style=commonjs,bina
 # import jspb from 'google-protobuf'
 
 # // var jspb = require('google-protobuf');
-# goog.object.extend(window.proto = window.proto || {}, proto.csgo);
+# goog.object.extend(global.proto = global.proto || {}, proto.csgo);

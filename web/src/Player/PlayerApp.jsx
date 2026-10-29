@@ -11,7 +11,6 @@ import MessageBus from "./MessageBus.js";
 import Player from "./Player.js";
 import Map2d from "./map/Map2d.jsx";
 import InfoPanel from "./panel/InfoPanel.jsx";
-import "./protos/Message_pb.js";
 import DemoContext from "../context.js";
 import { MSG_PLAY_CHANGE } from "./constants.js";
 
@@ -50,7 +49,9 @@ export function PlayerApp() {
 
   useEffect(() => {
     if (!worker.current) {
-      worker.current = new Worker("worker.js");
+      worker.current = new Worker(new URL("./demo.worker.js", import.meta.url), {
+        type: "module",
+      });
       console.log("Worker created.");
     }
 
@@ -60,12 +61,10 @@ export function PlayerApp() {
     }
 
     worker.current.onmessage = (e) => {
-      console.log("Message received from worker", e);
       if (e.data === "ready") {
         setIsWasmLoaded(true);
       } else {
-        const msg = proto.Message.deserializeBinary(e.data).toObject();
-        loaderMessageBus.emit(msg);
+        loaderMessageBus.emit(e.data);
       }
     };
     playerMessageBus.listen([13], function (msg) {
