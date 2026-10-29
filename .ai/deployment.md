@@ -12,6 +12,8 @@ tests (parser and server), parser lint, and a clean frontend build. Production
 also requires a successful Deploy dev workflow for that exact SHA. Required web
 checks run for every PR, including PRs without frontend changes, so branch
 protection does not wait forever on a skipped path-filtered workflow.
+Master requires `Go tests`, `Web build`, `Docker build`, `lint`, and
+`dependency-review`; distinct job names avoid ambiguous required checks.
 
 Deployment builds matching WASM/runtime files, uploads them to
 `<bucket>/releases/<sha>/wasm/`, runs and waits for the environment's Cloud Build
