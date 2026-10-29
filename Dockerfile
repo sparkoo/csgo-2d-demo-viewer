@@ -1,6 +1,6 @@
 # Server build stage
 # Static assets (JS, CSS, images) are served by Firebase Hosting.
-# WASM binary is served from GCS (see .github/workflows/upload-wasm-gcs.yml).
+# WASM binary is served from GCS (see .github/workflows/deploy.yml).
 # This image only needs the Go HTTP server for the /download proxy.
 FROM golang:1.25 AS builder_server
 

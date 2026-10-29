@@ -154,34 +154,34 @@ npm install package-name@latest
 
 ### Go Build and Test (`.github/workflows/go.yml`)
 
-- **Triggers**: Push to master/dev, pull requests
+- **Triggers**: Push to master, pull requests targeting master, reusable workflow
 - **Jobs**: Build and test parser and server
 - **Go Version**: 1.25.1
 - **Steps**: Checkout, setup Go, build, test
 
 ### golangci-lint (`.github/workflows/golangci-lint.yml`)
 
-- **Triggers**: Push to master/dev, pull requests
+- **Triggers**: Push to master, pull requests targeting master, reusable workflow
 - **Jobs**: Lint parser and server code
 - **Linter**: golangci-lint with custom configuration
 - **Steps**: Checkout, run linter
 
 ### Node.js Web (`.github/workflows/nodejs_web.yml`)
 
-- **Triggers**: Push to master/dev, pull requests
+- **Triggers**: Push to master, pull requests targeting master, reusable workflow
 - **Jobs**: Build web frontend
 - **Node Version**: 18.x
 - **Steps**: Checkout, setup Node, npm ci, build
 
 ### Node.js Browser Plugin (`.github/workflows/nodejs_browserplugin.yml`)
 
-- **Triggers**: Push to master/dev, pull requests
+- **Triggers**: Push to master, pull requests targeting master
 - **Jobs**: Build browser extension
 - **Steps**: Checkout, setup Node, npm ci, build
 
 ### Docker Publish (`.github/workflows/docker-publish.yml`)
 
-- **Triggers**: Push to master/dev, releases
+- **Triggers**: Push to master, pull requests targeting master
 - **Jobs**: Build and publish Docker image
 - **Registry**: GitHub Container Registry
 - **Steps**: Build image, push to registry
@@ -311,27 +311,31 @@ Key settings in `.golangci.yml`:
 - Build all components (parser, server, web)
 - Scan dependencies for vulnerabilities
 
-### On Push to Master/Dev
+### On Push to Master
 
 - Run all CI checks
 - Build Docker image
 - Push to container registry
-- Deploy to staging (dev branch)
-- Deploy to production (master branch)
+- Deploy backend, WASM, and frontend to dev after checks pass
+- Production deployment requires the manual Deploy production workflow
 
 ## Deployment
 
 ### Staging (dev.2d.sparko.cz)
 
-- **Branch**: dev
-- **Trigger**: Push to dev branch
-- **Environment**: Staging GCP environment
+- **Branch**: master
+- **Trigger**: Push to master branch (Deploy dev workflow)
+- **Environment**: `stage` in GitHub and Firebase
 
 ### Production (2d.sparko.cz)
 
 - **Branch**: master
-- **Trigger**: Push to master branch
-- **Environment**: Production GCP environment
+- **Trigger**: Manual Deploy production workflow with a successfully dev-deployed master SHA
+- **Environment**: `prod` in GitHub and Firebase
+
+Deployment setup, versioned WASM paths, and rollback are documented in
+`.ai/deployment.md`. Cloud Build push patterns must remain `^$`: GitHub Actions
+starts the matching backend build explicitly and waits for completion.
 
 ## Security Scanning
 
