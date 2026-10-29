@@ -62,6 +62,9 @@ both push branch patterns must be `^$` (no real branch matches). GitHub Actions
 invokes them explicitly with `--sha`. Do not restore an automatic production push
 trigger. Both inline build configurations come from the root `cloudbuild.yaml`.
 If that file changes, update both triggers' inline configurations as well.
+Cloud SDK 591's `--inline-config` update generates an invalid field mask; use the
+Cloud Build API to replace the complete `build` field (`updateMask=build`),
+preserving the trigger's other settings. Export the trigger JSON before updates.
 
 Each trigger supplies `_SERVICE_NAME` (`csgo-2d-demo-player-dev` or
 `csgo-2d-demo-player`), `_TRIGGER_ID`, `_DEPLOY_REGION=europe-west1`, and
@@ -69,6 +72,7 @@ Each trigger supplies `_SERVICE_NAME` (`csgo-2d-demo-player-dev` or
 the existing Artifact Registry `cloud-run-source-deploy` repository and update
 the corresponding service without changing its runtime identity, environment
 variables, ingress, or scaling limits.
+Trigger substitutions override the build configuration's development defaults.
 
 The `github-deployments` identity pool and `csgo-viewer` OIDC provider allow only
 repository ID `446407835`, owner ID `1160903`, ref `refs/heads/master`, and reusable

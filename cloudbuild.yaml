@@ -35,3 +35,6 @@ options:
 substitutions:
   _AR_HOSTNAME: europe-west1-docker.pkg.dev
   _DEPLOY_REGION: europe-west1
+  # Trigger substitutions override these safe development defaults.
+  _SERVICE_NAME: csgo-2d-demo-player-dev
+  _TRIGGER_ID: manual
