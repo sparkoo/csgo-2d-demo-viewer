@@ -179,7 +179,13 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 30 "$SITE_URL/" -o /dev/null
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 30 "$SITE_URL/worker.js" | grep -F "/releases/$DEPLOY_SHA/"
+          workers=(web/dist/assets/demo.worker-*.js)
+          if [[ ${#workers[@]} -ne 1 || ! -f "${workers[0]}" ]]; then
+            echo "::error::Expected exactly one bundled demo worker in web/dist/assets"
+            exit 1
+          fi
+          worker_path="${workers[0]#web/dist/}"
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 30 "$SITE_URL/$worker_path" | grep -F "/releases/$DEPLOY_SHA/"
           curl --fail --silent --show-error --head --retry 5 --retry-all-errors --max-time 30 "${WASM_BASE_URL%/}/releases/$DEPLOY_SHA/wasm/csdemoparser.wasm"
           curl --fail --silent --show-error --head --retry 5 --retry-all-errors --max-time 30 "${WASM_BASE_URL%/}/releases/$DEPLOY_SHA/wasm/wasm_exec.js"
           curl --fail --silent --show-error --request OPTIONS --header "Origin: $SITE_URL" --dump-header /tmp/proxy-headers --max-time 30 "${DOWNLOAD_BASE_URL%/}/download"
