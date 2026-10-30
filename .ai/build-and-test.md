@@ -13,6 +13,11 @@ The `make wasm` step is required before `make dev` whenever the parser changes. 
 ## Tests
 
 ```sh
+# Frontend worker message decoding
+cd web && node --test src/Player/decodeMessage.test.js
+```
+
+```sh
 # Go tests (parser + server)
 cd parser && go test ./...
 cd server && go test ./...
