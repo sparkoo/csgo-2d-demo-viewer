@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/klauspost/compress/zstd"
-	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )
@@ -28,7 +28,7 @@ func WasmParseDemo(demoFilename string, demoFile io.Reader, callback func(payloa
 	parseStopwatch := time.Now()
 	msgStopwatch := time.Now()
 	log.L().Debug("starting parsing the demo", zap.String("demo file", demoFilename))
-	parseErr := Parse(decompressedDemo, func(msg *message.Message, state demoinfocs.GameState) {
+	parseErr := Parse(decompressedDemo, func(msg *message.Message, state *demoinfocs.GameState) {
 		log.L().Debug("parsed some part", zap.String("message", msg.MsgType.String()), zap.Duration("took", time.Since(msgStopwatch)))
 
 		payload, protoErr := proto.Marshal(msg)
