@@ -1,0 +1,28 @@
+name: Deploy production
+run-name: Deploy production from ${{ inputs.sha }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Full master commit SHA with a successful Deploy dev run
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+concurrency:
+  group: deploy-prod
+  queue: max
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: prod
+      sha: ${{ inputs.sha }}
+    secrets: inherit

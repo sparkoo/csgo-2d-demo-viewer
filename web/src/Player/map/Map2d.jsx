@@ -11,6 +11,7 @@ import MapShot from "./MapShot";
 import deAncient from "../../assets/overviews/de_ancient.png";
 import deAncientNight from "../../assets/overviews/de_ancient_night.png";
 import deAnubis from "../../assets/overviews/de_anubis.png";
+import deCache from "../../assets/overviews/de_cache.png";
 import deDust2 from "../../assets/overviews/de_dust2.png";
 import deInferno from "../../assets/overviews/de_inferno.png";
 import deMirage from "../../assets/overviews/de_mirage.png";
@@ -25,20 +26,21 @@ import emptyMap from "../../assets/overviews/empty.png";
 
 // Map overview lookup
 const mapOverviews = {
-  "de_ancient": deAncient,
-  "de_ancient_night": deAncientNight,
-  "de_anubis": deAnubis,
-  "de_dust2": deDust2,
-  "de_inferno": deInferno,
-  "de_mirage": deMirage,
-  "de_nuke": deNuke,
-  "de_nuke_lower": deNukeLower,
-  "de_overpass": deOverpass,
-  "de_train": deTrain,
-  "de_train_lower": deTrainLower,
-  "de_vertigo": deVertigo,
-  "de_vertigo_lower": deVertigoLower,
-  "empty": emptyMap,
+  de_ancient: deAncient,
+  de_ancient_night: deAncientNight,
+  de_anubis: deAnubis,
+  de_cache: deCache,
+  de_dust2: deDust2,
+  de_inferno: deInferno,
+  de_mirage: deMirage,
+  de_nuke: deNuke,
+  de_nuke_lower: deNukeLower,
+  de_overpass: deOverpass,
+  de_train: deTrain,
+  de_train_lower: deTrainLower,
+  de_vertigo: deVertigo,
+  de_vertigo_lower: deVertigoLower,
+  empty: emptyMap,
 };
 
 class Map2d extends Component {
@@ -71,7 +73,7 @@ class Map2d extends Component {
           shots: [],
           nadeExplosions: [],
         });
-      }.bind(this)
+      }.bind(this),
     );
     props.messageBus.listen([14], this.handleNadeExplosion.bind(this));
 
@@ -195,7 +197,7 @@ class Map2d extends Component {
   render() {
     const mapKey = `${this.state.mapName}${this.state.layer}`;
     const mapImage = mapOverviews[mapKey] || emptyMap;
-    
+
     const style = {
       backgroundImage: `url(${mapImage})`,
       transform: `scale(${this.state.zoom}) translate(${this.state.panX}px, ${this.state.panY}px)`,

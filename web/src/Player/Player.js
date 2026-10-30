@@ -81,7 +81,8 @@ class Player {
             // console.log(this.interval)
             break;
           case MSG_PROGRESS_MOVE:
-            this.stop();
+            clearInterval(this.player);
+            this.playing = false;
             let round = this.rounds[this.playingRoundI];
             this.currentTickI = Math.round(
               round.ticksList.length * msg.progress
@@ -96,20 +97,6 @@ class Player {
   }
 
   handleAddRound(roundMsg) {
-    console.log("add round", roundMsg);
-    let roundTicks = [];
-    let tickMessages = [];
-    let currentTick = roundMsg.ticksList[0].tick;
-    roundMsg.ticksList.forEach(function (tick) {
-      if (tick.tick !== currentTick) {
-        roundTicks.push(tickMessages);
-        tickMessages = [];
-        currentTick = tick.tick;
-      }
-      tickMessages.push(tick);
-    });
-
-    roundMsg.ticksList = roundTicks;
     this.rounds.push(roundMsg);
     this.messageBus.emit({
       msgtype: MSG_INIT_ROUNDS,

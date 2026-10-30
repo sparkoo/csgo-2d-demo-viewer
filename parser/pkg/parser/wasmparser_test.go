@@ -8,8 +8,8 @@ import (
 // var zstDemofileName = "1-cde451fd-6cd4-4c87-a432-d97d2235021a-1-1.dem.zst"
 var zstDemofileName = "1-e9789885-ebda-4f07-90de-8e38d73e174b-1-1.dem.zst"
 var gzDemofileName = "1-cde451fd-6cd4-4c87-a432-d97d2235021a-1-1.dem.gz"
-var bz2DemofileName = "1-cde451fd-6cd4-4c87-a432-d97d2235021a-1-1.dem.bz2"
-var testDemosFolderPath = "../../../testdemos"
+var bz2DemofileName = "003782819364659527903_0130961125.dem.bz2"
+var testDemosFolderPath = demoTestDirectory()
 
 func TestParseZstDemoArchive(t *testing.T) {
 	demoFile, err := os.Open(testDemosFolderPath + "/" + zstDemofileName)
@@ -44,8 +44,43 @@ func TestParseBz2DemoArchive(t *testing.T) {
 	}
 }
 
+func TestEverythingInTestDir(t *testing.T) {
+	info, err := os.Stat(testDemosFolderPath)
+	if os.IsNotExist(err) {
+		t.Skip("testdemos directory does not exist")
+	}
+	if err != nil {
+		t.Fatalf("error checking directory: %v", err)
+	}
+	if !info.IsDir() {
+		t.Skip("testdemos is not a directory")
+	}
+	entries, err := os.ReadDir(testDemosFolderPath)
+	if err != nil {
+		t.Fatalf("failed to read directory: %v", err)
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		filename := entry.Name()
+		demoFile, err := os.Open(testDemosFolderPath + "/" + filename)
+		if err != nil {
+			t.Errorf("failed to open %s: %v", filename, err)
+			continue
+		}
+		parseErr := WasmParseDemo(filename, demoFile, func(payload []byte) {})
+		if closeErr := demoFile.Close(); closeErr != nil {
+			t.Errorf("failed to close %s: %v", filename, closeErr)
+		}
+		if parseErr != nil {
+			t.Errorf("failed to parse %s: %v", filename, parseErr)
+		}
+	}
+}
+
 func TestParseUnarchivedDemFile(t *testing.T) {
-	demoFile, err := os.Open(testDemosFolderPath + "/" + "1-e9789885-ebda-4f07-90de-8e38d73e174b-1-1.dem")
+	demoFile, err := os.Open(testDemosFolderPath + "/" + "1-cde451fd-6cd4-4c87-a432-d97d2235021a-1-1.dem")
 	if err != nil {
 		t.Skip("failed to open the demo testfile. skipping for now as I have testdemos just locally")
 	}
@@ -69,7 +104,7 @@ func BenchmarkParseDemo(b *testing.B) {
 	}
 	defer func() { _ = demoFile.Close() }()
 
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_, err := demoFile.Seek(0, 0)
 		if err != nil {
 			b.Fatalf("failed to seek: %v", err)
@@ -77,6 +112,26 @@ func BenchmarkParseDemo(b *testing.B) {
 		parseErr := WasmParseDemo(zstDemofileName, demoFile, func(payload []byte) {})
 		if parseErr != nil {
 			b.Fatalf("failed to parse the demo: %v", parseErr)
+		}
+	}
+}
+
+// TEST_DEMOS_DIR lets a worktree reuse local demos without copying large archives.
+func demoTestDirectory() string {
+	if directory := os.Getenv("TEST_DEMOS_DIR"); directory != "" {
+		return directory
+	}
+	return "../../../server/testdemos"
+}
+
+func TestAdjustAmmoCount(t *testing.T) {
+	for _, ammo := range []int{-1, 0, 1, 12, 30} {
+		want := int32(ammo)
+		if ammo < 0 {
+			want = 0
+		}
+		if got := adjustAmmoCount(ammo); got != want {
+			t.Errorf("adjustAmmoCount(%d) = %d, want %d", ammo, got, want)
 		}
 	}
 }

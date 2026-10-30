@@ -5,19 +5,19 @@ import (
 	"csgo-2d-demo-player/pkg/message"
 
 	"github.com/golang/geo/r3"
-	dem "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	dem "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 )
 
 type bombHandler struct {
-	parser   dem.Parser
+	parser   *dem.Parser
 	position r3.Vector
 	state    message.Bomb_BombState
 }
 
 const distanceDelta float64 = 5
 
-func newBombHandler(parser dem.Parser) *bombHandler {
+func newBombHandler(parser *dem.Parser) *bombHandler {
 	return &bombHandler{
 		parser: parser,
 		position: r3.Vector{

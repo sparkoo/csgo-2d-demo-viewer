@@ -7,26 +7,35 @@ permissions:
 
 on:
   push:
-    branches: ["master", "dev"]
+    branches: ["master"]
   pull_request:
-    branches: ["master", "dev"]
+    branches: ["master"]
+  workflow_call:
+    inputs:
+      sha:
+        required: true
+        type: string
 
 env:
   GOLANG_PROTOBUF_REGISTRATION_CONFLICT: warn
 
 jobs:
   build:
+    name: Go tests
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./parser
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sha || github.sha }}
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.24
+          go-version-file: parser/go.mod
+          cache-dependency-path: parser/go.sum
 
       - name: Build
         env:
@@ -35,4 +44,8 @@ jobs:
         run: go build -ldflags="-s -w" -v ./wasm.go
 
       - name: Test
+        run: go test -v ./...
+
+      - name: Test server
+        working-directory: ./server
         run: go test -v ./...

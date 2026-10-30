@@ -1,0 +1,198 @@
+name: Deploy application
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      sha:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate release commit and target
+        shell: bash
+        env:
+          DEPLOY_SHA: ${{ inputs.sha }}
+          TARGET: ${{ inputs.environment }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF" == refs/heads/master ]]
+          [[ "$TARGET" == stage || "$TARGET" == prod ]]
+          [[ "$DEPLOY_SHA" =~ ^[a-f0-9]{40}$ ]]
+          git merge-base --is-ancestor "$DEPLOY_SHA" origin/master
+          if [[ "$TARGET" == prod ]]; then
+            [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]
+            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/deploy-dev.yml/runs?head_sha=$DEPLOY_SHA&status=success&per_page=1" --jq '.total_count')
+            if [[ "$count" -lt 1 ]]; then
+              echo "::error::Production requires a successful Deploy dev run for $DEPLOY_SHA"
+              exit 1
+            fi
+          fi
+
+  go:
+    needs: validate
+    uses: ./.github/workflows/go.yml
+    with:
+      sha: ${{ inputs.sha }}
+
+  lint:
+    needs: validate
+    uses: ./.github/workflows/golangci-lint.yml
+    with:
+      sha: ${{ inputs.sha }}
+
+  web:
+    needs: validate
+    uses: ./.github/workflows/nodejs_web.yml
+    with:
+      sha: ${{ inputs.sha }}
+
+  deploy:
+    needs: [go, lint, web]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ inputs.environment == 'prod' && 'https://2d.sparko.cz' || 'https://dev.2d.sparko.cz' }}
+    env:
+      DEPLOY_SHA: ${{ inputs.sha }}
+      FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+      CLOUD_BUILD_TRIGGER: ${{ vars.CLOUD_BUILD_TRIGGER }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sha }}
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: parser/go.mod
+          cache-dependency-path: parser/go.sum
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build WASM and matching Go runtime
+        working-directory: parser
+        run: |
+          CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -trimpath -ldflags="-s -w" -o ../csdemoparser.wasm wasm.go
+          cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" ../wasm_exec.js
+
+      - name: Build frontend using versioned WASM
+        working-directory: web
+        env:
+          WASM_BASE_URL: ${{ secrets.VITE_WASM_BASE_URL }}
+          VITE_DOWNLOAD_SERVER_URL: ${{ secrets.VITE_DOWNLOAD_SERVER_URL }}
+          VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
+        run: |
+          set -euo pipefail
+          : "${WASM_BASE_URL:?Missing VITE_WASM_BASE_URL}"
+          : "${VITE_DOWNLOAD_SERVER_URL:?Missing VITE_DOWNLOAD_SERVER_URL}"
+          npm ci
+          VITE_WASM_BASE_URL="${WASM_BASE_URL%/}/releases/$DEPLOY_SHA/" npm run build
+
+      - name: Authenticate for WASM upload
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCS_SA_KEY }}
+
+      - name: Upload versioned WASM
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: csdemoparser.wasm
+          destination: ${{ secrets.GCS_WASM_BUCKET }}/releases/${{ inputs.sha }}/wasm
+          headers: |-
+            content-type: application/wasm
+            cache-control: public, max-age=31536000, immutable
+
+      - name: Upload matching Go runtime
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: wasm_exec.js
+          destination: ${{ secrets.GCS_WASM_BUCKET }}/releases/${{ inputs.sha }}/wasm
+          headers: |-
+            content-type: application/javascript
+            cache-control: public, max-age=31536000, immutable
+
+      - name: Authenticate for backend deployment
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_BUILD_SERVICE_ACCOUNT }}
+          project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Deploy backend and wait for Cloud Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${CLOUD_BUILD_TRIGGER:?Missing CLOUD_BUILD_TRIGGER}"
+          build_id=$(gcloud builds triggers run "$CLOUD_BUILD_TRIGGER" --sha="$DEPLOY_SHA" --project="$FIREBASE_PROJECT_ID" --region=global --format='value(metadata.build.id)')
+          [[ -n "$build_id" ]]
+          echo "Cloud Build: $build_id"
+          echo "Backend build: https://console.cloud.google.com/cloud-build/builds/$build_id?project=$FIREBASE_PROJECT_ID" >> "$GITHUB_STEP_SUMMARY"
+          for attempt in {1..150}; do
+            status=$(gcloud builds describe "$build_id" --project="$FIREBASE_PROJECT_ID" --region=global --format='value(status)')
+            case "$status" in
+              SUCCESS) exit 0 ;;
+              QUEUED|PENDING|WORKING) sleep 10 ;;
+              *) echo "::error::Cloud Build $build_id ended with $status"; exit 1 ;;
+            esac
+          done
+          echo "::error::Timed out waiting for Cloud Build $build_id; inspect it before retrying"
+          exit 1
+
+      - name: Authenticate for Firebase Hosting
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Deploy frontend
+        env:
+          TARGET: ${{ inputs.environment }}
+        run: |
+          npm install -g firebase-tools
+          firebase deploy --only "hosting:$TARGET" --project "$FIREBASE_PROJECT_ID" --non-interactive
+
+      - name: Verify deployed endpoints
+        env:
+          SITE_URL: ${{ inputs.environment == 'prod' && 'https://2d.sparko.cz' || 'https://dev.2d.sparko.cz' }}
+          WASM_BASE_URL: ${{ secrets.VITE_WASM_BASE_URL }}
+          DOWNLOAD_BASE_URL: ${{ secrets.VITE_DOWNLOAD_SERVER_URL }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 30 "$SITE_URL/" -o /dev/null
+          workers=(web/dist/assets/demo.worker-*.js)
+          if [[ ${#workers[@]} -ne 1 || ! -f "${workers[0]}" ]]; then
+            echo "::error::Expected exactly one bundled demo worker in web/dist/assets"
+            exit 1
+          fi
+          worker_path="${workers[0]#web/dist/}"
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 30 "$SITE_URL/$worker_path" | grep -F "/releases/$DEPLOY_SHA/"
+          curl --fail --silent --show-error --head --retry 5 --retry-all-errors --max-time 30 "${WASM_BASE_URL%/}/releases/$DEPLOY_SHA/wasm/csdemoparser.wasm"
+          curl --fail --silent --show-error --head --retry 5 --retry-all-errors --max-time 30 "${WASM_BASE_URL%/}/releases/$DEPLOY_SHA/wasm/wasm_exec.js"
+          curl --fail --silent --show-error --request OPTIONS --header "Origin: $SITE_URL" --dump-header /tmp/proxy-headers --max-time 30 "${DOWNLOAD_BASE_URL%/}/download"
+          grep -iFx "access-control-allow-origin: $SITE_URL" <(tr -d '\r' < /tmp/proxy-headers)
+
+      - name: Record release
+        env:
+          TARGET: ${{ inputs.environment }}
+        run: |
+          echo "Deployed $DEPLOY_SHA to $TARGET (backend, WASM, and frontend)." >> "$GITHUB_STEP_SUMMARY"

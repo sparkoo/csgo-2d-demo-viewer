@@ -1,6 +1,6 @@
 package message
 
-import "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+import "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
 
 func NewRound(startTick int) *Round {
 	return &Round{
@@ -15,7 +15,7 @@ func (r *Round) Add(message *Message) {
 	}
 }
 
-func CreateTeamUpdateMessage(tick demoinfocs.GameState) *TeamUpdate {
+func CreateTeamUpdateMessage(tick *demoinfocs.GameState) *TeamUpdate {
 	return &TeamUpdate{
 		TName:   tick.TeamTerrorists().ClanName(),
 		TScore:  int32(tick.TeamTerrorists().Score()),

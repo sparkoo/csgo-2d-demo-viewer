@@ -1,80 +1,61 @@
-import "./Uploader.css";
-import { useLocation } from "preact-iso";
 import { useContext, useState } from "react";
+import { useLocation } from "preact-iso";
 import { DemoContext } from "../../context";
+import DemoUploadArea from "./DemoUploadArea";
+import "./Uploader.css";
 
 const Uploader = () => {
   const demoData = useContext(DemoContext);
   const { route } = useLocation();
-  const [isDragOver, setIsDragOver] = useState(false);
+  const [demoUrl, setDemoUrl] = useState("");
+  const [urlError, setUrlError] = useState("");
 
-  const uploadHandler = function ({ files }) {
-    const [file] = files;
-
-    const reader = new FileReader();
-
-    reader.onload = function (e) {
-      const arrayBuffer = e.target.result;
-      const byteArray = new Uint8Array(arrayBuffer);
-      demoData.setDemoData({ filename: file.name, data: byteArray });
-      route("/player");
-      // const uuid = crypto.randomUUID()
-      // window.open("/player?platform=upload&uuid=" + uuid, '_blank').focus();
-      // const channel = new BroadcastChannel(uuid);
-      // setTimeout(() => {
-      //   channel.postMessage(byteArray);
-      // }, 1000)
-    };
-    reader.readAsArrayBuffer(file);
+  const handleFile = ({ filename, data }) => {
+    demoData.setDemoData({ filename, data });
+    route("/player");
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
+  const handleDemoUrl = (event) => {
+    event.preventDefault();
 
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
+    try {
+      const parsedUrl = new URL(demoUrl);
+      if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+        throw new Error("Unsupported protocol");
+      }
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      uploadHandler({ files });
+      route(`/player?demourl=${encodeURIComponent(parsedUrl.toString())}`);
+    } catch {
+      setUrlError("Enter a valid http:// or https:// demo URL.");
     }
   };
 
   return (
-    <div className="upload-container">
-      <div
-        className={`upload-area ${isDragOver ? 'dragover' : ''}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <span className="upload-icon">📂</span>
-        <div className="upload-text">
-          Drop Your Demo File Here or Click to Browse
+    <>
+      <DemoUploadArea
+        onFile={handleFile}
+        subtext="Supports .dem, .dem.gz, .dem.zst and .dem.bz2 files up to 1GB"
+      />
+      <div className="demo-url-divider">or</div>
+      <form className="demo-url-form" onSubmit={handleDemoUrl}>
+        <label htmlFor="demo-url">Load from demo URL</label>
+        <div className="demo-url-controls">
+          <input
+            id="demo-url"
+            type="url"
+            value={demoUrl}
+            onInput={(event) => {
+              setDemoUrl(event.currentTarget.value);
+              setUrlError("");
+            }}
+            placeholder="http://replay392.valve.net/730/….dem.bz2"
+            required
+          />
+          <button type="submit">Load demo</button>
         </div>
-        <div className="upload-subtext">
-          Supports .dem, .dem.gz, .dem.zst and .dem.bz2 files up to 1GB
-        </div>
-        <input
-          type="file"
-          accept=".dem,.dem.gz,.dem.zst,.dem.bz2"
-          onChange={(e) => {
-            const file = e.target.files[0];
-            if (file) {
-              uploadHandler({ files: [file] });
-            }
-          }}
-          className="upload-input"
-        />
-      </div>
-    </div>
+        {urlError && <p className="demo-url-error">{urlError}</p>}
+      </form>
+    </>
   );
 };
 

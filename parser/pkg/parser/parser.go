@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/golang/geo/r3"
-	dem "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
-	demsg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
+	dem "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	demsg "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 	"go.uber.org/zap"
 )
 
@@ -28,7 +28,7 @@ type RoundTimer struct {
 	lastRoundStart time.Duration
 }
 
-func Parse(demoFile io.Reader, handler func(msg *message.Message, state dem.GameState)) error {
+func Parse(demoFile io.Reader, handler func(msg *message.Message, state *dem.GameState)) error {
 	parser := dem.NewParser(demoFile)
 	defer func() {
 		if err := parser.Close(); err != nil {
@@ -44,7 +44,7 @@ func Parse(demoFile io.Reader, handler func(msg *message.Message, state dem.Game
 	return nil
 }
 
-func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.GameState)) error {
+func parseMatch(parser *dem.Parser, handler func(msg *message.Message, state *dem.GameState)) error {
 	parseTimer := time.Now()
 	gameStarted := false
 	var mapCS MapCS
@@ -133,6 +133,8 @@ func parseMatch(parser dem.Parser, handler func(msg *message.Message, state dem.
 
 	parser.RegisterEventHandler(func(e events.RoundEnd) {
 		roundMessage.Winner = team(e.Winner)
+		roundMessage.EndReason = convertRoundEndReason(e.Reason)
+		log.L().Debug("endround", zap.Int("reason", int(e.Reason)))
 
 		// send round message if this is the last round (EndTick set by GamePhaseChanged handler)
 		if roundMessage.EndTick > 0 && parser.CurrentFrame() == int(roundMessage.EndTick) {
@@ -266,13 +268,13 @@ func handleWeaponFireEvent(e events.WeaponFire, mapCS *MapCS, msg *message.Messa
 	return nil
 }
 
-func NewRoundMessage(parser dem.Parser) *message.Message {
+func NewRoundMessage(parser *dem.Parser) *message.Message {
 	return &message.Message{
 		Tick: int32(parser.CurrentFrame()),
 	}
 }
 
-func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser, bombH *bombHandler) *message.Message {
+func createTickStateMessage(tick *dem.GameState, mapCS *MapCS, parser *dem.Parser, bombH *bombHandler) *message.Message {
 	msgPlayers := make([]*message.Player, 0)
 	for _, p := range tick.TeamTerrorists().Members() {
 		msgPlayers = append(msgPlayers, transformPlayer(p, mapCS))
@@ -346,13 +348,11 @@ func createTickStateMessage(tick dem.GameState, mapCS *MapCS, parser dem.Parser,
 	}
 }
 
-// adjustAmmoCount corrects the ammo count to match what players see in-game.
-// The demo parser's AmmoInMagazine() returns a value that's 1 less than the actual
-// magazine capacity shown to players (e.g., USP shows 11 instead of 12).
-// This function adds 1 to correct the count and ensures negative values are clamped to 0.
+// adjustAmmoCount keeps non-magazine sentinel values out of the player state.
+// demoinfocs v6 already reports the in-game magazine count.
 func adjustAmmoCount(ammoInMagazine int) int32 {
 	if ammoInMagazine > 0 {
-		return int32(ammoInMagazine + 1)
+		return int32(ammoInMagazine)
 	}
 	return 0
 }
@@ -440,4 +440,21 @@ func team(team common.Team) string {
 		log.Printf("I don't know the team '%v'. Should not get here, but apparently it sometimes happen that spectators wins the round.", team)
 	}
 	return ""
+}
+
+func convertRoundEndReason(reason events.RoundEndReason) message.Round_RoundEndReason {
+	switch reason {
+	case events.RoundEndReasonTargetBombed:
+		return message.Round_TargetBombed
+	case events.RoundEndReasonBombDefused:
+		return message.Round_BombDefused
+	case events.RoundEndReasonCTWin:
+		return message.Round_CTWin
+	case events.RoundEndReasonTerroristsWin:
+		return message.Round_TerroristsWin
+	case events.RoundEndReasonTargetSaved:
+		return message.Round_TargetSaved
+	default:
+		return message.Round_StillInProgress
+	}
 }

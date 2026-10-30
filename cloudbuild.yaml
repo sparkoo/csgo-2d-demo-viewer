@@ -1,0 +1,40 @@
+# Invoked by GitHub Actions through the existing Cloud Build triggers.
+# Both triggers use this configuration and have push matching disabled (^$).
+steps:
+  - id: Build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_AR_HOSTNAME}/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/${_SERVICE_NAME}:$COMMIT_SHA
+      - .
+      - -f
+      - Dockerfile
+  - id: Push
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_AR_HOSTNAME}/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/${_SERVICE_NAME}:$COMMIT_SHA
+  - id: Deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - services
+      - update
+      - ${_SERVICE_NAME}
+      - --platform=managed
+      - --image=${_AR_HOSTNAME}/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/${_SERVICE_NAME}:$COMMIT_SHA
+      - --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=${_TRIGGER_ID}
+      - --region=${_DEPLOY_REGION}
+      - --quiet
+images:
+  - ${_AR_HOSTNAME}/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/${_SERVICE_NAME}:$COMMIT_SHA
+options:
+  substitutionOption: ALLOW_LOOSE
+substitutions:
+  _AR_HOSTNAME: europe-west1-docker.pkg.dev
+  _DEPLOY_REGION: europe-west1
+  # Trigger substitutions override these safe development defaults.
+  _SERVICE_NAME: csgo-2d-demo-player-dev
+  _TRIGGER_ID: manual

@@ -10,6 +10,7 @@
 // GENERATED CODE -- DO NOT EDIT!
 /* eslint-disable */
 // @ts-nocheck
+
 import jspb from "google-protobuf";
 
 // var jspb = require('google-protobuf');
@@ -34,6 +35,7 @@ goog.exportSymbol('proto.csgo.Message.MessageType', null, global);
 goog.exportSymbol('proto.csgo.Player', null, global);
 goog.exportSymbol('proto.csgo.Progress', null, global);
 goog.exportSymbol('proto.csgo.Round', null, global);
+goog.exportSymbol('proto.csgo.Round.RoundEndReason', null, global);
 goog.exportSymbol('proto.csgo.RoundTime', null, global);
 goog.exportSymbol('proto.csgo.Shot', null, global);
 goog.exportSymbol('proto.csgo.TeamUpdate', null, global);
@@ -3898,7 +3900,8 @@ proto.csgo.Round.toObject = function(includeInstance, msg) {
     ticksList: jspb.Message.toObjectList(msg.getTicksList(),
     proto.csgo.Message.toObject, includeInstance),
     teamstate: (f = msg.getTeamstate()) && proto.csgo.TeamUpdate.toObject(includeInstance, f),
-    winner: jspb.Message.getFieldWithDefault(msg, 8, "")
+    winner: jspb.Message.getFieldWithDefault(msg, 8, ""),
+    endreason: jspb.Message.getFieldWithDefault(msg, 9, 0)
   };
 
   if (includeInstance) {
@@ -3968,6 +3971,10 @@ proto.csgo.Round.deserializeBinaryFromReader = function(msg, reader) {
     case 8:
       var value = /** @type {string} */ (reader.readString());
       msg.setWinner(value);
+      break;
+    case 9:
+      var value = /** @type {!proto.csgo.Round.RoundEndReason} */ (reader.readEnum());
+      msg.setEndreason(value);
       break;
     default:
       reader.skipField();
@@ -4056,8 +4063,27 @@ proto.csgo.Round.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getEndreason();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      9,
+      f
+    );
+  }
 };
 
+
+/**
+ * @enum {number}
+ */
+proto.csgo.Round.RoundEndReason = {
+  STILLINPROGRESS: 0,
+  TARGETBOMBED: 1,
+  BOMBDEFUSED: 7,
+  CTWIN: 8,
+  TERRORISTSWIN: 9,
+  TARGETSAVED: 12
+};
 
 /**
  * optional int32 RoundNo = 1;
@@ -4239,6 +4265,24 @@ proto.csgo.Round.prototype.getWinner = function() {
  */
 proto.csgo.Round.prototype.setWinner = function(value) {
   return jspb.Message.setProto3StringField(this, 8, value);
+};
+
+
+/**
+ * optional RoundEndReason EndReason = 9;
+ * @return {!proto.csgo.Round.RoundEndReason}
+ */
+proto.csgo.Round.prototype.getEndreason = function() {
+  return /** @type {!proto.csgo.Round.RoundEndReason} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
+};
+
+
+/**
+ * @param {!proto.csgo.Round.RoundEndReason} value
+ * @return {!proto.csgo.Round} returns this
+ */
+proto.csgo.Round.prototype.setEndreason = function(value) {
+  return jspb.Message.setProto3EnumField(this, 9, value);
 };
 
 
@@ -4730,4 +4774,5 @@ proto.csgo.Demo.prototype.setPlatform = function(value) {
   return jspb.Message.setProto3EnumField(this, 2, value);
 };
 
-goog.object.extend((window.proto = window.proto || {}), proto.csgo);
+
+goog.object.extend(global.proto = global.proto || {}, proto.csgo);

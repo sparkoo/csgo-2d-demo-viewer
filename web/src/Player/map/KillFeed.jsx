@@ -1,5 +1,4 @@
 import "./KillFeed.css";
-import "../protos/Message_pb";
 import { Component } from "react";
 import { MSG_PLAY_CHANGE } from "../constants";
 
