@@ -45,3 +45,35 @@ test("preserves initialization and completion messages", () => {
   end.setMsgtype(5);
   assert.deepEqual(decodeMessage(end.serializeBinary()), end.toObject());
 });
+
+for (const withAssist of [false, true]) {
+  test(`preserves kill assist data through round decoding (assist=${withAssist})`, () => {
+    const frag = new globalThis.proto.Frag();
+    frag.setKillername("Killer");
+    frag.setVictimname("Victim");
+    frag.setWeapon("ak47");
+    frag.setAssistedflash(withAssist);
+    if (withAssist) {
+      frag.setAssistername("Assister");
+      frag.setAssisterteam("CT");
+    }
+    const kill = new Message();
+    kill.setMsgtype(11);
+    kill.setTick(42);
+    kill.setFrag(frag);
+    const round = new Round();
+    round.setTicksList([kill]);
+    round.setEndreason(8);
+    const message = new Message();
+    message.setMsgtype(6);
+    message.setRound(round);
+    const decoded = structuredClone(decodeMessage(message.serializeBinary()));
+    const actual = decoded.round.ticksList[0][0].frag;
+    assert.equal(actual.assistername, withAssist ? "Assister" : "");
+    assert.equal(actual.assisterteam, withAssist ? "CT" : "");
+    assert.equal(actual.assistedflash, withAssist);
+    assert.equal(actual.killername, "Killer");
+    assert.equal(actual.victimname, "Victim");
+    assert.equal(decoded.round.endreason, 8);
+  });
+}

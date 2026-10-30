@@ -2,7 +2,8 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  width: 300px;
+  width: max-content;
+  max-width: calc(100% - 20px);
   font-size: 12px;
   font-weight: bold;
   z-index: 100;
@@ -13,13 +14,24 @@
   padding: 1px 10px;
   border-radius: 5px;
   opacity: 0.75;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  column-gap: 3px;
+  max-width: 100%;
+  white-space: nowrap;
   float: right;
   clear: right;
   margin: 2px 0;
 }
 
+.killfeedRow > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .killfeedIcon {
+  flex-shrink: 0;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

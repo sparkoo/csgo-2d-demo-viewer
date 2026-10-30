@@ -10,6 +10,7 @@
 // GENERATED CODE -- DO NOT EDIT!
 /* eslint-disable */
 // @ts-nocheck
+
 import jspb from "google-protobuf";
 
 // var jspb = require('google-protobuf');
@@ -34,6 +35,7 @@ goog.exportSymbol('proto.csgo.Message.MessageType', null, global);
 goog.exportSymbol('proto.csgo.Player', null, global);
 goog.exportSymbol('proto.csgo.Progress', null, global);
 goog.exportSymbol('proto.csgo.Round', null, global);
+goog.exportSymbol('proto.csgo.Round.RoundEndReason', null, global);
 goog.exportSymbol('proto.csgo.RoundTime', null, global);
 goog.exportSymbol('proto.csgo.Shot', null, global);
 goog.exportSymbol('proto.csgo.TeamUpdate', null, global);
@@ -2671,7 +2673,9 @@ proto.csgo.Frag.toObject = function(includeInstance, msg) {
     assistedflash: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
     attackerblind: jspb.Message.getBooleanFieldWithDefault(msg, 9, false),
     noscope: jspb.Message.getBooleanFieldWithDefault(msg, 10, false),
-    throughsmoke: jspb.Message.getBooleanFieldWithDefault(msg, 11, false)
+    throughsmoke: jspb.Message.getBooleanFieldWithDefault(msg, 11, false),
+    assistername: jspb.Message.getFieldWithDefault(msg, 12, ""),
+    assisterteam: jspb.Message.getFieldWithDefault(msg, 13, "")
   };
 
   if (includeInstance) {
@@ -2751,6 +2755,14 @@ proto.csgo.Frag.deserializeBinaryFromReader = function(msg, reader) {
     case 11:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setThroughsmoke(value);
+      break;
+    case 12:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAssistername(value);
+      break;
+    case 13:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAssisterteam(value);
       break;
     default:
       reader.skipField();
@@ -2855,6 +2867,20 @@ proto.csgo.Frag.serializeBinaryToWriter = function(message, writer) {
   if (f) {
     writer.writeBool(
       11,
+      f
+    );
+  }
+  f = message.getAssistername();
+  if (f.length > 0) {
+    writer.writeString(
+      12,
+      f
+    );
+  }
+  f = message.getAssisterteam();
+  if (f.length > 0) {
+    writer.writeString(
+      13,
       f
     );
   }
@@ -3056,6 +3082,42 @@ proto.csgo.Frag.prototype.getThroughsmoke = function() {
  */
 proto.csgo.Frag.prototype.setThroughsmoke = function(value) {
   return jspb.Message.setProto3BooleanField(this, 11, value);
+};
+
+
+/**
+ * optional string AssisterName = 12;
+ * @return {string}
+ */
+proto.csgo.Frag.prototype.getAssistername = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.csgo.Frag} returns this
+ */
+proto.csgo.Frag.prototype.setAssistername = function(value) {
+  return jspb.Message.setProto3StringField(this, 12, value);
+};
+
+
+/**
+ * optional string AssisterTeam = 13;
+ * @return {string}
+ */
+proto.csgo.Frag.prototype.getAssisterteam = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.csgo.Frag} returns this
+ */
+proto.csgo.Frag.prototype.setAssisterteam = function(value) {
+  return jspb.Message.setProto3StringField(this, 13, value);
 };
 
 
@@ -4002,7 +4064,7 @@ proto.csgo.Round.serializeBinaryToWriter = function(message, writer) {
     );
   }
   f = message.getEndreason();
-  if (f !== 0) {
+  if (f !== 0.0) {
     writer.writeEnum(
       9,
       f
@@ -4010,6 +4072,18 @@ proto.csgo.Round.serializeBinaryToWriter = function(message, writer) {
   }
 };
 
+
+/**
+ * @enum {number}
+ */
+proto.csgo.Round.RoundEndReason = {
+  STILLINPROGRESS: 0,
+  TARGETBOMBED: 1,
+  BOMBDEFUSED: 7,
+  CTWIN: 8,
+  TERRORISTSWIN: 9,
+  TARGETSAVED: 12
+};
 
 /**
  * optional int32 RoundNo = 1;
@@ -4211,18 +4285,6 @@ proto.csgo.Round.prototype.setEndreason = function(value) {
   return jspb.Message.setProto3EnumField(this, 9, value);
 };
 
-
-/**
- * @enum {number}
- */
-proto.csgo.Round.RoundEndReason = {
-  STILLINPROGRESS: 0,
-  TARGETBOMBED: 1,
-  BOMBDEFUSED: 7,
-  CTWIN: 8,
-  TERRORISTSWIN: 9,
-  TARGETSAVED: 12
-};
 
 
 
@@ -4712,4 +4774,5 @@ proto.csgo.Demo.prototype.setPlatform = function(value) {
   return jspb.Message.setProto3EnumField(this, 2, value);
 };
 
-goog.object.extend((global.proto = global.proto || {}), proto.csgo);
+
+goog.object.extend(global.proto = global.proto || {}, proto.csgo);

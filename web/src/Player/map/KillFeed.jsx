@@ -75,6 +75,16 @@ class Kill extends Component {
     ) : (
       ""
     );
+    const assister = this.props.frag.assistername ? (
+      <>
+        <span> + </span>
+        <span className={this.props.frag.assisterteam}>
+          {this.props.frag.assistername}
+        </span>
+      </>
+    ) : (
+      ""
+    );
     const victim = this.props.frag.victimname ? (
       <span className={this.props.frag.victimteam}>
         {this.props.frag.victimname}
@@ -90,6 +100,7 @@ class Kill extends Component {
     return (
       <div className={"killfeedRow"}>
         {killer}
+        {assister}
         <span className={`killfeedIcon ${this.props.frag.weapon}`}>&nbsp;</span>
         {headshot}
         {victim}

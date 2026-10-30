@@ -96,6 +96,8 @@ message Frag {
   bool AttackerBlind = 9;
   bool NoScope = 10;
   bool ThroughSmoke = 11;
+  string AssisterName = 12;
+  string AssisterTeam = 13;
 }
 
 message Shot {
