@@ -41,7 +41,7 @@ cd browserplugin/faceit && npm install && npm run build
 
 ## v6 parser experiment
 
-The parser uses demoinfocs v6.0.0-rc.1 and requires Go 1.27.0 or newer.
+The parser uses demoinfocs v6 and requires Go 1.27.0 or newer.
 Go can download the required toolchain automatically with `GOTOOLCHAIN=auto`.
 Always build `wasm_exec.js` using the parser module's toolchain (`make wasm` does this).
 

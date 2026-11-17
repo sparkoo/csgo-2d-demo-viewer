@@ -57,7 +57,8 @@ func decompress(filename string, demoFile io.Reader) (io.Reader, error) {
 	}
 
 	if strings.HasSuffix(filename, ".dem") {
-		return demoFile, nil
+		// The caller owns the input stream. demoinfocs closes readers that expose Close.
+		return struct{ io.Reader }{demoFile}, nil
 	}
 
 	return nil, fmt.Errorf("unsupported file format %s", filename)

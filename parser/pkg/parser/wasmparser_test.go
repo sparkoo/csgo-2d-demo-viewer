@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"bytes"
 	"os"
 	"testing"
 )
@@ -94,6 +95,26 @@ func TestParseUnsupportedDemoArchive(t *testing.T) {
 	parseErr := WasmParseDemo("not_supported.demo", nil, func(payload []byte) {})
 	if parseErr == nil {
 		t.Fatalf("parse should fail: %v", parseErr)
+	}
+}
+
+type closeTrackingReader struct {
+	*bytes.Reader
+	closed bool
+}
+
+func (reader *closeTrackingReader) Close() error {
+	reader.closed = true
+	return nil
+}
+
+func TestParseInvalidRawDemoLeavesInputOpen(t *testing.T) {
+	demoFile := &closeTrackingReader{Reader: bytes.NewReader(nil)}
+	if err := WasmParseDemo("test.dem", demoFile, func([]byte) {}); err == nil {
+		t.Fatal("expected parsing an empty demo to fail")
+	}
+	if demoFile.closed {
+		t.Fatal("parser closed the caller's demo reader")
 	}
 }
 
