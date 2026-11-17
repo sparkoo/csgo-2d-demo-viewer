@@ -10,7 +10,7 @@ This component parses CS2 demo files using the [demoinfocs-golang](https://githu
 
 - **Language**: Go 1.27.0
 - **Target**: WebAssembly (WASM)
-- **Parser Library**: [demoinfocs-golang v6.0.0-rc.1](https://github.com/markus-wa/demoinfocs-golang)
+- **Parser Library**: [demoinfocs-golang v6](https://github.com/markus-wa/demoinfocs-golang)
 - **Message Format**: Protocol Buffers (see `protos/` directory)
 
 ## Project Structure
