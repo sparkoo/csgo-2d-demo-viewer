@@ -13,6 +13,7 @@ class FACEITDemoViewer {
     this.debugMode = true;
     this.injectionTimeout = null;
     this.historyCheckTimeout = null;
+    this.pendingMatches = new Set();
 
     this.init();
   }
@@ -385,6 +386,10 @@ class FACEITDemoViewer {
   }
 
   async handleReplayClick(matchId, button, matchRoomUrl = null, watchDemoButton = null) {
+    // Buttons can be recreated during SPA updates, so guard by match, not element.
+    if (this.pendingMatches.has(matchId)) return;
+    this.pendingMatches.add(matchId);
+
     this.log("handle click on match", matchId);
 
     const originalContent = button.innerHTML;
@@ -437,6 +442,7 @@ class FACEITDemoViewer {
         : null;
       this.showPopupError(`Could not get demo URL (${err?.message ?? String(err)}).`, link);
     } finally {
+      this.pendingMatches.delete(matchId);
       button.innerHTML = originalContent;
       button.disabled = false;
     }

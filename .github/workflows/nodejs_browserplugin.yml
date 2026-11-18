@@ -37,6 +37,10 @@ jobs:
         run: npm ci
         working-directory: ./browserplugin/faceit
 
+      - name: Test replay request handling
+        run: npm test
+        working-directory: ./browserplugin/faceit
+
       - name: Build for ${{ matrix.browser }}
         run: npm run build:${{ matrix.browser }}
         working-directory: ./browserplugin/faceit
